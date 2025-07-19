@@ -36,7 +36,4 @@ Bot do Skalin
 
 Apaga mensagens do canal atual (máximo 100, requer permissão "Gerenciar Mensagens")
 
-## 🔐 Segurança
 
-- O arquivo `.env` contém informações sensíveis e **nunca** deve ser enviado para o GitHub
-- Use sempre o arquivo `.env.example` como template
