@@ -11,7 +11,7 @@ export const config = {
         error: '#ff0000',
         warning: '#ffff00',
         info: '#0099ff',
-        voice: '#ff69b4',
+        voice: '#9c1a5bff',
         member: '#9932cc'
     },
     

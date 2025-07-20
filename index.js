@@ -15,7 +15,7 @@ async function startBot() {
                 GatewayIntentBits.GuildMessages,
                 GatewayIntentBits.GuildModeration,
                 GatewayIntentBits.MessageContent, // Necessário para ler conteúdo de mensagens
-                //GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMembers,
             ]
         });
 
