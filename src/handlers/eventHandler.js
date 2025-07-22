@@ -23,9 +23,9 @@ export async function loadEvents(client) {
             }
             
             if (event.once) {
-                client.once(event.name, (...args) => event.execute(...args, client));
+                client.once(event.name, (...args) => event.execute(client, ...args));
             } else {
-                client.on(event.name, (...args) => event.execute(...args, client));
+                client.on(event.name, (...args) => event.execute(client, ...args));
             }
             console.log(`✅ Evento carregado: ${event.name}`);
         } catch (error) {

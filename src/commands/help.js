@@ -1,10 +1,10 @@
 import { EmbedBuilder } from 'discord.js';
 
-export const helpCommand = {
+export default {
   name: 'help',
   description: 'Mostra informações sobre os comandos e funcionalidades do bot',
   usage: '!help',
-  async execute(message) {
+  async execute(client, message) {
     const embed = new EmbedBuilder()
       .setTitle('🤖 Ajuda do Bot')
       .setColor('#5865f2')
@@ -31,7 +31,7 @@ export const helpCommand = {
           '- Gamble'
         ].join('\n') }
       )
-      .setFooter({ text: 'Bot all-in-one em desenvolvimento por Skalin151', iconURL: message.client.user.displayAvatarURL() })
+      .setFooter({ text: 'Bot all-in-one em desenvolvimento por Skalin151', iconURL: client.user.displayAvatarURL() })
       .setTimestamp();
 
     await message.channel.send({ embeds: [embed] });

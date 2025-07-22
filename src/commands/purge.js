@@ -1,11 +1,11 @@
 import { PermissionFlagsBits } from 'discord.js';
 
-export const purgeCommand = {
+export default {
     name: 'purge',
     description: 'Apaga as últimas 100 mensagens do canal',
     permissions: [PermissionFlagsBits.ManageMessages],
-    
-    async execute(message, args) {
+
+    async execute(client, message, args) {
         try {
             // Verificar se o usuário tem permissão para gerenciar mensagens
             if (!message.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
