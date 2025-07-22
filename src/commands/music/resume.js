@@ -1,34 +1,24 @@
-import * as Discord from 'discord.js';
+
+import { EmbedBuilder } from 'discord.js';
 
 export default {
     name: 'resume',
-    description: 'Continua a música pausada',
-    async execute(client, message, args) {
-        const player = client.player.players.get(message.guild.id);
+    description: 'Retoma a música atual',
+    async execute(client, message) {
+        const queue = client.player.getQueue(message.guild.id);
 
-        const channel = message.member.voice.channel;
-        if (!channel) return client.errNormal({
-            error: `You're not in a voice channel!`,
-            type: 'reply'
-        }, message);
+        if (!queue || !queue.playing) {
+            const embed = new EmbedBuilder()
+                .setColor('#ff0000')
+                .setDescription('❌ Não há nenhuma música pausada.');
+            return await message.channel.send({ embeds: [embed] });
+        }
 
-        if (player && (channel.id !== player?.voiceChannel)) return client.errNormal({
-            error: `You're not in the same voice channel!`,
-            type: 'reply'
-        }, message);
+        queue.setPaused(false);
 
-        if (!player || !player.queue.current) return client.errNormal({
-            error: "There are no songs playing in this server",
-            type: 'reply'
-        }, message);
-
-        player.pause(false);
-
-        client.succNormal({
-            text: `Resumed the music!`,
-            type: 'reply'
-        }, message);
-    }
+        const embed = new EmbedBuilder()
+            .setColor('#5865f2')
+            .setDescription('▶️ Música retomada com sucesso!');
+        await message.channel.send({ embeds: [embed] });
+    },
 };
-
- 

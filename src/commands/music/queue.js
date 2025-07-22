@@ -1,58 +1,35 @@
 
-import * as Discord from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
 export default {
     name: 'queue',
-    description: 'Mostra a fila de músicas',
-    async execute(client, message, args) {
-        const player = client.player.players.get(message.guild.id);
+    description: 'Mostra as primeiras 10 músicas na fila',
+    async execute(client, message) {
+        const queue = client.player.getQueue(message.guild.id);
 
-        const channel = message.member.voice.channel;
-        if (!channel) return client.errNormal({
-            error: `You're not in a voice channel!`,
-            type: 'reply'
-        }, message);
-
-        if (player && (channel.id !== player?.voiceChannel)) return client.errNormal({
-            error: `You're not in the same voice channel!`,
-            type: 'reply'
-        }, message);
-
-        if (!player || !player.queue.current) return client.errNormal({
-            error: "There are no songs playing in this server",
-            type: 'reply'
-        }, message);
-
-        let count = 0;
-        let status;
-
-        if (player.queue.length == 0) {
-            status = "No more music in the queue";
-        }
-        else {
-            status = player.queue.map((track) => {
-                count += 1;
-                return (`**[#${count}]**┆${track.title.length >= 45 ? `${track.title.slice(0, 45)}...` : track.title} (Requested by <@!${track.requester.id}>)`);
-            }).join("\n");
+        if (!queue || !queue.playing) {
+            const embed = new EmbedBuilder()
+                .setColor('#ff0000')
+                .setDescription('❌ Não há músicas na fila.');
+            return await message.channel.send({ embeds: [embed] });
         }
 
-        let thumbnail;
-        if (player.queue.current.thumbnail) thumbnail = player.queue.current.thumbnail;
-        else thumbnail = message.guild.iconURL({ size: 1024 });
+        const queueString = queue.tracks.slice(0, 10).map((song, i) => {
+            return `${i + 1}) [${song.duration}] \`${song.title}\` - <@${song.requestedBy.id}>`;
+        }).join('\n');
 
-        client.embed({
-            title: `${client.emotes.normal.music}・Songs queue - ${message.guild.name}`,
-            desc: status,
-            thumbnail: thumbnail,
-            fields: [
-                {
-                    name: `${client.emotes.normal.music} Current song:`,
-                    value: `${player.queue.current.title} (Requested by <@!${player.queue.current.requester.id}>)`
-                }
-            ],
-            type: 'reply'
-        }, message)
-    }
+        const currentSong = queue.current;
+
+        const embed = new EmbedBuilder()
+            .setColor('#5865f2')
+            .setTitle('🎶 Fila de Músicas')
+            .setDescription(
+                `**A tocar agora:**\n` +
+                (currentSong ? `\`[${currentSong.duration}]\` ${currentSong.title} - <@${currentSong.requestedBy.id}>` : 'Nenhuma') +
+                `\n\n**Fila:**\n${queueString}`
+            )
+            .setThumbnail(currentSong?.thumbnail || null);
+
+        await message.channel.send({ embeds: [embed] });
+    },
 };
-
- 

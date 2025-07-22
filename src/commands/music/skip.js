@@ -1,34 +1,26 @@
-import * as Discord from 'discord.js';
+
+import { EmbedBuilder } from 'discord.js';
 
 export default {
     name: 'skip',
     description: 'Pula a música atual',
-    async execute(client, message, args) {
-        const player = client.player.players.get(message.guild.id);
+    async execute(client, message) {
+        const queue = client.player.getQueue(message.guild.id);
 
-        const channel = message.member.voice.channel;
-        if (!channel) return client.errNormal({
-            error: `You're not in a voice channel!`,
-            type: 'reply'
-        }, message);
+        if (!queue || !queue.playing) {
+            const embed = new EmbedBuilder()
+                .setColor('#ff0000')
+                .setDescription('❌ Não há músicas na fila.');
+            return await message.channel.send({ embeds: [embed] });
+        }
 
-        if (player && (channel.id !== player?.voiceChannel)) return client.errNormal({
-            error: `You're not in the same voice channel!`,
-            type: 'reply'
-        }, message);
+        const currentSong = queue.current;
+        queue.skip();
 
-        if (!player || !player.queue.current) return client.errNormal({
-            error: "There are no songs playing in this server",
-            type: 'reply'
-        }, message);
-
-        player.stop();
-
-        client.succNormal({
-            text: `Skipped the music!`,
-            type: 'reply'
-        }, message);
-    }
+        const embed = new EmbedBuilder()
+            .setColor('#5865f2')
+            .setDescription(`⏭️ **${currentSong.title}** foi pulada!`)
+            .setThumbnail(currentSong.thumbnail);
+        await message.channel.send({ embeds: [embed] });
+    },
 };
-
- 
