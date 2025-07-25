@@ -1,3 +1,6 @@
+import * as youtubei from 'discord-player-youtubei';
+console.log('youtubei:', youtubei);
+const { YoutubeiExtractor } = youtubei;
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -32,9 +35,14 @@ async function startBot() {
         if (typeof extractor.register === 'function') {
             extractor.register(mainPlayer);
         } else {
-            if (extractor.YouTubeExtractor) mainPlayer.extractors.register(extractor.YouTubeExtractor);
             if (extractor.SpotifyExtractor) mainPlayer.extractors.register(extractor.SpotifyExtractor);
             if (extractor.SoundCloudExtractor) mainPlayer.extractors.register(extractor.SoundCloudExtractor);
+        }
+        // Workaround: registrar o extractor do plugin youtubei
+        if (YoutubeiExtractor) {
+            client.player.extractors.register(YoutubeiExtractor, {});
+        } else {
+            console.error('YoutubeiExtractor não encontrado no plugin discord-player-youtubei');
         }
 
         // Carregar comandos
@@ -48,7 +56,11 @@ async function startBot() {
             throw new Error('DISCORD_TOKEN não encontrado no arquivo .env');
         }
 
+
         await client.login(process.env.DISCORD_TOKEN);
+
+        // Registrar comandos slash após login (client.user.id disponível)
+        await registerSlashCommands(client);
     } catch (error) {
         console.error('Erro ao iniciar o bot:', error);
         process.exit(1);

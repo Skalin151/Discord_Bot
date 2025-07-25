@@ -23,9 +23,9 @@ export default {
         try {
             await client.player.play(message.member.voice.channel, query, {
                 nodeOptions: {
-                    metadata: message.channel,
-                    requestedBy: message.author
-                }
+                    metadata: message.channel
+                },
+                requestedBy: message.author
             });
             const embed = new EmbedBuilder()
                 .setColor('#5865f2')

@@ -2,7 +2,7 @@ import { config } from '../config/config.js';
 
 export default {
     name: 'messageCreate',
-    async execute(client, message) {
+    async execute(message, client) {
         // Ignorar bots
         if (message.author.bot) return;
 

@@ -5,17 +5,17 @@ export default {
     name: 'skip',
     description: 'Pula a música atual',
     async execute(client, message) {
-        const queue = client.player.getQueue(message.guild.id);
+        const queue = client.player.nodes.get(message.guild.id);
 
-        if (!queue || !queue.playing) {
+        if (!queue || !queue.isPlaying()) {
             const embed = new EmbedBuilder()
                 .setColor('#ff0000')
                 .setDescription('❌ Não há músicas na fila.');
             return await message.channel.send({ embeds: [embed] });
         }
 
-        const currentSong = queue.current;
-        queue.skip();
+        const currentSong = queue.currentTrack;
+        await queue.node.skip();
 
         const embed = new EmbedBuilder()
             .setColor('#5865f2')

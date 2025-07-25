@@ -15,17 +15,22 @@ export async function loadEvents(client) {
             const fileURL = pathToFileURL(filePath).href;
             const eventModule = await import(fileURL);
             const event = eventModule.default;
-            
+
             // Verificar se o evento tem as propriedades necessárias
             if (!event || !event.name || typeof event.execute !== 'function') {
                 console.log(`⚠️ Evento ignorado ${file}: estrutura inválida`);
                 continue;
             }
-            
-            if (event.once) {
-                client.once(event.name, (...args) => event.execute(client, ...args));
+
+            // Eventos do discord-player
+            if (event.name.startsWith('player.')) {
+                const eventName = event.name.replace('player.', '');
+                client.player.events.on(eventName, (...args) => event.execute(...args, client));
+                console.log(`✅ Evento do player carregado: ${eventName}`);
+            } else if (event.once) {
+                client.once(event.name, (...args) => event.execute(...args, client));
             } else {
-                client.on(event.name, (...args) => event.execute(client, ...args));
+                client.on(event.name, (...args) => event.execute(...args, client));
             }
             console.log(`✅ Evento carregado: ${event.name}`);
         } catch (error) {

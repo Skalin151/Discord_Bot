@@ -1,39 +1,49 @@
+
 # Discord_Bot
-Bot do Skalin
+Bot all-in-one desenvolvido por Skalin151
 
-## 🛠️ Instalação
+## 🎯 Funcionalidades e Comandos
 
-1. **Clone o repositório:**
-   ```bash
-   git clone https://github.com/Skalin151/Discord_Bot.git
-   cd Discord_Bot
-   ```
+### 🎵 Música
+- `!play <url|termo>` — Toca músicas ou playlists do YouTube/Spotify/SoundCloud
+- `!queue` — Mostra a fila de músicas (com paginação)
+- `!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume`, `!volume` — Controle total da reprodução
+- `/play`, `/queue`, `/skip`, `/stop`, `/pause`, `/resume`, `/volume` — Comandos slash equivalentes
+- `!lyrics` — Mostra a letra da música atual
+- `!steam <jogo>` — Consulta preços e detalhes de jogos da Steam
+- `/steam` — Slash command para Steam
 
-2. **Instale as dependências:**
-   ```bash
-   npm install
-   ```
+### 🧹 Moderação
+- `!purge <número>` — Apaga mensagens em massa
+- `/purge` — Apaga mensagens via slash command
+- `!ban`, `!kick`, `!mute`, `!warn` — Moderação rápida (em breve)
 
-3. **Configure o ambiente:**
-   ```bash
-   # Copie o arquivo de exemplo
-   copy .env.example .env
-   
-   # Edite o arquivo .env e adicione seu token do Discord
-   ```
+### 🛡️ Verificação
+- `!verify` — Sistema de verificação de membros (a fazer)
 
-4. **Execute o bot:**
-   ```bash
-   npm start
-   ```
+### 📋 Roles
+- `!role <nome>` — Atribui cargos por comando
+- Reaja para receber cargos (não tão em breve)
 
-## 🎯 Comandos Disponíveis
+### 🔔 Notificações
+- `!ytnotify` — Notifica vídeos novos do YouTube
 
-### Comando Purge (Duas formas de uso)
+### 💾 Backups
+- Backup automático de canais, cargos e permissões (a fazer)
 
-- **Prefixo:** `!purge [quantidade]` 
-- **Slash:** `/purge [quantidade]`
+### 🛠️ Utilidade
+- `!help` — Mostra mensagem de ajuda
 
-Apaga mensagens do canal atual (máximo 100, requer permissão "Gerenciar Mensagens")
+### 💡 Futuras implementações
+- Painel web para admins (Bot Configs)
+- Dashboard de estatísticas
+- Sistema de tickets
+- Logs avançados de eventos
+- Integração com outros serviços (Twitch, Youtube, etc)
+- Auto-role por tempo de servidor
+- Anti-spam e anti-link
+- Mensagens de boas-vindas customizáveis
+- Sistema de XP e níveis
+- Gamble
 
 

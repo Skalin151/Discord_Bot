@@ -8,8 +8,6 @@ export default {
         console.log(`🤖 Bot conectado como ${client.user.tag}!`);
         console.log(`📊 Servindo ${client.guilds.cache.size} servidores`);
         
-        // Registrar comandos slash
-        await registerSlashCommands(client);
         
         // Definir status do bot
         client.user.setActivity('os eventos do servidor', { type: 'WATCHING' });
