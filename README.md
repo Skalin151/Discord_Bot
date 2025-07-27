@@ -7,9 +7,7 @@ Bot all-in-one desenvolvido por Skalin151
 ### 🎵 Música
 - `!play <url|termo>` — Toca músicas ou playlists do YouTube/Spotify/SoundCloud
 - `!queue` — Mostra a fila de músicas (com paginação)
-- `!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume`, `!volume` — Controle total da reprodução
-- `/play`, `/queue`, `/skip`, `/stop`, `/pause`, `/resume`, `/volume` — Comandos slash equivalentes
-- `!lyrics` — Mostra a letra da música atual
+- `!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume` — Controle total da reprodução
 - `!steam <jogo>` — Consulta preços e detalhes de jogos da Steam
 - `/steam` — Slash command para Steam
 
