@@ -43,7 +43,7 @@ class BlackjackGame {
   formatHand(hand, hideFirst = false) {
     if (hideFirst && hand.length > 0) {
       const visibleCards = hand.slice(1);
-      return `${visibleCards.map(card => `${card.value}${card.suit}`).join(' ')}`;
+      return `${visibleCards.map(card => `${card.value}${card.suit}`).join(' ')} `;
     }
     return hand.map(card => `${card.value}${card.suit}`).join(' ');
   }
@@ -147,6 +147,8 @@ export default {
       return message.reply(`❌ Não tens pontos suficientes para jogar! (Precisas de pelo menos ${betAmount} pontos)`);
     }
     user.points -= betAmount;
+    user.pointsSpent = (user.pointsSpent || 0) + betAmount;
+    await user.save();
     const game = new BlackjackGame(userId);
     game.startGame();
     activeGames.set(userId, game);

@@ -1,6 +1,13 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import User from '../../models/User.js';
 import Horse from '../../models/Horse.js';
+import {
+    trackOptions,
+    weatherConditions,
+    extremeWeatherEvents,
+    weatherMessages,
+    horsetypes
+} from '../../config/horseConfig.js';
 
 class HorseRacingGame {
     constructor() {
@@ -15,139 +22,15 @@ class HorseRacingGame {
         this.raceResults = [];
         this.minBet = 100;
         this.maxBet = 1000;
-        this.trackOptions = [
-            { name: 'Short Race', length: 30 },
-            { name: 'Medium Race', length: 50 },
-            { name: 'Long Race', length: 100 },
-            { name: 'Sprint', length: 30 },
-            { name: 'Marathon', length: 150 },
-            { name: 'Steel Ball Run', length: 300 }
-        ];
+        this.trackOptions = trackOptions;
         this.selectedTrack = this.trackOptions[1]; // default Medium Race
         this.raceEvents = [];
-
-        // Condições climáticas
-        this.weatherConditions = [
-            {
-                name: 'Ensolarado',
-                emoji: '☀️',
-                description: 'Pista seca, condições ideais',
-                frequency: 40,
-                effects: {
-                    global: { speedMod: 1.0, stability: 1.0 },
-                    velocista: { speedMod: 1.0, oddsMod: 0 },
-                    equilibrado: { speedMod: 1.0, oddsMod: 0 },
-                    resistente: { speedMod: 1.0, oddsMod: 0 },
-                    aerodinâmico: { speedMod: 1.0, oddsMod: 0 },
-                    misterioso: { speedMod: 1.0, oddsMod: 0 },
-                    elite: { speedMod: 1.0, oddsMod: 0 }
-                }
-            },
-            {
-                name: 'Chuva',
-                emoji: '🌧️',
-                description: 'Pista molhada, cavalos resistentes favorecidos',
-                frequency: 25,
-                effects: {
-                    global: { speedMod: 0.85, stability: 0.8 },
-                    velocista: { speedMod: 0.9, oddsMod: 0.3 },
-                    equilibrado: { speedMod: 0.95, oddsMod: 0.1 },
-                    resistente: { speedMod: 1.2, oddsMod: -0.5 },
-                    aerodinâmico: { speedMod: 0.92, oddsMod: 0.2 },
-                    misterioso: { speedMod: 1.1, oddsMod: -0.2 },
-                    elite: { speedMod: 1.05, oddsMod: -0.1 }
-                }
-            },
-            {
-                name: 'Vento Forte',
-                emoji: '🌪️',
-                description: 'Ventos fortes, maior imprevisibilidade',
-                frequency: 15,
-                effects: {
-                    global: { speedMod: 1.0, stability: 0.6 },
-                    velocista: { speedMod: 0.95, oddsMod: 0.2 },
-                    equilibrado: { speedMod: 1.0, oddsMod: 0.1 },
-                    resistente: { speedMod: 0.98, oddsMod: 0.1 },
-                    aerodinâmico: { speedMod: 1.15, oddsMod: -0.3 },
-                    misterioso: { speedMod: 1.05, oddsMod: -0.1 },
-                    elite: { speedMod: 1.02, oddsMod: 0 }
-                }
-            },
-            {
-                name: 'Frio',
-                emoji: '❄️',
-                description: 'Temperatura baixa, arranque mais lento',
-                frequency: 10,
-                effects: {
-                    global: { speedMod: 0.9, stability: 0.9 },
-                    velocista: { speedMod: 0.85, oddsMod: 0.4 },
-                    equilibrado: { speedMod: 0.95, oddsMod: 0.1 },
-                    resistente: { speedMod: 1.25, oddsMod: -0.7 },
-                    aerodinâmico: { speedMod: 0.88, oddsMod: 0.3 },
-                    misterioso: { speedMod: 1.0, oddsMod: 0 },
-                    elite: { speedMod: 1.1, oddsMod: -0.2 }
-                }
-            },
-            {
-                name: 'Calor Extremo',
-                emoji: '🔥',
-                description: 'Muito quente, cavalos cansam mais rápido',
-                frequency: 10,
-                effects: {
-                    global: { speedMod: 0.95, stability: 0.85 },
-                    velocista: { speedMod: 0.8, oddsMod: 0.5 },
-                    equilibrado: { speedMod: 0.95, oddsMod: 0.1 },
-                    resistente: { speedMod: 1.15, oddsMod: -0.4 },
-                    aerodinâmico: { speedMod: 0.9, oddsMod: 0.2 },
-                    misterioso: { speedMod: 1.05, oddsMod: -0.1 },
-                    elite: { speedMod: 1.08, oddsMod: -0.15 }
-                }
-            }
-        ];
-
-        // Eventos extremos
-        this.extremeWeatherEvents = [
-            {
-                name: "TORNADO",
-                emoji: "🌪️",
-                description: "Um tornado embaralha as posições!",
-                frequency: 0.5,
-                effect: "shuffle"
-            },
-            {
-                name: "RAIO",
-                emoji: "⚡",
-                description: "Um raio dá super velocidade a um cavalo!",
-                frequency: 0.3,
-                effect: "boost_random"
-            },
-            {
-                name: "ARCO-ÍRIS",
-                emoji: "🌈",
-                description: "Sorte para todos! Bónus especial!",
-                frequency: 0.2,
-                effect: "everyone_wins"
-            }
-        ];
-
-        // Traits e tipos por cavalo
-        this.horseTypes = {
-            1: { type: 'velocista', traits: ['rápido', 'sensível'] },
-            2: { type: 'resistente', traits: ['forte', 'durável'] },
-            3: { type: 'elite', traits: ['versátil', 'caro'] },
-            4: { type: 'aerodinâmico', traits: ['leve', 'ágil'] },
-            5: { type: 'misterioso', traits: ['imprevisível'] },
-            6: { type: 'equilibrado', traits: ['consistente'] },
-            7: { type: 'velocista', traits: ['rápido', 'sensível'] },
-            8: { type: 'resistente', traits: ['forte', 'durável'] },
-            9: { type: 'elite', traits: ['versátil', 'caro'] },
-            10: { type: 'equilibrado', traits: ['consistente'] },
-            11: { type: 'velocista', traits: ['rápido', 'sensível'] },
-            12: { type: 'aerodinâmico', traits: ['leve', 'ágil'] },
-            13: { type: 'elite', traits: ['versátil', 'caro'] },
-            14: { type: 'misterioso', traits: ['imprevisível'] },
-            15: { type: 'resistente', traits: ['forte', 'durável'] }
-        };
+        this.weatherConditions = weatherConditions;
+        this.extremeWeatherEvents = extremeWeatherEvents;
+        this.horseTypes = horsetypes;
+        this.weatherMessages = weatherMessages;
+        this.lastExtremeEventTime = 0;
+        this.extremeEventCooldown = 6000; // ms between possible events (6 seconds)
     }
 
     async loadHorsesFromDB() {
@@ -221,30 +104,78 @@ class HorseRacingGame {
         return arr;
     }
 
-    // Aplica efeitos especiais do clima e registra eventos
+    // Aplica efeitos especiais do clima e registra eventos, usando traits e tipo
     applySpecialWeatherEffects(horse, speed) {
+        const traitText = horse.traits && horse.traits.length ? horse.traits.join(', ') : '';
         switch (this.currentWeather?.name) {
             case 'Chuva':
-                if (Math.random() < 0.1) {
-                    this.raceEvents.push(`🌧️ ${horse.name} escorregou na lama!`);
-                    return speed * 0.2;
+                if (horse.type === 'resistente' && Math.random() < 0.18) {
+                    this.raceEvents.push(`🌧️ ${horse.name} (${traitText}) atravessa a lama com força!`);
+                    return speed * 1.4;
+                }
+                if (horse.type === 'velocista' && Math.random() < 0.12) {
+                    this.raceEvents.push(`🌧️ ${horse.name} (${traitText}) escorregou na lama!`);
+                    return speed * 0.5;
+                }
+                if (horse.type === 'aerodinâmico' && Math.random() < 0.10) {
+                    this.raceEvents.push(`🌧️ ${horse.name} (${traitText}) perde tração na pista molhada!`);
+                    return speed * 0.7;
                 }
                 break;
             case 'Frio':
-                if (Math.random() < 0.1) {
-                    this.raceEvents.push(`❄️ ${horse.name} está com muito frio!`);
-                    return speed * 0.3;
+                if (horse.type === 'resistente' && Math.random() < 0.15) {
+                    this.raceEvents.push(`❄️ ${horse.name} (${traitText}) ignora o frio e acelera!`);
+                    return speed * 1.3;
+                }
+                if (horse.type === 'velocista' && Math.random() < 0.12) {
+                    this.raceEvents.push(`❄️ ${horse.name} (${traitText}) está travado pelo frio!`);
+                    return speed * 0.5;
+                }
+                if (horse.type === 'elite' && Math.random() < 0.10) {
+                    this.raceEvents.push(`❄️ ${horse.name} (${traitText}) usa equipamento especial e acelera!`);
+                    return speed * 1.2;
                 }
                 break;
             case 'Vento Forte':
-                if (Math.random() < 0.15) {
-                    if (horse.type === 'aerodinâmico') {
-                        this.raceEvents.push(`🌪️ ${horse.name} usa o vento a seu favor!`);
-                        return speed * 1.8;
-                    } else {
-                        this.raceEvents.push(`🌪️ ${horse.name} luta contra o vento!`);
-                        return speed * 0.6;
-                    }
+                if (horse.type === 'aerodinâmico' && Math.random() < 0.20) {
+                    this.raceEvents.push(`🌪️ ${horse.name} (${traitText}) corta o vento com agilidade!`);
+                    return speed * 1.6;
+                }
+                if (horse.type === 'resistente' && Math.random() < 0.10) {
+                    this.raceEvents.push(`🌪️ ${horse.name} (${traitText}) resiste às rajadas!`);
+                    return speed * 1.2;
+                }
+                if (horse.type === 'velocista' && Math.random() < 0.12) {
+                    this.raceEvents.push(`🌪️ ${horse.name} (${traitText}) é travado pelo vento!`);
+                    return speed * 0.6;
+                }
+                break;
+            case 'Calor Extremo':
+                if (horse.type === 'resistente' && Math.random() < 0.15) {
+                    this.raceEvents.push(`🔥 ${horse.name} (${traitText}) aguenta o calor e acelera!`);
+                    return speed * 1.3;
+                }
+                if (horse.type === 'velocista' && Math.random() < 0.12) {
+                    this.raceEvents.push(`🔥 ${horse.name} (${traitText}) cansou com o calor!`);
+                    return speed * 0.5;
+                }
+                if (horse.type === 'misterioso' && Math.random() < 0.10) {
+                    this.raceEvents.push(`🔥 ${horse.name} (${traitText}) surpreende todos no calor!`);
+                    return speed * 1.4;
+                }
+                break;
+            case 'Ensolarado':
+                if (horse.type === 'velocista' && Math.random() < 0.15) {
+                    this.raceEvents.push(`☀️ ${horse.name} (${traitText}) aproveita o clima perfeito!`);
+                    return speed * 1.3;
+                }
+                if (horse.type === 'elite' && Math.random() < 0.10) {
+                    this.raceEvents.push(`☀️ ${horse.name} (${traitText}) mostra toda sua classe!`);
+                    return speed * 1.2;
+                }
+                if (horse.type === 'misterioso' && Math.random() < 0.08) {
+                    this.raceEvents.push(`☀️ ${horse.name} (${traitText}) faz algo inesperado!`);
+                    return speed * (1 + Math.random());
                 }
                 break;
         }
@@ -285,6 +216,7 @@ class HorseRacingGame {
         }, 800);
     }
     updateRacePositions() {
+
         this.horses.forEach(horse => {
             const baseSpeed = 1 + Math.random() * 2;
             const luckFactor = Math.random() < 0.1 ? 2 : 1;
@@ -296,6 +228,63 @@ class HorseRacingGame {
             horse.position += horse.speed;
             if (horse.position > this.trackLength) horse.position = this.trackLength;
         });
+
+        // Trigger extreme weather event with low chance (e.g., 3%) at any moment during the race
+        const now = Date.now();
+        if ((now - this.lastExtremeEventTime > this.extremeEventCooldown) && Math.random() < 0.03) {
+            this.lastExtremeEventTime = now;
+            // Pick event by weighted frequency
+            const totalFreq = this.extremeWeatherEvents.reduce((acc, e) => acc + e.frequency, 0);
+            let roll = Math.random() * totalFreq;
+            let acc = 0;
+            let event = this.extremeWeatherEvents[0];
+            for (const e of this.extremeWeatherEvents) {
+                acc += e.frequency;
+                if (roll <= acc) {
+                    event = e;
+                    break;
+                }
+            }
+            // Apply event effect
+            if (event.effect === 'shuffle') {
+                const positions = this.horses.map(h => h.position);
+                this.horses = this.shuffleArray(this.horses);
+                this.horses.forEach((h, i) => {
+                    h.position = positions[i];
+                });
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description}\n${event.emoji.repeat(3)} **Os cavalos trocam de lugar na pista!** ${event.emoji.repeat(3)}`);
+            } else if (event.effect === 'boost_random') {
+                const idx = Math.floor(Math.random() * this.horses.length);
+                this.horses[idx].position += 10;
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description} ${this.horses[idx].emoji} ${this.horses[idx].name} avança rapidamente!`);
+            } else if (event.effect === 'everyone_wins') {
+                this.horses.forEach(h => h.position += 5);
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description} Todos os cavalos avançam!`);
+            } else if (event.effect === 'slow_all') {
+                this.horses.forEach(h => {
+                    h.speed *= 0.5;
+                });
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description} Todos os cavalos ficam mais lentos!`);
+            } else if (event.effect === 'slow_random') {
+                const idx = Math.floor(Math.random() * this.horses.length);
+                this.horses[idx].speed *= 0.3;
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description} ${this.horses[idx].emoji} ${this.horses[idx].name} perde velocidade!`);
+            } else if (event.effect === 'unstable_all') {
+                this.horses.forEach(h => {
+                    const mod = (Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 4 + 1);
+                    h.position += mod;
+                    if (h.position < 0) h.position = 0;
+                    if (h.position > this.trackLength) h.position = this.trackLength;
+                });
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description} Todos os cavalos sofrem efeitos aleatórios!`);
+            } else if (event.effect === 'retreat_all') {
+                this.horses.forEach(h => {
+                    h.position -= 5;
+                    if (h.position < 0) h.position = 0;
+                });
+                this.raceEvents.push(`${event.emoji} **${event.name}**: ${event.description} Todos os cavalos recuam!`);
+            }
+        }
     }
     async finishRace() {
         this.gamePhase = 'finished';
@@ -375,7 +364,13 @@ class HorseRacingGame {
             let trackValue = `\u007f\u007f\u007f\n${track}\u007f\u007f\u007f`;
             // Adiciona eventos abaixo da pista
             if (this.raceEvents.length > 0) {
-                const recentEvents = this.raceEvents.slice(-3).map(e => `• ${e}`).join('\n');
+                // Destaca eventos extremos
+                const recentEvents = this.raceEvents.slice(-3).map(e => {
+                    if (e.includes('🌪️') || e.includes('⚡') || e.includes('🌈') || e.includes('🔥') || e.includes('❄️') || e.includes('💧') || e.includes('🌫️') || e.includes('🧊') || e.includes('🌋')) {
+                        return `**━━━━━━━━━━━━━━**\n**${e}**\n**━━━━━━━━━━━━━━**`;
+                    }
+                    return `• ${e}`;
+                }).join('\n');
                 trackValue += `\n\n__Eventos Recentes:__\n${recentEvents}`;
             }
             embed.addFields({ name: '🏁 Pista de Corrida', value: trackValue, inline: false });
@@ -522,6 +517,7 @@ export default {
                     const result = horseRacing.placeBet(userId, horseId, betAmount);
                     if (result.success) {
                         user.points -= betAmount;
+                        user.pointsSpent = (user.pointsSpent || 0) + betAmount;
                         await user.save();
                         await m.reply(`✅ Apostaste **${betAmount}** pontos no **${result.horse.name}** ${result.horse.emoji}!\nOdds: **${result.horse.odds}x** | Ganho potencial: **${Math.floor(betAmount * result.horse.odds)}** pontos! 🏇`);
                         setTimeout(() => { m.delete().catch(() => {}); }, 3000);

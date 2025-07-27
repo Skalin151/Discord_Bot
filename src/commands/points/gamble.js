@@ -51,6 +51,8 @@ export default {
 
     // Subtrair aposta
     user.points -= betAmount;
+    user.pointsSpent = (user.pointsSpent || 0) + betAmount;
+    await user.save();
 
     const slots = Array.from({ length: 6 }, getRandomSymbol);
     let basePoints = 0;
