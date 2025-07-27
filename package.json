@@ -31,6 +31,8 @@
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^5.2.0",
     "lyrics-finder": "^21.7.0",
+    "mongodb": "^6.18.0",
+    "mongoose": "^8.16.5",
     "play-dl": "^1.9.7",
     "youtube-ext": "^1.1.25",
     "ytdl-core": "^4.11.5"

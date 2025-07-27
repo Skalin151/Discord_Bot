@@ -1,4 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
+import User from '../../models/User.js';
 
 const symbols = [
   { emoji: '🍒', name: 'Cereja', weight: 20 },
@@ -34,7 +35,23 @@ export default {
   name: 'gamble',
   description: 'Jogue na slot machine e ganhe pontos!',
   async execute(client, message) {
-    
+    const userId = message.author.id;
+    const betAmount = 500;
+
+    // Buscar ou criar utilizador na base de dados
+    let user = await User.findOne({ userId });
+    if (!user) {
+      user = new User({ userId, points: 1000 }); // Novo utilizador começa com 1000 pontos
+      await user.save();
+    }
+
+    if (user.points < betAmount) {
+      return message.reply(`❌ Não tens pontos suficientes para jogar! (Precisas de pelo menos ${betAmount} pontos)`);
+    }
+
+    // Subtrair aposta
+    user.points -= betAmount;
+
     const slots = Array.from({ length: 6 }, getRandomSymbol);
     let basePoints = 0;
     let multiplier = 1;
@@ -44,7 +61,7 @@ export default {
     for (const symbolObj of symbols) {
       const symbol = symbolObj.emoji;
       const count = slots.filter(s => s === symbol).length;
-      if (['🍒', '🍋', '🍇', '🍉'].includes(symbol)) {
+      if (["🍒", "🍋", "🍇", "🍉"].includes(symbol)) {
         if (count === 2) {
           basePoints += 100;
           effects.push(`✨ Par de ${symbol} → +100 pontos`);
@@ -59,18 +76,18 @@ export default {
           effects.push(`✨ 5x ${symbol} → +3000 pontos`);
         }
       }
-      if (symbol === '🍒' && count === 2) {
+      if (symbol === "🍒" && count === 2) {
         basePoints += 100;
       }
-      if (symbol === '💎' && count > 0) {
+      if (symbol === "💎" && count > 0) {
         multiplier *= Math.pow(2, count);
         effects.push(`💎 Diamante → x${Math.pow(2, count)} multiplicador`);
       }
-      if (symbol === '7️⃣' && count > 0) {
+      if (symbol === "7️⃣" && count > 0) {
         basePoints += 200 * count;
         effects.push(`7️⃣ Sete → +${200 * count} pontos`);
       }
-      if (symbol === '❓' && count > 0) {
+      if (symbol === "❓" && count > 0) {
         for (let i = 0; i < count; i++) {
           const mystery = Math.floor(Math.random() * 451) + 50;
           bonus += mystery;
@@ -80,14 +97,14 @@ export default {
     }
 
     let total = Math.max(0, Math.floor((basePoints + bonus) * multiplier));
+    user.points += total;
+    await user.save();
 
     const embed = new EmbedBuilder()
       .setTitle('🎰 Slot Machine')
       .setColor('#f5c518')
-      .setDescription(`${slots.join(' • ')}
-\n${effects.join('\n')}
-\n💰 **Total: ${total} pontos!**`)
-      .setFooter({ text: 'Joga mais uma, mal não vai fazer :)' })
+      .setDescription(`${slots.join(' • ')}\n${effects.join('\n')}\n💰 **Total ganho: ${total} pontos!**\n\nSaldo atual: ${user.points} pontos`)
+      .setFooter({ text: 'Joga mais uma, mal não vai fazer :)' });
 
     await message.channel.send({ embeds: [embed] });
   },

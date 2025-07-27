@@ -13,9 +13,13 @@ import { loadEvents } from './src/handlers/eventHandler.js';
 import { loadCommands } from './src/handlers/commandHandler.js';
 import { loadSlashCommands, registerSlashCommands } from './src/handlers/slashCommandHandler.js';
 
+import { connectDB } from './src/config/db.js';
+
 async function startBot() {
     // Ouvinte de eventos de voz do Discord deve ser adicionado após a criação do client
     try {
+        // Conectar ao MongoDB
+        await connectDB();
 
         const client = new Client({
             intents: [
@@ -27,7 +31,6 @@ async function startBot() {
                 GatewayIntentBits.GuildMembers,
             ]
         });
-
 
         // Inicializar o player de música (discord-player)
         client.player = new Player(client);
@@ -55,7 +58,6 @@ async function startBot() {
         if (!process.env.DISCORD_TOKEN) {
             throw new Error('DISCORD_TOKEN não encontrado no arquivo .env');
         }
-
 
         await client.login(process.env.DISCORD_TOKEN);
 

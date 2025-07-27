@@ -7,9 +7,9 @@ export default {
 
     async execute(client, message, args) {
         try {
-            // Verificar se o usuário tem permissão para gerenciar mensagens
-            if (!message.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
-                return message.reply('❌ Você não tem permissão para usar este comando!');
+            // Verificar se o usuário tem permissão de administrador
+            if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                return message.reply('❌ Apenas administradores podem usar este comando!');
             }
 
             // Verificar se o bot tem permissão para gerenciar mensagens
@@ -19,7 +19,7 @@ export default {
 
             // Número de mensagens para apagar (máximo 100, mínimo 1)
             let amount = 100;
-            
+
             // Se um número foi fornecido como argumento, usar ele (máximo 100)
             if (args[0]) {
                 const providedAmount = parseInt(args[0]);
@@ -47,7 +47,7 @@ export default {
 
             // Apagar as mensagens
             await message.channel.bulkDelete(filteredMessages, true);
-            
+
             // Apagar também a mensagem do comando
             if (message.deletable) {
                 await message.delete();
@@ -71,7 +71,7 @@ export default {
 
         } catch (error) {
             console.error('Erro ao executar comando purge:', error);
-            
+
             if (error.code === 50034) {
                 message.reply('❌ Só posso apagar mensagens de até 14 dias!');
             } else if (error.code === 50013) {
