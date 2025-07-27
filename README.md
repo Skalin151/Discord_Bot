@@ -29,6 +29,14 @@ Bot all-in-one desenvolvido por Skalin151
 ### 💾 Backups
 - Backup automático de canais, cargos e permissões (a fazer)
 
+
+### 💸 Pontos & Jogos
+- `!balance` — Mostra o saldo de pontos do utilizador
+- `!daily` — Recebe 500 pontos uma vez por dia
+- `!gamble` — Slot machine para ganhar pontos
+- `!blackjack` — Joga Blackjack apostando pontos
+- `!8ball <pergunta>` — Pergunta ao 8ball qualquer coisa
+
 ### 🛠️ Utilidade
 - `!help` — Mostra mensagem de ajuda
 

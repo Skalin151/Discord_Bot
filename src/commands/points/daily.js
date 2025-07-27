@@ -2,9 +2,7 @@ import { EmbedBuilder } from 'discord.js';
 import User from '../../models/User.js';
 
 function getTodayDatePT() {
-  // Portugal timezone: UTC+0 (winter), UTC+1 (summer)
   const now = new Date();
-  // For simplicity, use UTC date (works for most cases)
   const year = now.getUTCFullYear();
   const month = String(now.getUTCMonth() + 1).padStart(2, '0');
   const day = String(now.getUTCDate()).padStart(2, '0');

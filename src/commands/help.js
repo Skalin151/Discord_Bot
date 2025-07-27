@@ -13,9 +13,16 @@ export default {
         { name: '🎵 Música', value:
           '`!play <url|termo>` — Toca músicas ou playlists\n' +
           '`!queue` — Mostra a fila de músicas (com paginação)\n' +
-          '`!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume` — Controle total da reprodução\n' +
+          '`!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume` — Controlo total da reprodução\n' +
           '`!steam <jogo>` — Consulta preços e detalhes de jogos da Steam\n' +
           '`/steam` — Slash command para Steam\n'
+        },
+        { name: '💸 Pontos & Jogos', value:
+          '`!balance` — Mostra o saldo de pontos\n' +
+          '`!daily` — Recebe 500 pontos uma vez por dia\n' +
+          '`!gamble` — Slot machine para ganhar pontos\n' +
+          '`!blackjack` — Joga Blackjack apostando pontos\n' +
+          '`!8ball <pergunta>` — Pergunta ao 8ball qualquer coisa'
         },
         { name: '🧹 Moderação', value:
           '`!purge <número>` — Apaga mensagens em massa\n' +
