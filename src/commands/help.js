@@ -10,19 +10,30 @@ export default {
       .setColor('#5865f2')
       .setDescription('Veja abaixo os comandos e funcionalidades disponíveis!')
       .addFields(
-        { name: '🎵 Música', value:
-          '`!play <url|termo>` — Toca músicas ou playlists\n' +
-          '`!queue` — Mostra a fila de músicas (com paginação)\n' +
-          '`!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume` — Controlo total da reprodução\n' +
-          '`!steam <jogo>` — Consulta preços e detalhes de jogos da Steam\n' +
-          '`/steam` — Slash command para Steam\n'
+        { name: '🏇 Corridas de Cavalos', value:
+          '`!horserace` — Inicia uma corrida pública de cavalos (manual, se permitido)\n' +
+          '`!horsestats` — Mostra estatísticas detalhadas dos cavalos\n' +
+          '`!profile` — Mostra seu perfil de jogador e conquistas\n' +
+          '`!horse` — Comando clássico de corrida (privada)\n' +
+          '\n' +
+          '🌦️ Corridas públicas automáticas acontecem a cada 6h (00:00, 06:00, 12:00, 18:00) com clima dinâmico, traits, apostas e prêmios!\n' +
+          'Itens da loja e traits afetam o desempenho dos cavalos.'
         },
         { name: '💸 Pontos & Jogos', value:
           '`!balance` — Mostra o saldo de pontos\n' +
           '`!daily` — Recebe 500 pontos uma vez por dia\n' +
           '`!gamble` — Slot machine para ganhar pontos\n' +
           '`!blackjack` — Joga Blackjack apostando pontos\n' +
-          '`!8ball <pergunta>` — Pergunta ao 8ball qualquer coisa'
+          '`!8ball <pergunta>` — Pergunta ao 8ball qualquer coisa' +
+          '`!shop` — Loja de itens especiais para corridas\n' +
+          '`!buy <id>` — Compra um item da loja\n'
+        },
+        { name: '🎵 Música', value:
+          '`!play <url|termo>` — Toca músicas ou playlists\n' +
+          '`!queue` — Mostra a fila de músicas (com paginação)\n' +
+          '`!skip`, `!previous`, `!stop`, `!shuffle`, `!pause`, `!resume` — Controlo total da reprodução\n' +
+          '`!steam <jogo>` — Consulta preços e detalhes de jogos da Steam\n' +
+          '`/steam` — Slash command para Steam'
         },
         { name: '🧹 Moderação', value:
           '`!purge <número>` — Apaga mensagens em massa\n' +
@@ -44,12 +55,35 @@ export default {
           '- Anti-spam e anti-link',
           '- Mensagens de boas-vindas customizáveis',
           '- Sistema de XP e níveis',
-          '- Gamble'
+          '- ♿',
+          '- ¿¿¿',
         ].join('\n') }
       )
       .setFooter({ text: 'Bot all-in-one em desenvolvimento por Skalin151', iconURL: client.user.displayAvatarURL() })
       .setTimestamp();
 
-    await message.channel.send({ embeds: [embed] });
+    const sentMsg = await message.channel.send({ embeds: [embed] });
+
+    // Cria coletor de reações para ℹ️ na mensagem enviada
+    const filter = (reaction, user) => reaction.emoji.name === '♿' && !user.bot && reaction.message.id === sentMsg.id;
+    sentMsg.client.on('messageReactionAdd', async (reaction, user) => {
+      if (filter(reaction, user)) {
+        const msg = '🏱︎︎︎⚐︎︎︎☼︎︎︎ ✞︎︎︎☜︎︎︎☪︎︎︎☜︎︎︎💧︎︎︎ ❄︎︎⚐︎︎☼︎︎☠︎︎✌︎︎📫︎︎💧︎︎☜︎︎ ☠︎︎︎☜︎︎︎👍︎︎︎☜︎︎︎💧︎︎︎💧︎︎︎🕚︎︎︎☼︎︎︎✋︎︎︎⚐︎︎︎ ⚐︎︎︎☹︎︎︎☟︎︎︎✌︎︎︎☼︎︎︎ ⚐︎ ☠︎⚐︎💧︎💧︎⚐︎ ☼︎︎︎☜︎︎︎☞︎︎︎☹︎︎︎☜︎︎︎✠︎︎︎⚐︎︎︎ 💣︎︎︎✌︎︎︎✋︎︎︎💧︎︎︎ ✈︎︎︎🕆︎︎︎☜︎︎︎ 🕆︎︎︎💣︎︎︎✌︎︎︎ ✞︎︎︎☜︎︎︎☪︎︎︎';
+        const infoEmbed = new EmbedBuilder()
+          .setTitle('Y҉o҉u҉ ҉s҉h҉o҉u҉l҉d҉n҉t҉ ҉b҉e҉ ҉h҉e҉r҉e҉')
+          .addFields(
+            { name: '\u200B', value: msg },
+            { name: '\u200B', value: msg },
+            { name: '\u200B', value: msg },
+          )
+          .setColor('#000000');
+        await sentMsg.edit({ embeds: [infoEmbed] });
+        setTimeout(async () => {
+          try {
+            await sentMsg.delete();
+          } catch (e) { /* ignore */ }
+        }, 10000);
+      }
+    });
   }
 };

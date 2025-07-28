@@ -15,6 +15,8 @@ import { loadSlashCommands, registerSlashCommands } from './src/handlers/slashCo
 
 import { connectDB } from './src/config/db.js';
 
+import { startAutoRaceScheduler } from './src/services/autoRaceService.js';
+
 async function startBot() {
     // Ouvinte de eventos de voz do Discord deve ser adicionado após a criação do client
     try {
@@ -29,6 +31,7 @@ async function startBot() {
                 GatewayIntentBits.GuildModeration,
                 GatewayIntentBits.MessageContent,
                 GatewayIntentBits.GuildMembers,
+                GatewayIntentBits.GuildMessageReactions,
             ]
         });
 
@@ -60,6 +63,9 @@ async function startBot() {
         }
 
         await client.login(process.env.DISCORD_TOKEN);
+
+        // Inicia o agendador de corridas públicas automáticas
+        startAutoRaceScheduler(client);
 
         // Registrar comandos slash após login (client.user.id disponível)
         await registerSlashCommands(client);

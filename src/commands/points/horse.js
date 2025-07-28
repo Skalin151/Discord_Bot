@@ -8,6 +8,8 @@ import {
     weatherMessages,
     horsetypes
 } from '../../config/horseConfig.js';
+import UserItem from '../../models/UserItem.js';
+import { isRaceEventNow, getNextRaceEventDate } from '../../utils/raceEventUtils.js';
 
 class HorseRacingGame {
     constructor() {
@@ -87,7 +89,13 @@ class HorseRacingGame {
         if (!this.allHorses || this.allHorses.length === 0) {
             await this.loadHorsesFromDB();
         }
-        this.horses = this.shuffleArray(this.allHorses).slice(0, 6).map(horse => ({ ...horse, position: 0, speed: 0 }));
+        // Garante que this.allHorses nunca é alterado: faz deep copy dos cavalos
+        const horsesPool = this.allHorses.map(h => ({ ...h }));
+        this.horses = this.shuffleArray(horsesPool).slice(0, 6).map(horse => ({
+            ...horse,
+            position: 0,
+            speed: 0
+        }));
         this.bets.clear();
         this.winner = null;
         this.raceResults = [];
@@ -413,6 +421,17 @@ export default {
     name: 'horse',
     description: 'Joga na corrida de cavalos apostando pontos!',
     async execute(client, message) {
+        const userId = message.author.id;
+        // Verifica se o usuário tem o item Golden Horseshow (id 4)
+        const hasGolden = await UserItem.findOne({ userId, itemId: 4 });
+        if (!hasGolden) {
+            return message.reply('❌ Apenas quem possui o item Golden Horseshow pode iniciar corridas manualmente. As corridas públicas são automáticas a cada 2 horas.');
+        }
+
+        // RESET do estado da corrida e preparação de nova corrida
+        await horseRacing.resetRace();
+        horseRacing.gamePhase = 'betting';
+
         // Seleção aleatória do mapa antes das apostas
         const randomIdx = Math.floor(Math.random() * horseRacing.trackOptions.length);
         horseRacing.selectedTrack = horseRacing.trackOptions[randomIdx];
@@ -470,7 +489,7 @@ export default {
                 .setColor(0x2ECC71)]
         });
 
-        // ...restante lógica igual...
+        // Gera embed e botões já com o estado limpo
         const embed = horseRacing.createGameEmbed();
         const buttons = horseRacing.createGameButtons();
         const sentMsg = await message.channel.send({ embeds: [embed], components: buttons });
@@ -505,13 +524,19 @@ export default {
                     user = new User({ userId, points: 1000 });
                     await user.save();
                 }
-                await interaction.reply({ content: `🐎 Escolheste **${horseRacing.horses.find(h => h.id === horseId).name}**!\nQual o valor da tua aposta? (${horseRacing.minBet}-${horseRacing.maxBet} pontos)\nResponde com apenas o número.`, ephemeral: true });
+                const selectedHorse = horseRacing.horses.find(h => h.id === horseId);
+                if (!selectedHorse) {
+                    await interaction.reply({ content: '❌ Cavalo inválido ou não encontrado nesta corrida.', flags: 64 });
+                    return;
+                }
+                await interaction.reply({ content: `🐎 Escolheste **${selectedHorse.name}**!\nQual o valor da tua aposta? (${horseRacing.minBet}-${horseRacing.maxBet} pontos)\nResponde com apenas o número.`, flags: 64 });
                 const filter = m => m.author.id === userId && !isNaN(m.content);
                 const msgCollector = interaction.channel.createMessageCollector({ filter, time: 15000, max: 1 });
                 msgCollector.on('collect', async m => {
                     const betAmount = parseInt(m.content);
                     if (user.points < betAmount) {
-                        await m.reply(`❌ Não tens pontos suficientes! Tens ${user.points}, precisas de ${betAmount}.`);
+                        await interaction.followUp({ content: `❌ Não tens pontos suficientes! Tens ${user.points}, precisas de ${betAmount}.`, flags: 64 });
+                        await m.delete().catch(() => {});
                         return;
                     }
                     const result = horseRacing.placeBet(userId, horseId, betAmount);
@@ -519,15 +544,16 @@ export default {
                         user.points -= betAmount;
                         user.pointsSpent = (user.pointsSpent || 0) + betAmount;
                         await user.save();
-                        await m.reply(`✅ Apostaste **${betAmount}** pontos no **${result.horse.name}** ${result.horse.emoji}!\nOdds: **${result.horse.odds}x** | Ganho potencial: **${Math.floor(betAmount * result.horse.odds)}** pontos! 🏇`);
+                        await interaction.followUp({ content: `✅ Apostaste **${betAmount}** pontos no **${result.horse.name}** ${result.horse.emoji}!\nOdds: **${result.horse.odds}x** | Ganho potencial: **${Math.floor(betAmount * result.horse.odds)}** pontos! 🏇`, flags: 64 });
                         setTimeout(() => { m.delete().catch(() => {}); }, 3000);
                     } else {
-                        await m.reply(`❌ ${result.error}`);
+                        await interaction.followUp({ content: `❌ ${result.error}`, flags: 64 });
+                        await m.delete().catch(() => {});
                     }
                 });
                 msgCollector.on('end', collected => {
                     if (collected.size === 0) {
-                        interaction.followUp({ content: '⏰ Tempo esgotado para fazer a aposta!', ephemeral: true });
+                        interaction.followUp({ content: '⏰ Tempo esgotado para fazer a aposta!', flags: 64 });
                     }
                 });
             }
