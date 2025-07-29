@@ -61,14 +61,26 @@ export default {
             // Se o código for TestamentV, dá o item 6 (Orb of Avarice)
             if (codeObj.code.toLowerCase() === 'testamentv') {
                 const UserItem = (await import('../models/UserItem.js')).default;
+                // Checa quantos itens equipados o usuário já tem
+                const equippedCount = await UserItem.countDocuments({ userId: message.author.id, equipado: true });
+                let equipado = false;
+                let equipMsg = '';
+                if (equippedCount < 5) {
+                    equipado = true;
+                    equipMsg = ' (equipado automaticamente)';
+                } else {
+                    equipMsg = ' (adicionado à bag, pois já tem 5 itens equipados)';
+                }
                 let orb = await UserItem.findOne({ userId: message.author.id, itemId: 6 });
                 if (!orb) {
-                    await UserItem.create({ userId: message.author.id, itemId: 6, quantidade: 1 });
+                    await UserItem.create({ userId: message.author.id, itemId: 6, quantidade: 1, equipado });
                 } else {
                     orb.quantidade += 1;
+                    // Só equipa se for o primeiro e houver espaço
+                    if (orb.quantidade === 1 && equipado) orb.equipado = true;
                     await orb.save();
                 }
-                recompensaMsg += 'Recebeste o item especial **Orb of Avarice**!';
+                recompensaMsg += `Recebeste o item especial **Orb of Avarice**!${equipMsg}`;
             }
             await user.save();
             // Registra uso do código

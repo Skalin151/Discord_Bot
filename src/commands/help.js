@@ -10,8 +10,22 @@ export default {
       .setColor('#5865f2')
       .setDescription('Veja abaixo os comandos e funcionalidades disponíveis!')
       .addFields(
+        { name: '🛒 Loja', value:
+          '`!shop` — Mostra a loja de itens\n' +
+          '`!buy <id>` — Compra um item da loja pelo ID\n' +
+          '`!code <código>` — Resgata um código promocional\n'
+        },
+        { name: '🔒 Inventário', value:
+          '`!profile` — Mostra o perfil do utilizador, itens equipados e estatísticas\n' +
+          '`!bag` — Lista todos os itens do inventário do utilizador, incluindo IDs para equipar ou desequipar\n' +
+          '`!equip <id>` — Equipa um item do inventário usando o ID correspondente\n' +
+          '`!unequip <id>` — Desequipa um item atualmente equipado usando o ID\n'
+        },
+        { name: '🛠️ Utilidade (extra)', value:
+          '`!server` — Mostra informações do servidor\n'
+        },
         { name: '🏇 Corridas de Cavalos', value:
-          '`!horserace` — Inicia uma corrida pública de cavalos (manual, se permitido)\n' +
+          '`!horse` — Inicia uma corrida pública de cavalos (manual, se permitido)\n' +
           '`!horsestats` — Mostra estatísticas detalhadas dos cavalos\n' +
           '`!profile` — Mostra seu perfil de jogador e conquistas\n' +
           '`!horse` — Comando clássico de corrida (privada)\n' +

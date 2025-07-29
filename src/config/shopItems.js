@@ -13,7 +13,7 @@ const shopItems = [
     },
     {
         id: 2,
-        nome: 'Chave Ferrujenta',
+        nome: 'Rusty Key',
         preco: 250,
         descricao: 'Uma chave velha e enferrujada, aparentemente inútil.',
         icon: '🗝️',
@@ -46,13 +46,23 @@ const shopItems = [
         nome: 'Everlasting Coupon',
         preco: 5000,
         descricao: 'Desconto 10% permanente na loja.',
-        icon: '💳',
+        icon: '📂',
         quantidade: 1,
         unico: true,
         visivel: true
     },
     {
         id: 6,
+        nome: 'Cartão VIP',
+        preco: 20000,
+        descricao: 'Os ricos ficam mais ricos.',
+        icon: '💳',
+        quantidade: 1,
+        unico: true,
+        visivel: true
+    },
+    {
+        id: 99,
         nome: 'Orb of Avarice',
         preco: 5000,
         descricao: '?.',

@@ -57,16 +57,30 @@ export default {
         }
 
         if (venceu) {
-          user.points += ganho;
+          // Verifica se o usuário tem o cartão vip (id 6)
+          const UserItem = (await import('../../models/UserItem.js')).default;
+          const hasVip = await UserItem.findOne({ userId, itemId: 6, equipado: true });
+          let ganhoFinal = ganho;
+          let bonusMsg = '';
+          if (hasVip && ganho > 0) {
+            ganhoFinal = Math.floor(ganho * 1.2);
+            bonusMsg = '\n💳 Bónus VIP: +20% nos ganhos!';
+          }
+          user.points += ganhoFinal;
           await user.save();
+          ganho = ganhoFinal;
+          const resultado = new EmbedBuilder()
+            .setTitle('🎰 Roleta')
+            .setDescription(`🟢 Número final: **${numeroFinal}** (${cor.toUpperCase()})\n🎲 Sua aposta: **${aposta}**\n✅ Você venceu! (+${ganho} pontos)${bonusMsg}\n\nSaldo atual: **${user.points}** pontos`)
+            .setColor(0x00ff00);
+          return msg.edit({ content: '', embeds: [resultado] });
+        } else {
+          const resultado = new EmbedBuilder()
+            .setTitle('🎰 Roleta')
+            .setDescription(`🟢 Número final: **${numeroFinal}** (${cor.toUpperCase()})\n🎲 Sua aposta: **${aposta}**\n❌ Você perdeu!\n\nSaldo atual: **${user.points}** pontos`)
+            .setColor(0xff0000);
+          return msg.edit({ content: '', embeds: [resultado] });
         }
-
-        const resultado = new EmbedBuilder()
-          .setTitle('🎰 Roleta')
-          .setDescription(`🟢 Número final: **${numeroFinal}** (${cor.toUpperCase()})\n🎲 Sua aposta: **${aposta}**\n${venceu ? `✅ Você venceu! (+${ganho} pontos)` : '❌ Você perdeu!'}\n\nSaldo atual: **${user.points}** pontos`)
-          .setColor(venceu ? 0x00ff00 : 0xff0000);
-
-        return msg.edit({ content: '', embeds: [resultado] });
       }
 
       const numeroAleatorio = Math.floor(Math.random() * 37);

@@ -299,7 +299,7 @@ class HorseRacingGame {
         if (this.raceInterval) clearInterval(this.raceInterval);
         this.raceResults = [...this.horses].sort((a, b) => b.position - a.position).map((horse, i) => ({ ...horse, placement: i + 1 }));
         this.winner = this.raceResults[0];
-        await this.processWinnings();
+        await this.processWinnings(); // Call to process winnings
         // Atualiza estatísticas dos cavalos no MongoDB
         for (const horse of this.horses) {
             const horseDoc = await Horse.findOne({ horseId: horse.id });
@@ -312,7 +312,8 @@ class HorseRacingGame {
         }
         setTimeout(() => { this.startNewRace(); }, 10000);
     }
-    processWinnings() {
+    async processWinnings() {
+        const UserItem = (await import('../../models/UserItem.js')).default;
         for (let [userId, bet] of this.bets) {
             const horse = this.horses.find(h => h.id === bet.horseId);
             bet.horse = horse;
@@ -324,6 +325,14 @@ class HorseRacingGame {
                 bet.winnings = 0;
                 bet.profit = -bet.amount;
                 bet.result = 'lost';
+            }
+        }
+        // Adiciona bônus de 20% nos ganhos do cartão vip (id 6)
+        for (let [userId, bet] of this.bets) {
+            const hasVip = await UserItem.findOne({ userId, itemId: 6, equipado: true });
+            if (hasVip && bet.winnings > 0) {
+                bet.winnings = Math.floor(bet.winnings * 1.2);
+                bet.profit = bet.winnings - bet.amount;
             }
         }
     }
@@ -422,8 +431,8 @@ export default {
     description: 'Joga na corrida de cavalos apostando pontos!',
     async execute(client, message) {
         const userId = message.author.id;
-        // Verifica se o usuário tem o item Golden Horseshow (id 4)
-        const hasGolden = await UserItem.findOne({ userId, itemId: 4 });
+        // Verifica se o usuário tem o item Golden Horseshow (id 4) equipado
+        const hasGolden = await UserItem.findOne({ userId, itemId: 4, equipado: true });
         if (!hasGolden) {
             return message.reply('❌ Apenas quem possui o item Golden Horseshow pode iniciar corridas manualmente. As corridas públicas são automáticas a cada 2 horas.');
         }

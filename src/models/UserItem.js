@@ -4,7 +4,8 @@ const UserItemSchema = new mongoose.Schema({
     userId: { type: String, required: true },
     itemId: { type: Number, required: true },
     quantidade: { type: Number, default: 1 },
-    compradoEm: { type: Date, default: Date.now }
+    compradoEm: { type: Date, default: Date.now },
+    equipado: { type: Boolean, default: false }
 });
 
 const UserItem = mongoose.model('UserItem', UserItemSchema);

@@ -181,9 +181,17 @@ export default {
       // Se o jogo acabou, atualizar pontos
       if (game.gameOver) {
         const result = game.getGameResult();
-        if (result.result === 'blackjack') user.points += 1000;
-        else if (result.result === 'win') user.points += 900;
-        else if (result.result === 'tie') user.points += 500;
+        let ganho = 0;
+        if (result.result === 'blackjack') ganho = 1000;
+        else if (result.result === 'win') ganho = 900;
+        else if (result.result === 'tie') ganho = 500;
+        // Verifica se o usuário tem o cartão vip (id 6)
+        const UserItem = (await import('../../models/UserItem.js')).default;
+        const hasVip = await UserItem.findOne({ userId, itemId: 6, equipado: true });
+        if (hasVip && ganho > 0) {
+          ganho = Math.floor(ganho * 1.2);
+        }
+        user.points += ganho;
         await user.save();
       }
       if (shouldUpdate) {

@@ -36,6 +36,11 @@ Bot all-in-one desenvolvido por Skalin151
 - `!gamble` — Slot machine para ganhar pontos
 - `!blackjack` — Joga Blackjack apostando pontos
 - `!8ball <pergunta>` — Pergunta ao 8ball qualquer coisa
+- `!points` — Mostra o saldo de pontos
+- `!scratch` — Joga uma raspadinha interativa (custa 100 pontos)
+- `!roulette` — Joga roleta
+- `!horse` — Inicia uma corrida de cavalos privada entre amigos
+- `!horsestats` — Exibe estatísticas detalhadas dos cavalos disponíveis
 
 ### 🛠️ Utilidade
 - `!help` — Mostra mensagem de ajuda
@@ -50,6 +55,29 @@ Bot all-in-one desenvolvido por Skalin151
 - Anti-spam e anti-link
 - Mensagens de boas-vindas customizáveis
 - Sistema de XP e níveis
-- Gamble
+### 🏇 Corridas & Inventário
+- `!profile` — Mostra o perfil do utilizador, itens equipados e estatísticas
+- `!bag` — Mostra todos os itens do inventário e IDs para equipar/unequipar
+- `!equip <id>` — Equipa um item do inventário pelo ID
+- `!unequip <id>` — Desequipa um item equipado pelo ID
+- `!horse` — Inicia uma corrida de cavalos privada
+- `!race` — Participa numa corrida pública
+- `!horsestats` — Mostra estatísticas detalhadas dos cavalos
+
+### 🛒 Loja
+- `!shop` — Mostra a loja de itens
+- `!buy <id>` — Compra um item da loja pelo ID
+- `!code <código>` — Resgata um código promocional
+
+
+### 🔒 Inventário
+- `!profile` — Mostra o perfil do utilizador, itens equipados e estatísticas
+- `!bag` — Lista todos os itens do inventário do utilizador, incluindo IDs para equipar ou desequipar
+- `!equip <id>` — Equipa um item do inventário usando o ID correspondente
+- `!unequip <id>` — Desequipa um item atualmente equipado usando o ID
+
+
+### 🛠️ Utilidade (extra)
+- `!server` — Mostra informações do servidor
 
 

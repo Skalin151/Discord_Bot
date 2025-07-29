@@ -20,6 +20,12 @@ const promoCodes = [
         validade: null, // sem data de validade
         recompensa: { pontos: 1000 }
     },
+        {
+        code: 'triplecheeseburger',
+        usos: Infinity, // ilimitado
+        validade: null, // sem data de validade
+        recompensa: { pontos: 333 }
+    },
 ];
 
 export default promoCodes;

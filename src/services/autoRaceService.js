@@ -18,6 +18,46 @@ const PUBLIC_RACE_CHANNEL_IDS = [
 ];
 
 class PublicHorseRace {
+    // Exemplo de método para simular o fim da corrida pública
+    async finishRacePublica(bets, horses, winnerId) {
+        await this.processWinnings(bets, horses, winnerId);
+        // Aqui você pode creditar os pontos aos usuários, enviar mensagens de resultado, etc.
+        // Exemplo:
+        // for (let [userId, bet] of bets) {
+        //   if (bet.winnings > 0) {
+        //     let user = await User.findOne({ userId });
+        //     if (user) {
+        //       user.points += bet.winnings;
+        //       await user.save();
+        //     }
+        //   }
+        // }
+    }
+    // Lógica de apostas e distribuição de prêmios para corridas públicas
+    async processWinnings(bets, horses, winnerId) {
+        const UserItem = (await import('../models/UserItem.js')).default;
+        for (let [userId, bet] of bets) {
+            const horse = horses.find(h => h.id === bet.horseId);
+            bet.horse = horse;
+            if (horse.id === winnerId) {
+                bet.winnings = Math.floor(bet.amount * horse.odds);
+                bet.profit = bet.winnings - bet.amount;
+                bet.result = 'won';
+            } else {
+                bet.winnings = 0;
+                bet.profit = -bet.amount;
+                bet.result = 'lost';
+            }
+        }
+        // Adiciona bônus de 20% nos ganhos do cartão vip (id 6)
+        for (let [userId, bet] of bets) {
+            const hasVip = await UserItem.findOne({ userId, itemId: 6, equipado: true });
+            if (hasVip && bet.winnings > 0) {
+                bet.winnings = Math.floor(bet.winnings * 1.2);
+                bet.profit = bet.winnings - bet.amount;
+            }
+        }
+    }
     constructor() {
         this.raceActive = false;
         this.lastRaceTime = 0;
@@ -62,7 +102,21 @@ class PublicHorseRace {
                 ]
             });
         }
-        // ...restante lógica da corrida (apostas, etc) pode ser centralizada em um canal se preferir
+
+        // Lógica de apostas e distribuição de prêmios (exemplo simplificado)
+        // ...
+        // Após determinar os vencedores e calcular os ganhos:
+        // Para cada usuário vencedor:
+        //   - Verifique se ele tem o Cartão VIP equipado
+        //   - Se sim, aplique o bônus de 20% nos ganhos
+        // Exemplo:
+        // const UserItem = (await import('../models/UserItem.js')).default;
+        // for (const apostador of apostadoresVencedores) {
+        //   let ganho = apostador.ganhoBase;
+        //   const hasVip = await UserItem.findOne({ userId: apostador.userId, itemId: 6, equipado: true });
+        //   if (hasVip) ganho = Math.floor(ganho * 1.2);
+        //   // Credite ganho ao usuário
+        // }
     }
     }
 

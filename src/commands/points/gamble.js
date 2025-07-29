@@ -99,6 +99,13 @@ export default {
     }
 
     let total = Math.max(0, Math.floor((basePoints + bonus) * multiplier));
+    // Verifica se o usuário tem o cartão vip (id 6) equipado
+    const UserItem = (await import('../../models/UserItem.js')).default;
+    const hasVip = await UserItem.findOne({ userId, itemId: 6, equipado: true });
+    if (hasVip && total > 0) {
+      total = Math.floor(total * 1.2);
+      effects.push('💳 Bónus VIP: +20% nos ganhos!');
+    }
     user.points += total;
     await user.save();
 

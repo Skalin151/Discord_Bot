@@ -26,14 +26,14 @@ export default {
             const points = user ? user.points : 0;
             const pointsSpent = user ? user.pointsSpent || 0 : 0;
             const createdAt = `<t:${Math.floor(message.author.createdTimestamp / 1000)}:F>`;
-            // Busca itens do usuário
-            const userItems = await UserItem.find({ userId });
-            let itemsText = 'Nenhum item.';
-            if (userItems.length > 0) {
-                itemsText = userItems.map(ui => {
+            // Busca apenas itens equipados do usuário
+            const equippedItems = await UserItem.find({ userId, equipado: true });
+            let itemsText = 'Nenhum item equipado.';
+            if (equippedItems.length > 0) {
+                itemsText = equippedItems.map(ui => {
                     const item = shopItems.find(i => i.id === ui.itemId);
                     if (item) {
-                        return `${item.icon || ''} **${item.nome}** x${ui.quantidade}`;
+                        return `• ${item.icon || ''} **${item.nome}** x${ui.quantidade}`;
                     } else {
                         return `Item #${ui.itemId} x${ui.quantidade}`;
                     }
@@ -46,7 +46,7 @@ export default {
                     { name: 'Pontos', value: `${points}`, inline: true },
                     { name: 'Pontos Gastos', value: `${pointsSpent}`, inline: true },
                     { name: 'Data de Criação', value: createdAt, inline: true },
-                    { name: '🎒 Items:', value: itemsText, inline: false }
+                    { name: `🎒 Itens Equipados [${equippedItems.length}/5]`, value: itemsText, inline: false }
                 )
                 .setColor(0x9932cc);
             await message.channel.send({ embeds: [embed] });
@@ -89,15 +89,15 @@ export default {
         const collector = sentMsg.createMessageComponentCollector({ filter, time: 30000, max: 1 });
 
         collector.on('collect', async (interaction) => {
-            // Verifica se o usuário tem o item 2 (chave ferrujenta)
-            const hasKey = await UserItem.findOne({ userId, itemId: 2 });
+            // Verifica se o usuário tem o item 2 (chave ferrujenta) equipado
+            const hasKey = await UserItem.findOne({ userId, itemId: 2, equipado: true });
             if (!hasKey) {
                 await interaction.reply({ content: '*É um cadeado velho, cheio de ferrugem, se eu tivesse a chave poderia abri-lo*', flags: 64 });
             } else {
                 await interaction.reply({ content: '🔓 Uma mensagem aparece, é longa e confusa, é melhor anotá-la:', flags: 64 });
                 await new Promise(resolve => setTimeout(resolve, 3000));
                 await interaction.followUp({ content: 'SSBBTSBIT0xMT1cuCgpNWSBNSVNUQUtFUyBMRUFWRSBOT1RISU5HIEJVVCBIQVRFIElOIFRIRUlSCldBS0UsIEFORCBJTkZJTklURSBQQUlOIFRPIEZPTExPVy4uLgoKSSBDQU4nVCBUQUtFIEFOWSBNT1JFIE9GIFRISVMgR1VJTFQgQU5EIFJFR1JFVCwKRk9SIE1FIFRIRVJFIElTIE5PIFRPTU9SUk9XLi4uCgpJIEFNIEhPTExPVy4KCi4uLgoKSSBCRUdBTiBUTyBTRUVLIFRIRSBFTkQgT0YgTVkgREFZUy4KCkJVVCBXSEVOIEkgU1RBUkVEIElOVE8gVEhFIEFCWVNTLi4uCgpUSEUgQUJZU1MgQVZFUlRFRCBJVFMgR0FaRS4=', flags: 64 });
-                }
+            }
         });
     }
 };

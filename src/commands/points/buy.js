@@ -53,9 +53,19 @@ export default {
         user.pointsSpent = (user.pointsSpent || 0) + precoFinal;
         await user.save();
 
+        // Checa quantos itens equipados o usuário já tem
+        const equippedCount = await UserItem.countDocuments({ userId, equipado: true });
+        let equipado = false;
+        let equipMsg = '';
+        if (equippedCount < 5) {
+            equipado = true;
+            equipMsg = ' (equipado automaticamente)';
+        } else {
+            equipMsg = ' (adicionado à bag, pois já tem 5 itens equipados)';
+        }
         await UserItem.findOneAndUpdate(
             { userId, itemId: item.id },
-            { $inc: { quantidade: item.quantidade || 1 }, $setOnInsert: { compradoEm: new Date() } },
+            { $inc: { quantidade: item.quantidade || 1 }, $setOnInsert: { compradoEm: new Date() }, $set: { equipado } },
             { upsert: true, new: true }
         );
 
@@ -63,6 +73,6 @@ export default {
         if (precoOriginal) {
             precoMsg = `~~${precoOriginal}~~ ➔ **${precoFinal}**`;
         }
-        return message.reply(`Compraste ${item.icon || ''} **${item.nome}** por ${precoMsg} pontos!`);
+        return message.reply(`Compraste ${item.icon || ''} **${item.nome}** por ${precoMsg} pontos!${equipMsg}`);
     }
 };
