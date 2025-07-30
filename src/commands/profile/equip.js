@@ -1,5 +1,5 @@
-import UserItem from '../models/UserItem.js';
-import shopItems from '../config/shopItems.js';
+import UserItem from '../../models/UserItem.js';
+import shopItems from '../../config/shopItems.js';
 
 export default {
     name: 'equip',

@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
-import promoCodes from '../config/promoCodes.js';
-import User from '../models/User.js';
-import UserCode from '../models/UserCode.js';
+import promoCodes from '../../config/promoCodes.js';
+import User from '../../models/User.js';
+import UserCode from '../../models/UserCode.js';
 
 export default {
     name: 'code',
@@ -60,7 +60,7 @@ export default {
             }
             // Se o código for TestamentV, dá o item 6 (Orb of Avarice)
             if (codeObj.code.toLowerCase() === 'testamentv') {
-                const UserItem = (await import('../models/UserItem.js')).default;
+                const UserItem = (await import('../../models/UserItem.js')).default;
                 // Checa quantos itens equipados o usuário já tem
                 const equippedCount = await UserItem.countDocuments({ userId: message.author.id, equipado: true });
                 let equipado = false;

@@ -1,7 +1,7 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import User from '../models/User.js';
-import UserItem from '../models/UserItem.js';
-import shopItems from '../config/shopItems.js';
+import User from '../../models/User.js';
+import UserItem from '../../models/UserItem.js';
+import shopItems from '../../config/shopItems.js';
 
 // Mapa para contar execuções seguidas do comando por usuário
 const profileUsageMap = new Map();

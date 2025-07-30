@@ -55,14 +55,7 @@ Bot all-in-one desenvolvido por Skalin151
 - Anti-spam e anti-link
 - Mensagens de boas-vindas customizáveis
 - Sistema de XP e níveis
-### 🏇 Corridas & Inventário
-- `!profile` — Mostra o perfil do utilizador, itens equipados e estatísticas
-- `!bag` — Mostra todos os itens do inventário e IDs para equipar/unequipar
-- `!equip <id>` — Equipa um item do inventário pelo ID
-- `!unequip <id>` — Desequipa um item equipado pelo ID
-- `!horse` — Inicia uma corrida de cavalos privada
-- `!race` — Participa numa corrida pública
-- `!horsestats` — Mostra estatísticas detalhadas dos cavalos
+
 
 ### 🛒 Loja
 - `!shop` — Mostra a loja de itens

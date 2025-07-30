@@ -24,7 +24,27 @@ export default {
                     console.error('❌ Erro ao enviar mensagem de erro:', replyError);
                 }
             }
+            return;
         }
-        // Se for botão, ignore aqui (o handler do comando queue já trata)
+
+        // Handler para botões do minijogo de combate por turnos
+        if (interaction.isButton && interaction.isButton()) {
+            const combatButtonIds = ['attack_physical', 'attack_magic', 'attack_item'];
+            if (
+                (interaction.customId && interaction.customId.startsWith('combat_')) ||
+                combatButtonIds.includes(interaction.customId)
+            ) {
+                const { handleCombatButton } = await import('../minigames/turnCombat.js');
+                try {
+                    await handleCombatButton(interaction, client);
+                } catch (err) {
+                    console.error('Erro ao processar botão de combate:', err);
+                    if (!interaction.replied && !interaction.deferred) {
+                        await interaction.reply({ content: '❌ Erro ao processar ação do combate.', ephemeral: true });
+                    }
+                }
+                return;
+            }
+        }
     },
 };

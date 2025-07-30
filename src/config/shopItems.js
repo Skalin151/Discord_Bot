@@ -53,7 +53,7 @@ const shopItems = [
     },
     {
         id: 6,
-        nome: 'Cartão VIP',
+        nome: 'VIP Card',
         preco: 20000,
         descricao: 'Os ricos ficam mais ricos.',
         icon: '💳',

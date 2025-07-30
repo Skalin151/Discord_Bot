@@ -1,5 +1,5 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import User from '../models/User.js';
+import User from '../../models/User.js';
 
 const symbols = [
   { emoji: '🍒', name: 'Cereja', rarity: 'comum', weight: 40 },
@@ -103,7 +103,7 @@ export default {
           reward += bonus;
         }
         // Verifica se o usuário tem o cartão VIP equipado (itemId: 1)
-        const UserItem = (await import('../models/UserItem.js')).default;
+        const UserItem = (await import('../../models/UserItem.js')).default;
         const vipEquipped = await UserItem.findOne({ userId, itemId: 6, equipado: true });
         if (vipEquipped) {
           vipBonus = Math.floor(reward * 0.2);
