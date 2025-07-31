@@ -36,7 +36,7 @@ export default {
   description: 'Jogue na slot machine e ganhe pontos!',
   async execute(client, message) {
     const userId = message.author.id;
-    const betAmount = 300;
+    const betAmount = 650;
 
     // Buscar ou criar utilizador na base de dados
     let user = await User.findOne({ userId });
