@@ -1,6 +1,6 @@
 export const config = {
     // Prefixo para comandos
-    prefix: '!',
+    prefix: '%',
     
     // Nome do canal onde os logs serão enviados
     logChannelNames: ['logs', 'audit-logs', 'eventos'],

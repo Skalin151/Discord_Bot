@@ -12,18 +12,20 @@ export default {
         if (!userPets.length) {
             return message.reply('Você não possui nenhum pet ainda. Compre um no !petshop!');
         }
-        // Monta lista de pets do usuário
+        // Ordena pets por id antes de montar a lista
         const COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 horas
         const now = Date.now();
-        const lines = userPets.map(ui => {
-            const pet = petItems.find(p => p.id === ui.itemId);
-            if (!pet) return `Pet #${ui.itemId}`;
-            let sleep = '';
-            if (ui.lastWalked && now - ui.lastWalked.getTime() < COOLDOWN_MS) {
-                sleep = ' 💤';
-            }
-            return `[${pet.id}] ${pet.icon} **${pet.nome}**${sleep} — ${pet.descricao}`;
-        });
+        const lines = userPets
+            .sort((a, b) => a.itemId - b.itemId)
+            .map(ui => {
+                const pet = petItems.find(p => p.id === ui.itemId);
+                if (!pet) return `Pet #${ui.itemId}`;
+                let sleep = '';
+                if (ui.lastWalked && now - ui.lastWalked.getTime() < COOLDOWN_MS) {
+                    sleep = ' 💤';
+                }
+                return `[${pet.id}] ${pet.icon} **${pet.nome}**${sleep} — ${pet.descricao}`;
+            });
         const embed = new EmbedBuilder()
             .setTitle(`🐾 Pets de ${message.author.username}`)
             .setDescription(lines.join('\n'))

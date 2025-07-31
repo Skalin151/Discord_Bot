@@ -77,12 +77,12 @@ export default {
         );
         const sentMsg = await message.channel.send({ embeds: [embed], components: [row] });
 
-        // Apaga a mensagem corrompida após 30 segundos
+        // Apaga a mensagem corrompida após 15 segundos
         setTimeout(async () => {
             try {
                 await sentMsg.delete();
             } catch (e) { /* ignore */ }
-        }, 30000);
+        }, 15000);
 
         // Cria coletor para o botão 🔒
         const filter = (interaction) => interaction.customId === 'profile_locked' && interaction.user.id === userId;
