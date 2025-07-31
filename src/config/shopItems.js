@@ -3,11 +3,11 @@
 const shopItems = [
     {
         id: 1,
-        nome: 'Poção de Velocidade',
+        nome: 'Rotten Eggs',
         preco: 100,
-        descricao: 'Aumenta a velocidade do seu cavalo por 1 corrida.',
-        icon: '🏇',
-        quantidade: 1, // Quantidade recebida por compra
+        descricao: '[5] Emite um cheiro peculiar, talvez os monstros gostem.',
+        icon: '🥚',
+        quantidade: 5, // Quantidade recebida por compra
         unico: false,   // Pode comprar várias vezes
         visivel: true
     },
@@ -23,10 +23,10 @@ const shopItems = [
     },
     {
         id: 3,
-        nome: 'Upgrade Premium',
-        preco: 1000,
-        descricao: 'Desbloqueia um upgrade permanente para sua conta.',
-        icon: '💎',
+        nome: 'Monster Spawner',
+        preco: 15000,
+        descricao: 'Habilidade de iniciar combat encounters quando quiser, por um preço.',
+        icon: '📦',
         quantidade: 1,
         unico: true,
         visivel: true
@@ -60,6 +60,16 @@ const shopItems = [
         quantidade: 1,
         unico: true,
         visivel: true
+    },
+    {
+        id: 98,
+        nome: 'Glass Sword',
+        preco: 5000,
+        descricao: '?.',
+        icon: '🥛',
+        quantidade: 1,
+        unico: true,
+        visivel: false
     },
     {
         id: 99,

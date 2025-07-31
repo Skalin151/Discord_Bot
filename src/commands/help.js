@@ -22,7 +22,8 @@ export default {
           '`!unequip <id>` — Desequipa um item atualmente equipado usando o ID\n'
         },
         { name: '🛠️ Utilidade (extra)', value:
-          '`!server` — Mostra informações do servidor\n'
+          '`!server` — Mostra informações do servidor\n' +
+          '`!owner` — Mostra informações sobre o desenvolvedor do bot\n'
         },
         { name: '🏇 Corridas de Cavalos', value:
           '`!horse` — Inicia uma corrida pública de cavalos (manual, se permitido)\n' +
@@ -40,7 +41,8 @@ export default {
           '`!blackjack` — Joga Blackjack apostando pontos\n' +
           '`!8ball <pergunta>` — Pergunta ao 8ball qualquer coisa' +
           '`!shop` — Loja de itens especiais para corridas\n' +
-          '`!buy <id>` — Compra um item da loja\n'
+          '`!buy <id>` — Compra um item da loja\n' +
+          '`2: ----- .----` — ???\n'
         },
         { name: '🎵 Música', value:
           '`!play <url|termo>` — Toca músicas ou playlists\n' +

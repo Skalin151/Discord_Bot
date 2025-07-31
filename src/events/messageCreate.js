@@ -4,6 +4,13 @@ export default {
     name: 'messageCreate',
     async execute(message, client) {
         // --- Minijogo de combate por turnos ---
+        // Comando de debug: forçar spawn de monstro
+        if (message.content.startsWith(config.prefix + 'spawn')) {
+            const handleSpawn = (await import('../commands/spawn.js')).default;
+            await handleSpawn(message);
+            return;
+        }
+
         // Ignorar comandos (mensagens que começam com o prefixo) no contador do minijogo
         if (!message.content.startsWith(config.prefix)) {
             if (!global.turnCombatMsgCount) global.turnCombatMsgCount = {};
@@ -17,7 +24,7 @@ export default {
                 // Limitar a 4 participantes recentes
                 if (global.turnCombatParticipants[channelId].length > 4) global.turnCombatParticipants[channelId].shift();
             }
-            // A cada 5 mensagens, 30% de chance de spawnar monstro
+            // A cada 50 mensagens, 30% de chance de spawnar monstro
             if (global.turnCombatMsgCount[channelId] >= 50) {
                 global.turnCombatMsgCount[channelId] = 0;
                 if (Math.random() < 0.3) { //Alterar depois

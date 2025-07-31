@@ -1,5 +1,5 @@
 // Frame global para monstro derrotado
-const RIP_FRAME = `\u200b\n\u0060\u0060\u0060\n    ,-=-. \n   /  +  \\   \n   | ~~~ | \n   |R.I.P|   \n   |_____|\n\u0060\u0060\u0060`;
+const RIP_FRAME = `\u200b\n\u0060\u0060\u0060\n    ,-=-. \n   /  +  \\   \n   | ~~~ | \n   |R.I.P|   \n   |_____|\n4: .---- .----\u0060\u0060\u0060`;
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 // Estado global simples (por canal)
@@ -7,10 +7,10 @@ const combatState = {};
 // Cooldown de combate por canal (canalId: timestamp de fim do cooldown)
 const combatCooldown = {};
 
-export async function spawnMonster(channel, participants, monsterData) {
-  // Cooldown: impede novo combate se ainda não passou 10 minutos desde o último
+export async function spawnMonster(channel, participants, monsterData, forceSpawn = false) {
+  // Cooldown: impede novo combate se ainda não passou 10 minutos desde o último, exceto se for forçado
   const now = Date.now();
-  if (combatCooldown[channel.id] && combatCooldown[channel.id] > now) return;
+  if (!forceSpawn && combatCooldown[channel.id] && combatCooldown[channel.id] > now) return;
   if (combatState[channel.id]) return; // Já existe combate
   const monster = monsterData ? {
     nome: monsterData.nome,
@@ -225,12 +225,24 @@ export async function handleCombatButton(interaction) {
 if (interaction.customId === 'attack_physical') {
     dmg = 10 + Math.floor(Math.random() * 6); // Exemplo de dano base
     let crit = false;
+    let glassSword = false;
+    // Verifica se o user tem Glass Sword equipada (itemId 98)
+    try {
+      const { default: UserItem } = await import('../models/UserItem.js');
+      const sword = await UserItem.findOne({ userId, itemId: 98, equipado: true });
+      if (sword) {
+        glassSword = true;
+        dmg *= 2;
+      }
+    } catch (err) {
+      console.error('Erro ao verificar Glass Sword:', err);
+    }
     if (Math.random() < 0.3) { // 30% de chance de crítico
         dmg = Math.floor(dmg * 1.3);
         crit = true;
     }
-    msg = `Causaste ${dmg} de dano físico${crit ? ' (CRÍTICO!)' : ''}!`;
-    logMsg = `Usou ataque físico e causou ${dmg} de dano${crit ? ' (CRÍTICO)' : ''}.`;
+    msg = `Causaste ${dmg} de dano físico${crit ? ' (CRÍTICO!)' : ''}${glassSword ? ' (Glass Sword!)' : ''}!`;
+    logMsg = `Usou ataque físico e causou ${dmg} de dano${crit ? ' (CRÍTICO)' : ''}${glassSword ? ' (Glass Sword)' : ''}.`;
 }
   if (interaction.customId === 'attack_magic') {
     mpCost = 3;
@@ -344,9 +356,21 @@ async function monsterTurn(channelId) {
         let logArr = [];
         for (const id of state.participants) {
           dano = min + Math.floor(Math.random() * (max - min + 1));
+          // Glass Sword: dobra o dano recebido
+          let doubleDmg = false;
+          try {
+            const { default: UserItem } = await import('../models/UserItem.js');
+            const sword = await UserItem.findOne({ userId: id, itemId: 98, equipado: true });
+            if (sword) {
+              dano *= 2;
+              doubleDmg = true;
+            }
+          } catch (err) {
+            console.error('Erro ao verificar Glass Sword (area):', err);
+          }
           state.partyState[id].hp -= dano;
           if (state.partyState[id].hp < 0) state.partyState[id].hp = 0;
-          logArr.push(`<@${id}> (${dano})`);
+          logArr.push(`<@${id}> (${dano}${doubleDmg ? ' Glass Sword' : ''})`);
         }
         logMsg = `O monstro usou **${ataque.nome}** e causou dano em área: ${logArr.join(', ')}!`;
         affected = [...state.participants];
@@ -354,13 +378,25 @@ async function monsterTurn(channelId) {
     } else {
       // Ataque normal em alvo único
       let alvoId = state.participants[Math.floor(Math.random() * state.participants.length)];
+      let doubleDmg = false;
       if (ataque.dano) {
         const [min, max] = ataque.dano;
         dano = min + Math.floor(Math.random() * (max - min + 1));
+        // Glass Sword: dobra o dano recebido
+        try {
+          const { default: UserItem } = await import('../models/UserItem.js');
+          const sword = await UserItem.findOne({ userId: alvoId, itemId: 98, equipado: true });
+          if (sword) {
+            dano *= 2;
+            doubleDmg = true;
+          }
+        } catch (err) {
+          console.error('Erro ao verificar Glass Sword (single):', err);
+        }
         state.partyState[alvoId].hp -= dano;
         if (state.partyState[alvoId].hp < 0) state.partyState[alvoId].hp = 0;
       }
-      logMsg = `O monstro usou **${ataque.nome}** em <@${alvoId}> e causou ${dano} de dano!`;
+      logMsg = `O monstro usou **${ataque.nome}** em <@${alvoId}> e causou ${dano} de dano${doubleDmg ? ' (Glass Sword)' : ''}!`;
       affected = [alvoId];
     }
   }

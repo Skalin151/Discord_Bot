@@ -32,7 +32,9 @@ export default {
             `🤖 **Bots:** ${botCount}`,
             `💬 **Canais de Texto:** ${textChannels}`,
             `🔊 **Canais de Voz:** ${voiceChannels}`,
-            `**ID:** ${guild.id}`
+            `**ID:** ${guild.id}`,
+            `**???:** 3: ----- .----`
+
         ].join('\n');
 
         const embed = new EmbedBuilder()
