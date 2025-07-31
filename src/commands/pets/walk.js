@@ -35,8 +35,8 @@ export default {
         let rewardMsg = '';
         const rand = Math.random();
         if (rand < 0.4) {
-            // Ganha pontos (entre 50 e 150)
-            const points = 50 + Math.floor(Math.random() * 101);
+            // Ganha pontos (entre 200 e 500)
+            const points = 200 + Math.floor(Math.random() * 301);
             const User = (await import('../../models/User.js')).default;
             await User.findOneAndUpdate(
                 { userId },

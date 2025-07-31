@@ -72,7 +72,7 @@ export default {
                 if (codeObj.code.toLowerCase() === 'testamentv') {
                     let orb = await UserItem.findOne({ userId: message.author.id, itemId: 6 });
                     if (!orb) {
-                        await UserItem.create({ userId: message.author.id, itemId: 6, quantidade: 1, equipado });
+                        await UserItem.create({ userId: message.author.id, itemId: 99, quantidade: 1, equipado });
                     } else {
                         orb.quantidade += 1;
                         // Só equipa se for o primeiro e houver espaço

@@ -3,7 +3,7 @@ import UserItem from '../../models/UserItem.js';
 
 export default {
     name: 'buy',
-    description: 'Compra um item da loja pelo ID. Uso: !buy [id]',
+    description: 'Compra um item da loja pelo ID. Uso: %buy [id]',
     /**
      * @param {import('discord.js').Client} client
      * @param {import('discord.js').Message} message
@@ -13,7 +13,7 @@ export default {
         const userId = message.author.id;
         const itemId = parseInt(args[0], 10);
         if (isNaN(itemId)) {
-            return message.reply('Por favor, forneça o ID do item que deseja comprar. Ex: !buy 2');
+            return message.reply('Por favor, forneça o ID do item que deseja comprar. Ex: %buy 2');
         }
         const item = [...shopItems, ...petItems].find(i => i.id === itemId);
         if (!item) {

@@ -3,7 +3,7 @@ import shopItems from '../../config/shopItems.js';
 
 export default {
     name: 'equip',
-    description: 'Equipe um item do inventário pelo id. Uso: !equip <id>',
+    description: 'Equipe um item do inventário pelo id. Uso: %equip <id>',
     async execute(client, message, args) {
         const userId = message.author.id;
         const itemId = parseInt(args[0]);

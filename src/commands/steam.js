@@ -18,7 +18,7 @@ async function getAppId(query) {
 export default {
   name: 'steam',
   description: 'Mostra informações de um jogo da Steam, incluindo preços em euro e hryvnia (UAH)',
-  usage: '!steam <nome do jogo | appid>',
+  usage: '%steam <nome do jogo | appid>',
   async execute(client, message, args) {
     if (!args.length) return await message.channel.send('❌ Use: !steam <nome do jogo | appid>');
     const query = args.join(' ');

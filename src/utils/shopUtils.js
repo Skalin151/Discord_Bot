@@ -11,8 +11,8 @@ export function createShopEmbed(items, hasCoupon = false) {
         .setColor('#FFD700');
 
     embed.setDescription(hasCoupon
-        ? '**Cupom ativo: 10% de desconto em todos os itens!**\nUse `!buy <id>` para comprar um item!'
-        : 'Use `!buy <id>` para comprar um item!');
+        ? '**Cupom ativo: 10% de desconto em todos os itens!**\nUse `%buy <id>` para comprar um item!'
+        : 'Use `%buy <id>` para comprar um item!');
 
     items.forEach((item) => {
         let precoStr = `💰 ${item.preco} pts`;

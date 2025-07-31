@@ -3,12 +3,12 @@ import shopItems from '../../config/shopItems.js';
 
 export default {
     name: 'unequip',
-    description: 'Desequipe um item do inventário pelo id. Uso: !unequip <id>',
+    description: 'Desequipe um item do inventário pelo id. Uso: %unequip <id>',
     async execute(client, message, args) {
         const userId = message.author.id;
         const itemId = parseInt(args[0]);
         if (isNaN(itemId)) {
-            return message.reply('Por favor, especifique o id do item para desequipar. Ex: !unequip 2');
+            return message.reply('Por favor, especifique o id do item para desequipar. Ex: %unequip 2');
         }
         const userItem = await UserItem.findOne({ userId, itemId });
         if (!userItem) {
