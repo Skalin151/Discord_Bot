@@ -1,3 +1,5 @@
+// Inicia o servidor de ping HTTP para Render Free
+import './ping.js';
 import * as youtubei from 'discord-player-youtubei';
 console.log('youtubei:', youtubei);
 const { YoutubeiExtractor } = youtubei;
