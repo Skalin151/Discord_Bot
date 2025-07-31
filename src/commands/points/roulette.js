@@ -5,10 +5,18 @@ export default {
   name: 'roulette',
   description: 'Aposte na roleta!',
   async execute(client, message, args) {
-    const aposta = args[0]?.toLowerCase();
+    let aposta = args[0]?.toLowerCase();
     if (!aposta) {
       return message.reply('❌ Especifique a sua aposta (vermelho, preto, par, ímpar, 0-36)');
     }
+    // Aceitar apostas em inglês e mapear para português
+    const apostaMap = {
+      'black': 'preto',
+      'red': 'vermelho',
+      'even': 'par',
+      'odd': 'ímpar',
+    };
+    aposta = apostaMap[aposta] || aposta;
     const vermelho = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
     const preto = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
     const apostaValor = 100;
@@ -30,7 +38,7 @@ export default {
     // Enviar mensagem inicial
     const msg = await message.reply(`🎯 Girando a roleta... (-${apostaValor} pontos)`);
 
-    const giros = 15; // Quantos giros falsos mostrar
+    const giros = 10; // Quantos giros falsos mostrar
     let atual = 0;
 
     const animar = async () => {
@@ -84,7 +92,10 @@ export default {
       }
 
       const numeroAleatorio = Math.floor(Math.random() * 37);
-      await msg.edit({ content: `🎯 Girando... número atual: **${numeroAleatorio}**` });
+      let emoji = '🟢';
+      if (vermelho.includes(numeroAleatorio)) emoji = '🔴';
+      else if (preto.includes(numeroAleatorio)) emoji = '⚫';
+      await msg.edit({ content: `🎯 Girando... número atual: ${emoji} **${numeroAleatorio}**` });
 
       atual++;
       setTimeout(animar, 500); // velocidade da animação (ms)

@@ -74,13 +74,13 @@ class BlackjackGame {
   getGameResult() {
     const playerValue = this.calculateHandValue(this.playerHand);
     const dealerValue = this.calculateHandValue(this.dealerHand);
+    const playerBlackjack = playerValue === 21 && this.playerHand.length === 2;
+    const dealerBlackjack = dealerValue === 21 && this.dealerHand.length === 2;
     if (playerValue > 21) return { result: 'lose', message: '💥 Rebentaste! Perdeste!' };
     if (dealerValue > 21) return { result: 'win', message: '🎉 O dealer rebentou! Ganhaste!' };
-    if (playerValue === 21 && this.playerHand.length === 2) {
-      if (dealerValue === 21 && this.dealerHand.length === 2) return { result: 'tie', message: '🤝 Empate! Ambos têm Blackjack!' };
-      return { result: 'blackjack', message: '🔥 BLACKJACK! Ganhaste!' };
-    }
-    if (dealerValue === 21 && this.dealerHand.length === 2) return { result: 'lose', message: '😞 O dealer tem Blackjack! Perdeste!' };
+    if (playerBlackjack && dealerBlackjack) return { result: 'tie', message: '🤝 Empate! Ambos têm Blackjack!' };
+    if (playerBlackjack) return { result: 'blackjack', message: '🔥 BLACKJACK! Ganhaste!' };
+    if (dealerBlackjack) return { result: 'lose', message: '😞 O dealer tem Blackjack! Perdeste!' };
     if (playerValue > dealerValue) return { result: 'win', message: '🎉 Ganhaste!' };
     else if (dealerValue > playerValue) return { result: 'lose', message: '😞 Perdeste!' };
     else return { result: 'tie', message: '🤝 Empate!' };

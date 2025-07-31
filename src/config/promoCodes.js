@@ -11,7 +11,7 @@ const promoCodes = [
     {
         code: 'BEMVINDO2025',
         usos: Infinity, // ilimitado
-        validade: 2025-12-31, // sem data de validade
+        validade: null,
         recompensa: { pontos: 1000 }
     },
     {
