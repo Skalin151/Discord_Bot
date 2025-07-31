@@ -11,13 +11,20 @@ export default {
         if (userItems.length === 0) {
             return message.reply('O teu inventário está vazio.');
         }
-        userItems = userItems.sort((a, b) => a.itemId - b.itemId);
+        userItems = userItems
+            .filter(ui => ui.itemId < 100) // Oculta pets
+            .sort((a, b) => a.itemId - b.itemId);
         const lines = userItems.map(ui => {
             const item = shopItems.find(i => i.id === ui.itemId);
             const nome = item ? item.nome : `Item #${ui.itemId}`;
             const icon = item?.icon || '';
-            const status = ui.equipado ? '🟢' : '⚪';
-            return `${status} [${ui.itemId}] ${icon} **${nome}** x${ui.quantidade}`;
+            // Só mostra status se for equipável
+            if (item && item.equipavel !== false) {
+                const status = ui.equipado ? '🟢' : '⚪';
+                return `${status} [${ui.itemId}] ${icon} **${nome}** x${ui.quantidade}`;
+            } else {
+                return `[${ui.itemId}] ${icon} **${nome}** x${ui.quantidade}`;
+            }
         });
         const equippedCount = userItems.filter(i => i.equipado).length;
         const embed = new EmbedBuilder()

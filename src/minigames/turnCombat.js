@@ -56,7 +56,7 @@ export async function spawnMonster(channel, participants, monsterData, forceSpaw
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder().setCustomId('attack_physical').setLabel('AD 🗡️').setStyle(ButtonStyle.Primary),
     new ButtonBuilder().setCustomId('attack_magic').setLabel('MD 💫').setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId('attack_item').setLabel('Item 👜').setStyle(ButtonStyle.Success)
+    new ButtonBuilder().setCustomId('attack_item').setLabel('GUARD 🛡️').setStyle(ButtonStyle.Success)
   );
   const msg = await channel.send({ embeds: [embed], components: [row] });
   combatState[channel.id].message = msg;
@@ -222,7 +222,7 @@ export async function handleCombatButton(interaction) {
   let mpCost = 0;
   let msg = '';
   let logMsg = '';
-if (interaction.customId === 'attack_physical') {
+  if (interaction.customId === 'attack_physical') {
     dmg = 10 + Math.floor(Math.random() * 6); // Exemplo de dano base
     let crit = false;
     let glassSword = false;
@@ -270,9 +270,11 @@ if (interaction.customId === 'attack_physical') {
     logMsg = `Usou ataque mágico${dmgMultiplier > 1 ? ' com Orb of Avarice' : ''}, gastou ${totalMpCost} MP e causou ${dmg} de dano.`;
   }
   if (interaction.customId === 'attack_item') {
-    dmg = 10; // Simples para já
-    msg = `Causaste ${dmg} de dano usando item!`;
-    logMsg = `Usou item e causou ${dmg} de dano.`;
+    // GUARD: ativa proteção para o próximo ataque
+    state.partyState[userId].guard = true;
+    msg = `Estás em GUARD! O próximo ataque recebido terá 60% menos dano.`;
+    logMsg = `Usou GUARD e receberá 60% menos dano no próximo ataque.`;
+    dmg = 0;
   }
   state.monster.hp -= dmg;
   if (state.monster.hp < 0) state.monster.hp = 0;
@@ -368,9 +370,15 @@ async function monsterTurn(channelId) {
           } catch (err) {
             console.error('Erro ao verificar Glass Sword (area):', err);
           }
+          // GUARD: reduz dano em 60% se ativo
+          let guardActive = state.partyState[id].guard;
+          if (guardActive) {
+            dano = Math.floor(dano * 0.4);
+            state.partyState[id].guard = false;
+          }
           state.partyState[id].hp -= dano;
           if (state.partyState[id].hp < 0) state.partyState[id].hp = 0;
-          logArr.push(`<@${id}> (${dano}${doubleDmg ? ' Glass Sword' : ''})`);
+          logArr.push(`<@${id}> (${dano}${doubleDmg ? ' Glass Sword' : ''}${guardActive ? ' GUARD' : ''})`);
         }
         logMsg = `O monstro usou **${ataque.nome}** e causou dano em área: ${logArr.join(', ')}!`;
         affected = [...state.participants];
@@ -379,6 +387,7 @@ async function monsterTurn(channelId) {
       // Ataque normal em alvo único
       let alvoId = state.participants[Math.floor(Math.random() * state.participants.length)];
       let doubleDmg = false;
+      let guardActive = false;
       if (ataque.dano) {
         const [min, max] = ataque.dano;
         dano = min + Math.floor(Math.random() * (max - min + 1));
@@ -393,10 +402,16 @@ async function monsterTurn(channelId) {
         } catch (err) {
           console.error('Erro ao verificar Glass Sword (single):', err);
         }
+        // GUARD: reduz dano em 60% se ativo
+        guardActive = state.partyState[alvoId].guard;
+        if (guardActive) {
+          dano = Math.floor(dano * 0.4);
+          state.partyState[alvoId].guard = false;
+        }
         state.partyState[alvoId].hp -= dano;
         if (state.partyState[alvoId].hp < 0) state.partyState[alvoId].hp = 0;
       }
-      logMsg = `O monstro usou **${ataque.nome}** em <@${alvoId}> e causou ${dano} de dano${doubleDmg ? ' (Glass Sword)' : ''}!`;
+      logMsg = `O monstro usou **${ataque.nome}** em <@${alvoId}> e causou ${dano} de dano${doubleDmg ? ' (Glass Sword)' : ''}${guardActive ? ' (GUARD)' : ''}!`;
       affected = [alvoId];
     }
   }

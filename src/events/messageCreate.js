@@ -66,6 +66,17 @@ export default {
                 return;
             }
         }
+
+        // Trigger word: festa
+        const triggersFesta = ['festa'];
+        const msgNormFesta = normalize(message.content);
+        if (triggersFesta.some(trigger => msgNormFesta.includes(trigger))) {
+            const festaCmd = client.commands?.get('festa');
+            if (festaCmd) {
+                await festaCmd.execute(client, message);
+                return;
+            }
+        }
         
         // Ignorar bots
         if (message.author.bot) return;

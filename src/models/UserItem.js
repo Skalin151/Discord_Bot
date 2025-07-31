@@ -5,7 +5,9 @@ const UserItemSchema = new mongoose.Schema({
     itemId: { type: Number, required: true },
     quantidade: { type: Number, default: 1 },
     compradoEm: { type: Date, default: Date.now },
-    equipado: { type: Boolean, default: false }
+    equipado: { type: Boolean, default: false },
+    // Para pets: guarda a última vez que foi passeado
+    lastWalked: { type: Date, default: null }
 });
 
 const UserItem = mongoose.model('UserItem', UserItemSchema);

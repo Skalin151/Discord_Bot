@@ -1,4 +1,4 @@
-import shopItems from '../../config/shopItems.js';
+import shopItems, { petItems } from '../../config/shopItems.js';
 import UserItem from '../../models/UserItem.js';
 
 export default {
@@ -15,7 +15,7 @@ export default {
         if (isNaN(itemId)) {
             return message.reply('Por favor, forneça o ID do item que deseja comprar. Ex: !buy 2');
         }
-        const item = shopItems.find(i => i.id === itemId);
+        const item = [...shopItems, ...petItems].find(i => i.id === itemId);
         if (!item) {
             return message.reply('Item não encontrado. Use !shop para ver os itens disponíveis.');
         }
@@ -53,15 +53,19 @@ export default {
         user.pointsSpent = (user.pointsSpent || 0) + precoFinal;
         await user.save();
 
-        // Checa quantos itens equipados o usuário já tem
-        const equippedCount = await UserItem.countDocuments({ userId, equipado: true });
-        let equipado = false;
+        // Mensagem especial para pets
+        const isPet = item && item.id >= 100; // ids de pets >= 100
         let equipMsg = '';
-        if (equippedCount < 5) {
-            equipado = true;
-            equipMsg = ' (equipado automaticamente)';
-        } else {
-            equipMsg = ' (adicionado à bag, pois já tem 5 itens equipados)';
+        let equipado = false;
+        if (!isPet) {
+            // Checa quantos itens equipados o usuário já tem (apenas para não-pets)
+            const equippedCount = await UserItem.countDocuments({ userId, equipado: true });
+            if (equippedCount < 5) {
+                equipado = true;
+                equipMsg = ' (equipado automaticamente)';
+            } else {
+                equipMsg = ' (adicionado à bag, pois já tem 5 itens equipados)';
+            }
         }
         await UserItem.findOneAndUpdate(
             { userId, itemId: item.id },
@@ -73,6 +77,10 @@ export default {
         if (precoOriginal) {
             precoMsg = `~~${precoOriginal}~~ ➔ **${precoFinal}**`;
         }
-        return message.reply(`Compraste ${item.icon || ''} **${item.nome}** por ${precoMsg} pontos!${equipMsg}`);
+        let extraMsg = '';
+        if (isPet) {
+            extraMsg = ' Ele te aguarda na tua posse, usa o comando !pets.';
+        }
+        return message.reply(`Compraste ${item.icon || ''} **${item.nome}** por ${precoMsg} pontos!${isPet ? '' : equipMsg}${extraMsg}`);
     }
 };

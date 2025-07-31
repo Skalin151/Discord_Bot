@@ -30,8 +30,8 @@ const monsters = [
         ],
         ataques: [
             { nome: 'Teia Pegajosa', tipo: 'especial', dano: [6, 10]},
-            { nome: 'Salto Surpresa', tipo: 'fisico', dano: [14, 22]},
-            { nome: 'Bolha de ácido', tipo: 'fisico', dano: [14, 22], efeito: 'area' },
+            { nome: 'Salto Surpresa', tipo: 'fisico', dano: [12, 18]},
+            { nome: 'Bolha de ácido', tipo: 'fisico', dano: [10, 15], efeito: 'area' },
         ]
     },
     {
@@ -48,6 +48,20 @@ const monsters = [
         ataques: [
             { nome: 'Toque Etéreo', tipo: 'magico', dano: [6, 12] },
             { nome: 'Assombração', tipo: 'especial', dano: [8, 14], efeito: 'confusao' }
+        ]
+    },
+    {
+        id: 4,
+        nome: 'Cavaleiro',
+        hp: 70,
+        frames: [
+            `\u200b\n\u0060\u0060\u0060\n              /\n       ,~~   /\n   _  <=)  _/_\n  /I\\.="==.{>\n  \\I/-\\T/-'\n      /_\\\n     // \\_\n    _I    /\n\u0060\u0060\u0060\n\n\`HP: {hp}\``,
+            `\u200b\n\u0060\u0060\u0060\n            |\n       ,~~  |\n   _  <=)  _|_\n  /I\\.="==.{>\n  \\I/-\\T/-'\n      /_\\\n     // \\_\n    _I    /\n\u0060\u0060\u0060\n\n\`HP: {hp}\``
+        ],
+        ataques: [
+            { nome: 'Slash Vertical', tipo: 'fisico', dano: [5, 10] },
+            { nome: 'Slash Horizontal', tipo: 'fisico', dano: [8, 12], efeito: 'area' },
+            { nome: 'Luz Divina', tipo: 'defesa', cura: [10, 20] }
         ]
     },
     // Adiciona outros monstros aqui

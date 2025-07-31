@@ -14,6 +14,11 @@ export default {
         if (!userItem) {
             return message.reply('Você não possui esse item no inventário.');
         }
+        // Verifica se o item é equipável
+        const itemConfig = shopItems.find(i => i.id === itemId);
+        if (!itemConfig || itemConfig.equipavel === false) {
+            return message.reply('Este item não pode ser equipado.');
+        }
         if (userItem.equipado) {
             return message.reply('Esse item já está equipado.');
         }
