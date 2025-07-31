@@ -53,6 +53,10 @@ async function startBot() {
             console.error('YoutubeiExtractor não encontrado no plugin discord-player-youtubei');
         }
 
+        // Silenciar logs detalhados de erro do discord-player
+        client.player.events.on('error', () => {});
+        client.player.events.on('playerError', () => {});
+
         // Carregar comandos
         client.commands = await loadCommands();
 

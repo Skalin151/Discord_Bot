@@ -34,6 +34,20 @@ export default {
           '🌦️ Corridas públicas automáticas acontecem a cada 6h (00:00, 06:00, 12:00, 18:00) com clima dinâmico, traits, apostas e prêmios%\n' +
           'Itens da loja e traits afetam o desempenho dos cavalos.'
         },
+        { name: '🐾 Pets', value:
+          '`%petshop` — Mostra todos os pets disponíveis para compra\n' +
+          '`%buy <id>` — Compra um pet pelo ID\n' +
+          '`%pets` — Mostra todos os pets que você possui\n' +
+          '`%walk <id>` — Leva um pet para passear (cooldown de 2h por pet, pode dar pontos ou itens)\n'
+        },
+        { name: '⚔️ Minigame: Combate por Turnos', value:
+          '• Mensagens no chat podem fazer monstros aparecerem aleatoriamente!\n' +
+          '• Até 4 jogadores podem participar da party.\n' +
+          '• Use botões para atacar (físico/mágico), defender (GUARD) ou usar itens.\n' +
+          '• Monstros têm ataques especiais, área e cura.\n' +
+          '• Recompensas para todos ao derrotar o monstro.\n' +
+          '• Itens equipados podem afetar o combate (ex: Glass Sword, Orb of Avarice).\n'
+        },
         { name: '💸 Pontos & Jogos', value:
           '`%balance` — Mostra o saldo de pontos\n' +
           '`%daily` — Recebe 500 pontos uma vez por dia\n' +

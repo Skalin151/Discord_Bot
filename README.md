@@ -1,3 +1,16 @@
+### 🐾 Pets
+- `%petshop` — Mostra todos os pets disponíveis para compra
+- `%buy <id>` — Compra um pet pelo ID
+- `%pets` — Mostra todos os pets que você possui
+- `%walk <id>` — Leva um pet para passear (cooldown de 2h por pet, pode dar pontos ou itens)
+
+### ⚔️ Minigame: Combate por Turnos
+- Mensagens no chat podem fazer monstros aparecerem aleatoriamente!
+- Até 4 jogadores podem participar da party.
+- Use botões para atacar (físico/mágico), defender (GUARD) ou usar itens.
+- Monstros têm ataques especiais, área e cura.
+- Recompensas para todos ao derrotar o monstro.
+- Itens equipados podem afetar o combate (ex: Glass Sword, Orb of Avarice).
 
 # Discord_Bot
 Bot all-in-one desenvolvido por Skalin151

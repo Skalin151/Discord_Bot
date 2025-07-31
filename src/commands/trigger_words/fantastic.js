@@ -7,7 +7,7 @@ export default {
     const embed = new EmbedBuilder()
       .setTitle('Fantástico?')
       .setColor('#3498db')
-      .setDescription('**My granny called, she said, "Travvy, you work too hard\nI\'m worried you forget about me"\n(Ball, ball, ball**')
+      .setDescription('**My granny called, she said, "Travvy, you work too hard\nI\'m worried you forget about me"\n(Ball, ball, ball)**')
       .setImage('https://bg-so-1.zippyimage.com/2025/07/30/9480775659dfe1f04fcadfa83f8b5fe8.png');
     await message.channel.send({ embeds: [embed] });
   }

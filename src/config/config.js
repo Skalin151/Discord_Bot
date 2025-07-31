@@ -3,7 +3,7 @@ export const config = {
     prefix: '%',
     
     // Nome do canal onde os logs serão enviados
-    logChannelNames: ['logs', 'audit-logs', 'eventos'],
+    logChannelNames: ['logs', 'audit-logs', 'eventos', 'bot-commands', '🛠・comandos'],
     
     // Configurações de cores para diferentes tipos de eventos
     colors: {

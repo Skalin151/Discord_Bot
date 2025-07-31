@@ -14,7 +14,8 @@ import { isRaceEventNow, getNextRaceEventTime } from '../utils/raceEventUtils.js
 
 // IDs dos canais onde as corridas públicas serão anunciadas (suporte a múltiplos servidores)
 const PUBLIC_RACE_CHANNEL_IDS = [
-    '1395894836309135390', //Debug Server
+    '1395894836309135390',//Debug Server
+    '1302730634346631211', //Pengu's
 ];
 
 class PublicHorseRace {
@@ -127,15 +128,35 @@ const publicHorseRace = new PublicHorseRace();
 let avisoMsgId = null;
 let waitingForRace = false;
 let lastScheduledHour = null;
+// Função para obter a data/hora atual em Lisboa
+function getLisbonDate(baseDate = new Date()) {
+    // Usa Intl.DateTimeFormat para obter os componentes no fuso de Lisboa
+    const fmt = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Europe/Lisbon',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    });
+    const parts = fmt.formatToParts(baseDate).reduce((acc, part) => {
+        acc[part.type] = part.value;
+        return acc;
+    }, {});
+    return new Date(`${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`);
+}
+
 function getNextScheduledHour(now = new Date()) {
-    // Retorna o próximo horário plano de 6 em 6 horas (00:00, 06:00, 12:00, 18:00)
+    // Retorna o próximo horário plano de 6 em 6 horas (00:00, 06:00, 12:00, 18:00) no fuso de Lisboa
     const hours = [0, 6, 12, 18];
-    const current = new Date(now);
-    current.setSeconds(0, 0);
-    let next = new Date(current);
+    const lisbonNow = getLisbonDate(now);
+    lisbonNow.setSeconds(0, 0);
+    let next = new Date(lisbonNow);
     next.setMinutes(0, 0, 0);
     for (let h of hours) {
-        if (current.getHours() < h || (current.getHours() === h && current.getMinutes() < 0)) {
+        if (lisbonNow.getHours() < h || (lisbonNow.getHours() === h && lisbonNow.getMinutes() < 0)) {
             next.setHours(h, 0, 0, 0);
             return next;
         }
