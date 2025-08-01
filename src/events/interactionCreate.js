@@ -27,6 +27,20 @@ export default {
             return;
         }
 
+        // Handler para botões do sistema de tickets
+        if (interaction.isButton && interaction.isButton() && interaction.customId.startsWith('ticket_')) {
+            const ticketHandler = await import('./ticketButtonHandler.js');
+            try {
+                await ticketHandler.default.execute(interaction);
+            } catch (err) {
+                console.error('Erro ao processar botão de ticket:', err);
+                if (!interaction.replied && !interaction.deferred) {
+                    await interaction.reply({ content: '❌ Erro ao processar ação do ticket.', flags: MessageFlags.Ephemeral });
+                }
+            }
+            return;
+        }
+
         // Handler para botões do minijogo de combate por turnos
         if (interaction.isButton && interaction.isButton()) {
             const combatButtonIds = ['attack_physical', 'attack_magic', 'attack_item'];

@@ -23,7 +23,9 @@ export default {
         },
         { name: '🛠️ Utilidade (extra)', value:
           '`%server` — Mostra informações do servidor\n' +
-          '`%owner` — Mostra informações sobre o desenvolvedor do bot\n'
+          '`%owner` — Mostra informações sobre o desenvolvedor do bot\n' +
+          '`%ping` — Latência do Bot\n' +
+          '`%uptime` — Tempo de atividade do bot\n'
         },
         { name: '🏇 Corridas de Cavalos', value:
           '`%horse` — Inicia uma corrida pública de cavalos (manual, se permitido)\n' +
@@ -48,7 +50,24 @@ export default {
           '• Recompensas para todos ao derrotar o monstro.\n' +
           '• Itens equipados podem afetar o combate.\n'
         },
+        { name: '🎮 Minijogos', value:
+          '`%rps @user` — Rock Paper Scissors contra outro jogador\n' +
+          '`%rps3 @user` — Rock Paper Scissors melhor de 3\n' +
+          '`%tictactoe @user` — Jogo do Galo contra outro jogador\n' +
+          '`%flip` ou `%coinflip` — Atira uma moeda ao ar\n'
+        },
+        { name: '🎫 Sistema de Tickets', value:
+          '`%ticket` — Mostra ajuda do sistema de tickets\n' +
+          '`%ticket create [tipo] [título]` — Cria um novo ticket\n' +
+          '`%ticket view [ID]` — Ver detalhes de um ticket\n' +
+          '**Tipos:** `feedback`, `bug`, `suggestion`, `other`\n' +
+          '**Admin:** `%ticket admin list` — Ver todos os tickets\n' +
+          '**Admin:** `%ticket admin close [ID]` — Fechar ticket\n'
+        },
         { name: '💸 Pontos & Jogos', value:
+          '`%shop` — Mostra a loja de itens\n' +
+          '`%buy <id>` — Compra um item da loja pelo ID\n' +
+          '`%code <código>` — Resgata um código promocional\n' +
           '`%balance` — Mostra o saldo de pontos\n' +
           '`%daily` — Recebe 500 pontos uma vez por dia\n' +
           '`%gamble` — Slot machine para ganhar pontos\n' +
@@ -79,7 +98,6 @@ export default {
         { name: '💡 Futuras implementações', value: [
           '- Painel web para admins (Bot Configs)',
           '- Dashboard de estatísticas',
-          '- Sistema de tickets',
           '- Logs avançados de eventos',
           '- Integração com outros serviços (Twitch, Youtube, etc)',
           '- Auto-role por tempo de servidor',
