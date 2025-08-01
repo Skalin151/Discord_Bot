@@ -43,10 +43,10 @@ export default {
         { name: '⚔️ Minigame: Combate por Turnos', value:
           '• Mensagens no chat podem fazer monstros aparecerem aleatoriamente!\n' +
           '• Até 4 jogadores podem participar da party.\n' +
-          '• Use botões para atacar (físico/mágico), defender (GUARD) ou usar itens.\n' +
+          '• Use botões para atacar (físico/mágico) e defender (GUARD)\n' +
           '• Monstros têm ataques especiais, área e cura.\n' +
           '• Recompensas para todos ao derrotar o monstro.\n' +
-          '• Itens equipados podem afetar o combate (ex: Glass Sword, Orb of Avarice).\n'
+          '• Itens equipados podem afetar o combate.\n'
         },
         { name: '💸 Pontos & Jogos', value:
           '`%balance` — Mostra o saldo de pontos\n' +
@@ -56,6 +56,7 @@ export default {
           '`%8ball <pergunta>` — Pergunta ao 8ball qualquer coisa' +
           '`%shop` — Loja de itens especiais para corridas\n' +
           '`%buy <id>` — Compra um item da loja\n' +
+          '`%item <id>` — Detalhes de um item\n' +
           '`2: ----- .----` — ???\n'
         },
         { name: '🎵 Música', value:

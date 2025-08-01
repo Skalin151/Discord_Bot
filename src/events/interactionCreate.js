@@ -1,4 +1,4 @@
-import { Events } from 'discord.js';
+import { Events, MessageFlags } from 'discord.js';
 
 export default {
     name: Events.InteractionCreate,
@@ -16,9 +16,9 @@ export default {
                 const errorMessage = '❌ Ocorreu um erro ao executar este comando!';
                 try {
                     if (interaction.replied || interaction.deferred) {
-                        await interaction.followUp({ content: errorMessage, ephemeral: true });
+                        await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
                     } else {
-                        await interaction.reply({ content: errorMessage, ephemeral: true });
+                        await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
                     }
                 } catch (replyError) {
                     console.error('❌ Erro ao enviar mensagem de erro:', replyError);
@@ -40,7 +40,7 @@ export default {
                 } catch (err) {
                     console.error('Erro ao processar botão de combate:', err);
                     if (!interaction.replied && !interaction.deferred) {
-                        await interaction.reply({ content: '❌ Erro ao processar ação do combate.', ephemeral: true });
+                        await interaction.reply({ content: '❌ Erro ao processar ação do combate.', flags: MessageFlags.Ephemeral });
                     }
                 }
                 return;

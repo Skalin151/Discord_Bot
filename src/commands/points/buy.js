@@ -79,7 +79,7 @@ export default {
         }
         let extraMsg = '';
         if (isPet) {
-            extraMsg = ' Ele te aguarda na tua posse, usa o comando !pets.';
+            extraMsg = ' Ele te aguarda na tua posse, usa o comando %pets.';
         }
         return message.reply(`Compraste ${item.icon || ''} **${item.nome}** por ${precoMsg} pontos!${isPet ? '' : equipMsg}${extraMsg}`);
     }

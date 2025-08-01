@@ -8,7 +8,7 @@ export default {
         const userId = message.author.id;
         const itemId = parseInt(args[0]);
         if (isNaN(itemId)) {
-            return message.reply('Por favor, especifique o id do item para equipar. Ex: !equip 2');
+            return message.reply('Por favor, especifique o id do item para equipar. Ex: %equip 2');
         }
         const userItem = await UserItem.findOne({ userId, itemId });
         if (!userItem) {

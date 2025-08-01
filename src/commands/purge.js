@@ -31,27 +31,29 @@ export default {
                 }
             }
 
-            // Buscar mensagens para apagar (incluindo a mensagem do comando)
+            // Buscar mensagens para apagar (aumentando em 1 para incluir potencialmente a mensagem do comando)
             const messages = await message.channel.messages.fetch({ 
-                limit: amount + 1, // +1 para incluir a mensagem do comando
-                before: message.id 
+                limit: Math.min(amount + 1, 100)
             });
+
+            // Garantir que a mensagem do comando seja incluída se não estiver na busca
+            if (!messages.has(message.id)) {
+                messages.set(message.id, message);
+            }
 
             // Filtrar mensagens que não são muito antigas (Discord só permite apagar mensagens de até 14 dias)
             const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
             const filteredMessages = messages.filter(msg => msg.createdTimestamp > twoWeeksAgo);
 
             if (filteredMessages.size === 0) {
-                return message.reply('❌ Não há mensagens válidas para apagar (mensagens devem ter menos de 14 dias).');
+                return message.channel.send('❌ Não há mensagens válidas para apagar (mensagens devem ter menos de 14 dias).')
+                    .then(msg => {
+                        setTimeout(() => msg.delete().catch(() => {}), 5000);
+                    });
             }
 
-            // Apagar as mensagens
+            // Apagar as mensagens (incluindo a mensagem do comando)
             await message.channel.bulkDelete(filteredMessages, true);
-
-            // Apagar também a mensagem do comando
-            if (message.deletable) {
-                await message.delete();
-            }
 
             // Enviar confirmação (será apagada após alguns segundos)
             const confirmMessage = await message.channel.send(
@@ -72,12 +74,29 @@ export default {
         } catch (error) {
             console.error('Erro ao executar comando purge:', error);
 
+            let errorMessage = '❌ Ocorreu um erro ao tentar apagar as mensagens.';
+            
             if (error.code === 50034) {
-                message.reply('❌ Só posso apagar mensagens de até 14 dias!');
+                errorMessage = '❌ Só posso apagar mensagens de até 14 dias!';
             } else if (error.code === 50013) {
-                message.reply('❌ Não tenho permissão para apagar mensagens neste canal!');
-            } else {
-                message.reply('❌ Ocorreu um erro ao tentar apagar as mensagens.');
+                errorMessage = '❌ Não tenho permissão para apagar mensagens neste canal!';
+            }
+
+            // Enviar mensagem de erro no canal (não como resposta para evitar erro de mensagem não encontrada)
+            try {
+                const errorMsg = await message.channel.send(errorMessage);
+                // Apagar a mensagem de erro após 5 segundos
+                setTimeout(async () => {
+                    try {
+                        if (errorMsg.deletable) {
+                            await errorMsg.delete();
+                        }
+                    } catch (deleteError) {
+                        console.log('Não foi possível apagar a mensagem de erro:', deleteError.message);
+                    }
+                }, 5000);
+            } catch (sendError) {
+                console.error('Erro ao enviar mensagem de erro:', sendError);
             }
         }
     }

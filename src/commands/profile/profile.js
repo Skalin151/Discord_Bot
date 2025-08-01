@@ -94,9 +94,7 @@ export default {
             if (!hasKey) {
                 await interaction.reply({ content: '*É um cadeado velho, cheio de ferrugem, se eu tivesse a chave poderia abri-lo*', flags: 64 });
             } else {
-                await interaction.reply({ content: '🔓 Uma mensagem aparece, é longa e confusa, é melhor anotá-la:', flags: 64 });
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                await interaction.followUp({ content: 'SSBBTSBIT0xMT1cuCgpNWSBNSVNUQUtFUyBMRUFWRSBOT1RISU5HIEJVVCBIQVRFIElOIFRIRUlSCldBS0UsIEFORCBJTkZJTklURSBQQUlOIFRPIEZPTExPVy4uLgoKSSBDQU4nVCBUQUtFIEFOWSBNT1JFIE9GIFRISVMgR1VJTFQgQU5EIFJFR1JFVCwKRk9SIE1FIFRIRVJFIElTIE5PIFRPTU9SUk9XLi4uCgpJIEFNIEhPTExPVy4KCi4uLgoKSSBCRUdBTiBUTyBTRUVLIFRIRSBFTkQgT0YgTVkgREFZUy4KCkJVVCBXSEVOIEkgU1RBUkVEIElOVE8gVEhFIEFCWVNTLi4uCgpUSEUgQUJZU1MgQVZFUlRFRCBJVFMgR0FaRS4=', flags: 64 });
+                await interaction.reply({ content: '🔓 Uma mensagem aparece, é longa e confusa, é melhor anotá-la:\n SSBBTSBIT0xMT1cuCgpNWSBNSVNUQUtFUyBMRUFWRSBOT1RISU5HIEJVVCBIQVRFIElOIFRIRUlSCldBS0UsIEFORCBJTkZJTklURSBQQUlOIFRPIEZPTExPVy4uLgoKSSBDQU4nVCBUQUtFIEFOWSBNT1JFIE9GIFRISVMgR1VJTFQgQU5EIFJFR1JFVCwKRk9SIE1FIFRIRVJFIElTIE5PIFRPTU9SUk9XLi4uCgpJIEFNIEhPTExPVy4KCi4uLgoKSSBCRUdBTiBUTyBTRUVLIFRIRSBFTkQgT0YgTVkgREFZUy4KCkJVVCBXSEVOIEkgU1RBUkVEIElOVE8gVEhFIEFCWVNTLi4uCgpUSEUgQUJZU1MgQVZFUlRFRCBJVFMgR0FaRS4=', flags: 64 });
             }
         });
     }

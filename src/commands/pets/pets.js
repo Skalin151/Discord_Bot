@@ -10,7 +10,7 @@ export default {
         // Busca pets do usuário na base de dados
         const userPets = await UserItem.find({ userId, itemId: { $gte: 100 } });
         if (!userPets.length) {
-            return message.reply('Você não possui nenhum pet ainda. Compre um no !petshop!');
+            return message.reply('Você não possui nenhum pet ainda. Compre um no %petshop!');
         }
         // Ordena pets por id antes de montar a lista
         const COOLDOWN_MS = 2 * 60 * 60 * 1000; // 2 horas

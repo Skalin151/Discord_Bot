@@ -1,6 +1,6 @@
 // Frame global para monstro derrotado
 const RIP_FRAME = `\u200b\n\u0060\u0060\u0060\n    ,-=-. \n   /  +  \\   \n   | ~~~ | \n   |R.I.P|   \n   |_____|\n4: .---- .----\u0060\u0060\u0060`;
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 
 // Estado global simples (por canal)
 const combatState = {};
@@ -205,7 +205,7 @@ export async function handleCombatButton(interaction) {
   if (!state) return;
   const userId = state.participants[state.turn % state.participants.length];
   if (interaction.user.id !== userId) {
-    await interaction.reply({ content: 'Não é o teu turno!', ephemeral: true });
+    await interaction.reply({ content: 'Não é o teu turno!', flags: MessageFlags.Ephemeral });
     return;
   }
   // Limpa timer do turno se ação foi tomada
@@ -261,7 +261,7 @@ export async function handleCombatButton(interaction) {
     }
     const totalMpCost = mpCost * mpMultiplier;
     if (state.partyState[userId].mp < totalMpCost) {
-      await interaction.reply({ content: 'MP insuficiente para ataque mágico!', ephemeral: true });
+      await interaction.reply({ content: 'MP insuficiente para ataque mágico!', flags: MessageFlags.Ephemeral });
       return;
     }
     dmg = (6 + Math.floor(Math.random()*6)) * dmgMultiplier;

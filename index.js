@@ -71,7 +71,13 @@ async function startBot() {
         await client.login(process.env.DISCORD_TOKEN);
 
         // Inicia o agendador de corridas públicas automáticas
-        startAutoRaceScheduler(client);
+        console.log('🏇 Tentando iniciar o serviço de corridas automáticas...');
+        try {
+            startAutoRaceScheduler(client);
+            console.log('🏇 Serviço de corridas automáticas iniciado com sucesso!');
+        } catch (error) {
+            console.error('❌ Erro ao iniciar serviço de corridas:', error);
+        }
 
         // Registrar comandos slash após login (client.user.id disponível)
         await registerSlashCommands(client);

@@ -75,6 +75,7 @@ Bot all-in-one desenvolvido por Skalin151
 ### 🛒 Loja
 - `%shop` — Mostra a loja de itens
 - `%buy <id>` — Compra um item da loja pelo ID
+- `%item <id>` — Detalhes de um item
 - `%code <código>` — Resgata um código promocional
 
 

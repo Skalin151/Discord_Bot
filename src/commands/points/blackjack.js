@@ -1,4 +1,4 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import User from '../../models/User.js';
 
 class BlackjackGame {
@@ -161,7 +161,7 @@ export default {
 
     collector.on('collect', async interaction => {
       if (interaction.user.id !== userId) {
-        await interaction.reply({ content: 'Só quem iniciou o jogo pode jogar!', ephemeral: true });
+        await interaction.reply({ content: 'Só quem iniciou o jogo pode jogar!', flags: MessageFlags.Ephemeral });
         return;
       }
       let shouldUpdate = true;

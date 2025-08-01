@@ -1,4 +1,4 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import Horse from '../../models/Horse.js';
 
 export default {
@@ -47,7 +47,7 @@ export default {
 
         collector.on('collect', async interaction => {
             if (interaction.user.id !== message.author.id) {
-                await interaction.reply({ content: 'Só quem executou o comando pode navegar.', ephemeral: true });
+                await interaction.reply({ content: 'Só quem executou o comando pode navegar.', flags: MessageFlags.Ephemeral });
                 return;
             }
             if (interaction.customId === 'prev') {

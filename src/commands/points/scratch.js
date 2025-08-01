@@ -1,4 +1,4 @@
-import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } from 'discord.js';
 import User from '../../models/User.js';
 
 const symbols = [
@@ -70,12 +70,12 @@ export default {
 
     collector.on('collect', async interaction => {
       if (interaction.user.id !== userId) {
-        await interaction.reply({ content: 'Só quem iniciou a raspadinha pode jogar!', ephemeral: true });
+        await interaction.reply({ content: 'Só quem iniciou a raspadinha pode jogar!', flags: MessageFlags.Ephemeral });
         return;
       }
       const idx = parseInt(interaction.customId.split('_')[1]);
       if (revealed[idx]) {
-        await interaction.reply({ content: 'Este quadrado já foi revelado!', ephemeral: true });
+        await interaction.reply({ content: 'Este quadrado já foi revelado!', flags: MessageFlags.Ephemeral });
         return;
       }
       // Revela símbolo

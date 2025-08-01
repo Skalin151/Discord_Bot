@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from 'discord.js';
 
 export const purgeSlashCommand = {
     data: new SlashCommandBuilder()
@@ -20,7 +20,7 @@ export const purgeSlashCommand = {
             if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
                 return interaction.reply({ 
                     content: '❌ Você não tem permissão para usar este comando!', 
-                    ephemeral: true 
+                    flags: MessageFlags.Ephemeral 
                 });
             }
 
@@ -28,7 +28,7 @@ export const purgeSlashCommand = {
             if (!interaction.guild.members.me.permissions.has(PermissionFlagsBits.ManageMessages)) {
                 return interaction.reply({ 
                     content: '❌ Eu não tenho permissão para gerenciar mensagens neste canal!', 
-                    ephemeral: true 
+                    flags: MessageFlags.Ephemeral 
                 });
             }
 
@@ -36,7 +36,7 @@ export const purgeSlashCommand = {
             const amount = interaction.options.getInteger('quantidade') ?? 100;
 
             // Responder imediatamente para evitar timeout
-            await interaction.deferReply({ ephemeral: true });
+            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
             // Buscar mensagens para apagar
             const messages = await interaction.channel.messages.fetch({ 
@@ -79,7 +79,7 @@ export const purgeSlashCommand = {
                 if (interaction.deferred) {
                     await interaction.editReply(errorMessage);
                 } else {
-                    await interaction.reply({ content: errorMessage, ephemeral: true });
+                    await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
                 }
             } catch (replyError) {
                 console.error('Erro ao enviar resposta de erro:', replyError);
