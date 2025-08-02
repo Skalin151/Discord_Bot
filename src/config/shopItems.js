@@ -69,6 +69,17 @@ const shopItems = [
         visivel: true
     },
     {
+        id: 97,
+        equipavel: true,
+        nome: 'Dealmaker',
+        preco: null,
+        descricao: '+10 & +DEF a ataques mágicos.',
+        icon: '🥛',
+        quantidade: 1,
+        unico: true,
+        visivel: false
+    },
+    {
         id: 98,
         equipavel: true,
         nome: 'Glass Sword',

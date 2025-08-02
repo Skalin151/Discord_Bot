@@ -8,24 +8,51 @@ const profileUsageMap = new Map();
 
 export default {
     name: 'profile',
-    description: 'Mostra informações do utilizador.',
-    async execute(client, message) {
-        const userId = message.author.id;
-        // Atualiza contador de execuções seguidas
-        let count = profileUsageMap.get(userId) || 0;
-        count++;
-        profileUsageMap.set(userId, count);
+    description: 'Mostra informações do utilizador. Uso: %profile ou %profile @user',
+    async execute(client, message, args) {
+        // Determinar o usuário alvo
+        let targetUser = message.author;
+        let userId = message.author.id;
+        
+        // Se foi mencionado um usuário, usar esse usuário como alvo
+        if (message.mentions.users.size > 0) {
+            targetUser = message.mentions.users.first();
+            userId = targetUser.id;
+        } else if (args && args[0]) {
+            // Tentar buscar por ID se fornecido
+            try {
+                const user = await client.users.fetch(args[0]);
+                if (user) {
+                    targetUser = user;
+                    userId = user.id;
+                }
+            } catch (error) {
+                // Se não conseguir buscar, continuar com o autor da mensagem
+            }
+        }
 
-        // Se não for a terceira vez, mostra embed normal e reseta se outro comando for executado
-        if (count < 3) {
-            setTimeout(() => {
-                // Reseta contador após 60s sem uso
-                if (profileUsageMap.get(userId) === count) profileUsageMap.delete(userId);
-            }, 60000);
+        const isOwnProfile = userId === message.author.id;
+        // Atualiza contador de execuções seguidas (apenas para o próprio perfil)
+        let count = 1;
+        if (isOwnProfile) {
+            count = profileUsageMap.get(userId) || 0;
+            count++;
+            profileUsageMap.set(userId, count);
+        }
+
+        // Se não for a terceira vez OU se for perfil de outro usuário, mostra embed normal
+        if (count < 3 || !isOwnProfile) {
+            if (isOwnProfile) {
+                setTimeout(() => {
+                    // Reseta contador após 60s sem uso
+                    if (profileUsageMap.get(userId) === count) profileUsageMap.delete(userId);
+                }, 60000);
+            }
             const user = await User.findOne({ userId });
             const points = user ? user.points : 0;
             const pointsSpent = user ? user.pointsSpent || 0 : 0;
-            const createdAt = `<t:${Math.floor(message.author.createdTimestamp / 1000)}:F>`;
+            const createdAt = `<t:${Math.floor(targetUser.createdTimestamp / 1000)}:F>`;
+            
             // Busca apenas itens equipados do usuário
             const equippedItems = await UserItem.find({ userId, equipado: true });
             let itemsText = 'Nenhum item equipado.';
@@ -39,9 +66,10 @@ export default {
                     }
                 }).join('\n');
             }
+            
             const embed = new EmbedBuilder()
-                .setTitle(`Perfil de ${message.author.username}`)
-                .setThumbnail(message.author.displayAvatarURL())
+                .setTitle(`Perfil de ${targetUser.username}`)
+                .setThumbnail(targetUser.displayAvatarURL())
                 .addFields(
                     { name: 'Pontos', value: `${points}`, inline: true },
                     { name: 'Pontos Gastos', value: `${pointsSpent}`, inline: true },
@@ -49,6 +77,12 @@ export default {
                     { name: `🎒 Itens Equipados [${equippedItems.length}/5]`, value: itemsText, inline: false }
                 )
                 .setColor(0x9932cc);
+                
+            // Adiciona footer se for perfil de outro usuário
+            if (!isOwnProfile) {
+                embed.setFooter({ text: `Perfil solicitado por ${message.author.username}` });
+            }
+            
             await message.channel.send({ embeds: [embed] });
             return;
         }

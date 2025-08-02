@@ -19,16 +19,18 @@ export default {
     const userId = message.author.id;
     const userItem = await UserItem.findOne({ userId, itemId: id });
     const quantidade = userItem ? userItem.quantidade : 0;
+    const hasItem = userItem && quantidade > 0;
+    
     const embed = new EmbedBuilder()
-      .setTitle(`${item.icon || ''} ${item.nome}`)
+      .setTitle(`${hasItem ? (item.icon || '') : '❓'} ${hasItem ? item.nome : '??'}`)
       .setColor('#636e72')
-      .setDescription(item.descricao)
+      .setDescription(hasItem ? item.descricao : '???')
       .addFields(
-        { name: 'ID', value: String(item.id), inline: true },
-        { name: 'Preço', value: `${item.preco} pontos`, inline: true },
-        { name: 'Único', value: item.unico ? 'Sim' : 'Não', inline: true },
-        { name: 'Equipável', value: item.equipavel ? 'Sim' : 'Não', inline: true },
-        { name: 'Visível', value: item.visivel ? 'Sim' : 'Não', inline: true },
+        { name: 'ID', value: hasItem ? String(item.id) : '???', inline: true },
+        { name: 'Preço', value: hasItem ? `${item.preco}` : '???', inline: true },
+        { name: 'Único', value: hasItem ? (item.unico ? 'Sim' : 'Não') : '???', inline: true },
+        { name: 'Equipável', value: hasItem ? (item.equipavel ? 'Sim' : 'Não') : '???', inline: true },
+        { name: 'Visível', value: hasItem ? (item.visivel ? 'Sim' : 'Não') : '???', inline: true },
         { name: 'Quantidade', value: String(quantidade), inline: true }
       );
     await message.channel.send({ embeds: [embed] });

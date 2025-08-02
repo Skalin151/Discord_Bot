@@ -12,7 +12,7 @@ export default {
         if (executor) {
             const embed = createSimpleLogEmbed(
                 'Mensagem Apagada',
-                `**${executor.tag}** apagou uma mensagem de **${message.author?.tag || 'Utilizador desconhecido'}** em ${message.channel}`,
+                `**${executor.tag}** apagou uma mensagem de **${message.author?.tag || 'Utilizador desconhecido'}**`,
                 LOG_COLORS.DELETE,
                 executor
             );

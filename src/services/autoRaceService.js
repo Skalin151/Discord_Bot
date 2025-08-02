@@ -675,6 +675,9 @@ let avisoMsgId = null;
 let waitingForRace = false;
 let lastScheduledHour = null;
 
+// Configuração do modo de operação
+const testMode = false; // Altere para true para modo teste (10 minutos) ou false para produção (4 horas)
+
 // Função para obter a data/hora atual em UTC
 function getUTCDate(baseDate = new Date()) {
     return new Date(baseDate.getTime());
@@ -683,7 +686,6 @@ function getUTCDate(baseDate = new Date()) {
 function getNextScheduledHour(now = new Date()) {
     // MODO TESTE: Corridas a cada 10 minutos para teste rápido
     // Para produção, use: const hours = [0, 4, 8, 12, 16, 20];
-    const testMode = false; // Altere para false em produção
     
     if (testMode) {
         // Teste: encontra o próximo minuto que é múltiplo de 10
@@ -723,7 +725,10 @@ function getNextScheduledHour(now = new Date()) {
 
 export function startAutoRaceScheduler(client) {
     console.log('🏇 [ENTRADA] startAutoRaceScheduler chamada!');
-    console.log('🏇 Serviço de corridas automáticas iniciado! MODO TESTE: Corridas a cada 10 minutos');
+    
+    // Determina o texto do modo baseado na configuração
+    const modeText = testMode ? 'MODO TESTE: Corridas a cada 10 minutos' : 'MODO PRODUÇÃO: Corridas a cada 4 horas';
+    console.log(`🏇 Serviço de corridas automáticas iniciado! ${modeText}`);
     
     console.log('🏇 [TESTE] Criando setInterval...');
     const intervalId = setInterval(async () => {
@@ -735,27 +740,32 @@ export function startAutoRaceScheduler(client) {
         // Log de debugging
         console.log(`🔍 [DEBUG] Agora: ${now.toLocaleTimeString('pt-PT')} | Próxima: ${nextHour.toLocaleTimeString('pt-PT')} | Faltam: ${Math.round(msToNext / 1000)}s | Esperando: ${waitingForRace}`);
         
-        // MODO TESTE: Se faltam menos de 2 minutos para a próxima corrida
-        // Para produção use: msToNext <= 10 * 60 * 1000
-        const warningTime = 2 * 60 * 1000; // 2 minutos para teste
+        // Tempo de aviso baseado no modo: 2 minutos para teste, 10 minutos para produção
+        const warningTime = testMode ? 2 * 60 * 1000 : 10 * 60 * 1000;
         
         if (!waitingForRace && msToNext <= warningTime && msToNext > 0) {
             waitingForRace = true;
             lastScheduledHour = nextHour.getTime();
             
-            console.log(`🏇 Corrida agendada para ${nextHour.toISOString()} (em ${Math.round(msToNext / 1000)} segundos) - MODO TESTE`);
+            console.log(`🏇 Corrida agendada para ${nextHour.toISOString()} (em ${Math.round(msToNext / 1000)} segundos) - ${testMode ? 'MODO TESTE' : 'PRODUÇÃO'}`);
             
             try {
                 for (const channelId of PUBLIC_RACE_CHANNEL_IDS) {
                     const channel = await client.channels.fetch(channelId).catch(() => null);
                     if (channel) {
+                        const embedTitle = testMode ? '⏳ Corrida pública em breve! (TESTE)' : '⏳ Corrida pública em breve!';
+                        const embedDescription = testMode 
+                            ? `A corrida pública de cavalos começa em **${Math.round(msToNext / 1000)}** segundos! Prepare-se para apostar!\n\n⚠️ **MODO TESTE** - Corridas a cada 10 minutos`
+                            : `A corrida pública de cavalos começa em **${Math.round(msToNext / 1000)}** segundos! Prepare-se para apostar!`;
+                        const embedFooter = testMode ? 'Teste do sistema de corridas automáticas' : 'Sistema de corridas automáticas';
+                        
                         const avisoMsg = await channel.send({
                             embeds: [
                                 new EmbedBuilder()
-                                    .setTitle('⏳ Corrida pública em breve! (TESTE)')
-                                    .setDescription(`A corrida pública de cavalos começa em **${Math.round(msToNext / 1000)}** segundos! Prepare-se para apostar!\n\n⚠️ **MODO TESTE** - Corridas a cada 10 minutos`)
+                                    .setTitle(embedTitle)
+                                    .setDescription(embedDescription)
                                     .setColor(0xF1C40F)
-                                    .setFooter({ text: 'Teste do sistema de corridas automáticas' })
+                                    .setFooter({ text: embedFooter })
                             ]
                         });
                         avisoMsgId = avisoMsg.id;
@@ -795,7 +805,7 @@ export function startAutoRaceScheduler(client) {
             waitingForRace = false;
             avisoMsgId = null;
         }
-    }, 30 * 1000); // Checa a cada 30 segundos no modo teste
+    }, testMode ? 30 * 1000 : 60 * 1000); // 30s para teste, 60s para produção
     
     console.log(`🏇 [SUCESSO] setInterval criado com ID: ${intervalId}`);
 }

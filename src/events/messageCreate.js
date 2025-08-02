@@ -47,7 +47,7 @@ export default {
                 .replace(/\s+/g, ''); // remove espaços
         }
 
-        const triggers = ['olaamigos', 'lol'];
+        const triggers = ['olaamigos'];
         const msgNorm = normalize(message.content);
         if (triggers.some(trigger => msgNorm.includes(trigger))) {
             const lolCmd = client.commands?.get('lol');

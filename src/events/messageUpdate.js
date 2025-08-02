@@ -11,7 +11,7 @@ export default {
 
         const embed = createSimpleLogEmbed(
             'Mensagem Editada',
-            `**${newMessage.author.tag}** editou uma mensagem em ${newMessage.channel}`,
+            `**${newMessage.author.tag}** editou uma mensagem`,
             LOG_COLORS.UPDATE,
             newMessage.author
         );
