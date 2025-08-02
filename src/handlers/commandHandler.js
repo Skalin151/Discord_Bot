@@ -32,12 +32,28 @@ export async function loadCommands() {
             if (command && command.name && typeof command.execute === 'function') {
                 commands.set(command.name, command);
                 console.log(`✅ Comando carregado: ${command.name}`);
+                
+                // Registrar aliases se existirem
+                if (command.aliases && Array.isArray(command.aliases)) {
+                    for (const alias of command.aliases) {
+                        commands.set(alias, command);
+                        console.log(`✅ Alias carregado: ${alias} -> ${command.name}`);
+                    }
+                }
             } else {
                 // Suporte para múltiplos exports (ex: { playCommand, stopCommand })
                 for (const [exportName, exportValue] of Object.entries(commandModule)) {
                     if (exportValue && exportValue.name && typeof exportValue.execute === 'function') {
                         commands.set(exportValue.name, exportValue);
                         console.log(`✅ Comando carregado: ${exportValue.name}`);
+                        
+                        // Registrar aliases se existirem
+                        if (exportValue.aliases && Array.isArray(exportValue.aliases)) {
+                            for (const alias of exportValue.aliases) {
+                                commands.set(alias, exportValue);
+                                console.log(`✅ Alias carregado: ${alias} -> ${exportValue.name}`);
+                            }
+                        }
                     }
                 }
             }

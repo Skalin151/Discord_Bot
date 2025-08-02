@@ -9,7 +9,7 @@ const choices = {
 };
 
 class RPSGame {
-    constructor(player1, player2, bestOf = 1) {
+    constructor(player1, player2, bestOf = 1, isAI = false) {
         this.player1 = player1;
         this.player2 = player2;
         this.bestOf = bestOf;
@@ -20,6 +20,7 @@ class RPSGame {
         this.currentRound = 1;
         this.gameOver = false;
         this.bothChosen = false;
+        this.isAI = isAI; // Nova propriedade para identificar jogos contra IA
     }
 
     makeChoice(userId, choice) {
@@ -27,6 +28,12 @@ class RPSGame {
             this.player1Choice = choice;
         } else if (userId === this.player2.id) {
             this.player2Choice = choice;
+        }
+        
+        // Se é contra IA e o jogador fez escolha, IA escolhe automaticamente
+        if (this.isAI && this.player1Choice && !this.player2Choice) {
+            const aiChoices = ['rock', 'paper', 'scissors'];
+            this.player2Choice = aiChoices[Math.floor(Math.random() * aiChoices.length)];
         }
         
         this.bothChosen = this.player1Choice && this.player2Choice;
@@ -43,6 +50,19 @@ class RPSGame {
             return this.player1;
         } else {
             this.player2Score++;
+            return this.player2;
+        }
+    }
+
+    // Versão que não incrementa score, apenas para exibição
+    getDisplayRoundWinner() {
+        if (!this.bothChosen) return null;
+        
+        if (this.player1Choice === this.player2Choice) return 'tie';
+        
+        if (choices[this.player1Choice].beats === this.player2Choice) {
+            return this.player1;
+        } else {
             return this.player2;
         }
     }
@@ -68,18 +88,39 @@ class RPSGame {
     createGameEmbed() {
         const embed = new EmbedBuilder()
             .setTitle('🪨📄✂️ Rock Paper Scissors')
-            .setColor('#3498DB');
+            .setColor(this.isAI ? '#e74c3c' : '#3498DB'); // Cor vermelha para IA
 
         if (this.bestOf > 1) {
-            embed.setDescription(`**Melhor de ${this.bestOf}** - Ronda ${this.currentRound}\n\n${this.player1.displayName}: ${this.player1Score} | ${this.player2.displayName}: ${this.player2Score}`);
+            const aiIndicator = this.isAI ? ' 🤖' : '';
+            const neededToWin = Math.ceil(this.bestOf / 2);
+            
+            // Se o jogo terminou, mostrar o score final com o vencedor atingindo o necessário
+            let finalPlayer1Score = this.player1Score;
+            let finalPlayer2Score = this.player2Score;
+            
+            if (this.gameOver) {
+                if (this.player1Score >= neededToWin) finalPlayer1Score = neededToWin;
+                if (this.player2Score >= neededToWin) finalPlayer2Score = neededToWin;
+            }
+            
+            // Cria indicadores visuais de pontos
+            const player1Points = '🟢'.repeat(finalPlayer1Score) + '⚪'.repeat(neededToWin - finalPlayer1Score);
+            const player2Points = '🔴'.repeat(finalPlayer2Score) + '⚪'.repeat(neededToWin - finalPlayer2Score);
+            
+            embed.setDescription(`**Melhor de ${this.bestOf}** (Primeiro a ${neededToWin}) - **Ronda ${this.currentRound}**\n\n` +
+                `🏆 **PLACAR:**\n` +
+                `${this.player1.displayName}: ${player1Points} (${finalPlayer1Score}/${neededToWin})\n` +
+                `${this.player2.displayName}${aiIndicator}: ${player2Points} (${finalPlayer2Score}/${neededToWin})`);
         } else {
-            embed.setDescription(`${this.player1.displayName} vs ${this.player2.displayName}`);
+            const aiIndicator = this.isAI ? ' 🤖' : '';
+            embed.setDescription(`${this.player1.displayName} vs ${this.player2.displayName}${aiIndicator}`);
         }
 
         if (this.bothChosen) {
-            const winner = this.getRoundWinner();
+            const winner = this.getDisplayRoundWinner(); // Usa versão que não incrementa score
             let resultText = `${this.player1.displayName}: ${choices[this.player1Choice].emoji} ${this.player1Choice.toUpperCase()}\n`;
-            resultText += `${this.player2.displayName}: ${choices[this.player2Choice].emoji} ${this.player2Choice.toUpperCase()}\n\n`;
+            const aiIndicator = this.isAI ? ' 🤖' : '';
+            resultText += `${this.player2.displayName}${aiIndicator}: ${choices[this.player2Choice].emoji} ${this.player2Choice.toUpperCase()}\n\n`;
             
             if (winner === 'tie') {
                 resultText += '🤝 **EMPATE!**';
@@ -97,13 +138,14 @@ class RPSGame {
                 this.gameOver = true;
             }
 
-            embed.addFields({ name: 'Resultado', value: resultText, inline: false });
+            embed.addFields({ name: 'Resultado da Ronda', value: resultText, inline: false });
         } else {
             const status1 = this.player1Choice ? '✅' : '⏳';
-            const status2 = this.player2Choice ? '✅' : '⏳';
+            const status2 = this.isAI ? '🤖' : (this.player2Choice ? '✅' : '⏳');
+            const aiIndicator = this.isAI ? ' 🤖' : '';
             embed.addFields({ 
                 name: 'Estado das Escolhas', 
-                value: `${status1} ${this.player1.displayName}\n${status2} ${this.player2.displayName}`, 
+                value: `${status1} ${this.player1.displayName}\n${status2} ${this.player2.displayName}${aiIndicator}`, 
                 inline: false 
             });
         }
@@ -112,32 +154,25 @@ class RPSGame {
     }
 
     createButtons() {
-        const row = new ActionRowBuilder();
-        
         if (this.gameOver) {
-            row.addComponents(
-                new ButtonBuilder()
-                    .setCustomId('rps_new')
-                    .setLabel('🔄 Novo Jogo')
-                    .setStyle(ButtonStyle.Success)
-            );
+            // Não adicionar botão "Novo Jogo" - usar comando para reiniciar
+            return null;
         } else if (this.bothChosen) {
             if (this.isGameOver()) {
-                row.addComponents(
-                    new ButtonBuilder()
-                        .setCustomId('rps_new')
-                        .setLabel('🔄 Novo Jogo')
-                        .setStyle(ButtonStyle.Success)
-                );
+                // Jogo terminou - não adicionar botões
+                return null;
             } else {
+                const row = new ActionRowBuilder();
                 row.addComponents(
                     new ButtonBuilder()
                         .setCustomId('rps_next')
                         .setLabel('➡️ Próxima Ronda')
                         .setStyle(ButtonStyle.Primary)
                 );
+                return row;
             }
         } else {
+            const row = new ActionRowBuilder();
             row.addComponents(
                 new ButtonBuilder()
                     .setCustomId('rps_rock')
@@ -152,14 +187,16 @@ class RPSGame {
                     .setLabel('✂️ Scissors')
                     .setStyle(ButtonStyle.Secondary)
             );
+            return row;
         }
 
-        return row;
+        return null;
     }
 }
 
 export default {
     name: 'rps',
+    aliases: ['rps3', 'rps5', 'rps7', 'rps9'],
     description: 'Joga Rock Paper Scissors com outro jogador. Uso: %rps @user ou %rps3 @user (melhor de 3)',
     async execute(client, message, args) {
         // Detectar número no comando (ex: rps3, rps5)
@@ -174,33 +211,38 @@ export default {
 
         const targetUser = message.mentions.users.first();
         if (!targetUser) {
-            return message.reply('❌ Menciona um utilizador para desafiar! Ex: %rps @user');
+            return message.reply('❌ Menciona um utilizador para desafiar! Ex: %rps @user\n💡 **Dica:** Menciona o bot para jogar contra IA!');
         }
 
         if (targetUser.id === message.author.id) {
             return message.reply('❌ Não podes jogar contra ti mesmo!');
         }
 
-        if (targetUser.bot) {
-            return message.reply('❌ Não podes desafiar bots!');
+        // Verifica se é o bot (IA)
+        const isAI = targetUser.bot && targetUser.id === client.user.id;
+        
+        if (targetUser.bot && !isAI) {
+            return message.reply('❌ Não podes desafiar outros bots! Apenas podes jogar contra mim (IA).');
         }
 
-        if (activeGames.has(message.author.id) || activeGames.has(targetUser.id)) {
+        if (activeGames.has(message.author.id) || (!isAI && activeGames.has(targetUser.id))) {
             return message.reply('❌ Um dos jogadores já está numa partida!');
         }
 
-        const game = new RPSGame(message.author, targetUser, bestOf);
-        const gameId = `${message.author.id}_${targetUser.id}`;
+        const game = new RPSGame(message.author, targetUser, bestOf, isAI);
+        const gameId = isAI ? `${message.author.id}_AI` : `${message.author.id}_${targetUser.id}`;
         activeGames.set(message.author.id, gameId);
-        activeGames.set(targetUser.id, gameId);
+        if (!isAI) {
+            activeGames.set(targetUser.id, gameId);
+        }
 
         const embed = game.createGameEmbed();
         const buttons = game.createButtons();
 
         const gameMessage = await message.reply({ 
-            content: `${targetUser}, foste desafiado para Rock Paper Scissors!`,
+            content: isAI ? '🤖 Desafiaste a IA para Rock Paper Scissors!' : `${targetUser}, foste desafiado para Rock Paper Scissors!`,
             embeds: [embed], 
-            components: [buttons] 
+            components: buttons ? [buttons] : []
         });
 
         const { ComponentType } = await import('discord.js');
@@ -210,26 +252,33 @@ export default {
         });
 
         collector.on('collect', async interaction => {
-            if (![game.player1.id, game.player2.id].includes(interaction.user.id)) {
-                await interaction.reply({ content: 'Apenas os jogadores podem jogar!', flags: MessageFlags.Ephemeral });
-                return;
+            // Para IA, apenas o jogador humano pode interagir
+            if (game.isAI) {
+                if (interaction.user.id !== game.player1.id) {
+                    await interaction.reply({ content: 'Apenas o jogador pode interagir!', flags: MessageFlags.Ephemeral });
+                    return;
+                }
+            } else {
+                if (![game.player1.id, game.player2.id].includes(interaction.user.id)) {
+                    await interaction.reply({ content: 'Apenas os jogadores podem jogar!', flags: MessageFlags.Ephemeral });
+                    return;
+                }
             }
 
-            if (interaction.customId === 'rps_new') {
-                // Reiniciar jogo
-                game.player1Score = 0;
-                game.player2Score = 0;
-                game.currentRound = 1;
-                game.gameOver = false;
-                game.nextRound();
-            } else if (interaction.customId === 'rps_next') {
+            if (interaction.customId === 'rps_next') {
                 game.nextRound();
             } else if (interaction.customId.startsWith('rps_')) {
                 const choice = interaction.customId.replace('rps_', '');
                 if (!choices[choice]) return;
 
+                // Para jogos contra IA, apenas o jogador humano pode fazer escolhas
+                if (game.isAI && interaction.user.id !== game.player1.id) {
+                    await interaction.reply({ content: 'Apenas o jogador pode fazer escolhas!', flags: MessageFlags.Ephemeral });
+                    return;
+                }
+
                 if ((interaction.user.id === game.player1.id && game.player1Choice) ||
-                    (interaction.user.id === game.player2.id && game.player2Choice)) {
+                    (!game.isAI && interaction.user.id === game.player2.id && game.player2Choice)) {
                     await interaction.reply({ content: 'Já fizeste a tua escolha!', flags: MessageFlags.Ephemeral });
                     return;
                 }
@@ -237,21 +286,46 @@ export default {
                 game.makeChoice(interaction.user.id, choice);
             }
 
+            // Se ambos fizeram escolhas, calcular vencedor e incrementar score
+            if (game.bothChosen) {
+                game.getRoundWinner(); // Incrementa o score
+            }
+
             const newEmbed = game.createGameEmbed();
             const newButtons = game.createButtons();
 
-            await interaction.update({ embeds: [newEmbed], components: [newButtons] });
+            await interaction.update({ embeds: [newEmbed], components: newButtons ? [newButtons] : [] });
 
+            // Remove jogadores do activeGames apenas quando o jogo termina completamente
             if (game.gameOver) {
                 activeGames.delete(game.player1.id);
-                activeGames.delete(game.player2.id);
-                collector.stop();
+                if (!game.isAI) {
+                    activeGames.delete(game.player2.id);
+                }
+                collector.stop(); // Para o collector quando o jogo termina
             }
         });
 
-        collector.on('end', () => {
+        collector.on('end', (collected, reason) => {
+            // Remove jogadores do activeGames independentemente do motivo
             activeGames.delete(game.player1.id);
-            activeGames.delete(game.player2.id);
+            if (!game.isAI) {
+                activeGames.delete(game.player2.id);
+            }
+            
+            // Se acabou por timeout, desativa os botões
+            if (reason === 'time') {
+                const disabledButtons = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('disabled')
+                            .setLabel('⏰ Jogo Expirado')
+                            .setStyle(ButtonStyle.Secondary)
+                            .setDisabled(true)
+                    );
+                
+                gameMessage.edit({ components: [disabledButtons] }).catch(() => {});
+            }
         });
     }
 };
