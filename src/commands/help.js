@@ -64,6 +64,20 @@ export default {
           '**Admin:** `%ticket admin list` — Ver todos os tickets\n' +
           '**Admin:** `%ticket admin close [ID]` — Fechar ticket\n'
         },
+        { name: '💕 Sistema de Personagens', value:
+          '`%w` — Roll de personagens femininos\n' +
+          '`%h` — Roll de personagens masculinos\n' +
+          '`%m` — Roll misto (todos os géneros)\n' +
+          '`%rolls` — Quantos rolls te restam\n' +
+          '`%claim` — Se podes dar claim ou quanto tempo para o próximo\n' +
+          '`%myclaims` — Ver a tua coleção de personagens\n' +
+          '`%charlist` — Lista todos os personagens\n' +
+          '`%charinfo <nome>` — Ver detalhes de um personagem\n' +
+          '`%charstats` — Ver estatísticas do sistema\n' +
+          '`%divorce <nome>` — Fazer divorce e receber pontos\n' +
+          '💫 **Limite:** 5 rolls por hora | **Cooldown de claim:** 3 horas\n' +
+          '🎯 **Como jogar:** Faz roll → Reage para claim → Constrói tua coleção!'
+        },
         { name: '💸 Pontos & Jogos', value:
           '`%shop` — Mostra a loja de itens\n' +
           '`%buy <id>` — Compra um item da loja pelo ID\n' +

@@ -35,7 +35,7 @@ export default {
                 .addFields(
                     {
                         name: '🎲 Rolls Disponíveis',
-                        value: `**${rollData.rollsRemaining}/10**`,
+                        value: `**${rollData.rollsRemaining}/5**`,
                         inline: true
                     },
                     {
@@ -51,7 +51,7 @@ export default {
                 )
                 .setDescription(rollData.rollsRemaining > 0 ? 
                     'Usa `%w`, `%h` ou `%m` para fazer roll de personagens!' : 
-                    'Espera pelo próximo reset para receberes 10 rolls novos!')
+                    'Espera pelo próximo reset para receberes 5 rolls novos!')
                 .setTimestamp()
                 .setFooter({ 
                     text: 'Os rolls resetam a cada hora às 00 minutos!' 
@@ -61,7 +61,7 @@ export default {
             if (rollData.isNewHour) {
                 embed.addFields({
                     name: '🎉 Rolls Renovados!',
-                    value: 'Acabaste de receber 10 rolls novos!',
+                    value: 'Acabaste de receber 5 rolls novos!',
                     inline: false
                 });
             }

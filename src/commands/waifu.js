@@ -24,7 +24,7 @@ export default {
                         value: `**${timeUntilReset.minutes}m ${timeUntilReset.seconds}s**`,
                         inline: true
                     })
-                    .setFooter({ text: 'Receberás 10 rolls novos na próxima hora!' });
+                    .setFooter({ text: 'Receberás 5 rolls novos na próxima hora!' });
                 
                 return message.reply({ embeds: [embed] });
             }
@@ -98,15 +98,15 @@ export default {
                 )
                 .setTimestamp()
                 .setFooter({ 
-                    text: `Rolls restantes: ${rollResult.rollsRemaining}/10 | Género: ${character.gender === 'female' ? 'Feminino' : 'Masculino'} | Roll #${Math.floor(Math.random() * 10000)}` 
+                    text: `Rolls restantes: ${rollResult.rollsRemaining}/5 | Género: ${character.gender === 'female' ? 'Feminino' : 'Masculino'} | Roll #${Math.floor(Math.random() * 10000)}` 
                 });
 
             // Adicionar descrição se disponível
             let description = character.description || '';
             
             // Adicionar mensagem de rolls renovados se for uma nova hora
-            if (rollResult.isNewHour && rollResult.rollsRemaining === 9) {
-                description = `🎉 **Rolls renovados!** Recebeste 10 rolls novos!\n\n${description}`;
+            if (rollResult.isNewHour && rollResult.rollsRemaining === 4) {
+                description = `🎉 **Rolls renovados!** Recebeste 5 rolls novos!\n\n${description}`;
             }
             
             // Adicionar informação sobre claim

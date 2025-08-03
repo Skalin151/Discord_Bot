@@ -112,7 +112,7 @@ export default {
                     )
                     .setTimestamp()
                     .setFooter({ 
-                        text: 'Ordenado por pontos (maior → menor) • %charinfo <nome> para ver detalhes!' 
+                        text: '• %charinfo <nome> para ver detalhes!' 
                     });
 
                 return embed;

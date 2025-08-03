@@ -99,6 +99,32 @@ userClaimSchema.statics.getTotalClaims = async function() {
     return await this.countDocuments();
 };
 
+// Função estática para fazer divorce de um personagem
+userClaimSchema.statics.divorceCharacter = async function(userId, characterName) {
+    // Procurar o claim do utilizador (case insensitive)
+    const userClaim = await this.findOne({ 
+        userId, 
+        characterName: { $regex: new RegExp(`^${characterName}$`, 'i') }
+    });
+
+    if (!userClaim) {
+        return { 
+            success: false, 
+            reason: 'not_claimed',
+            message: 'Não tens este personagem na tua coleção!'
+        };
+    }
+
+    // Remover o claim
+    await this.deleteOne({ _id: userClaim._id });
+
+    return { 
+        success: true, 
+        claim: userClaim,
+        characterName: userClaim.characterName 
+    };
+};
+
 const UserClaim = mongoose.model('UserClaim', userClaimSchema);
 
 export default UserClaim;

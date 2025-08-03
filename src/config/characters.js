@@ -9,6 +9,41 @@ export default [
         points: 1000 // Valor em pontos do personagem
     },
     {
+        name: "Fireball",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/e4/7f/33/e47f33eacf29aeab673478b4fa5287b5.jpg", "https://bg-so-1.zippyimage.com/2025/08/03/efd83a3b58bce848ed9603aa9440b643.gif"], 
+        description: "4 de elixir.",
+        points: 500 
+    },
+    {
+        name: "Baliza do Rocket League",
+        gender: "female",
+        images: ["https://i.pinimg.com/1200x/6c/b8/e4/6cb8e4f342ca18fdaf55984b3815925c.jpg"], 
+        description: "Most of the time, open.",
+        points: 450 
+    },
+    {
+        name: "Mangle",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/21/eb/ef/21ebefbc73de4ba24645c5c7382ec5d3.jpg", "https://i.pinimg.com/1200x/93/9d/b3/939db36e67b1b8fbcb586d884c4ea884.jpg"], 
+        description: "Dislocated Jaw.",
+        points: 400 
+    },
+    {
+        name: "Sunflower",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/d5/6a/c8/d56ac8c05433215b85bbb58bcc58e57e.jpg", "https://i.pinimg.com/originals/90/12/5b/90125b8532787fb2c534366f609e0797.gif", "https://bg-so-1.zippyimage.com/2025/08/03/214aac2ada116bbd6936bd0bdf053fb4.gif"], 
+        description: "50 sun.",
+        points: 350 
+    },
+    {
+        name: "Agnes Tackyon",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/b9/a1/7d/b9a17d4511d9f6b827209ab75e722d50.jpg", "https://media.tenor.com/o50xDm4YCWYAAAAe/agnes-tachyon-uma-musume.png"], 
+        description: "Horsy Horse.",
+        points: 300 
+    },
+    {
         name: "Glados",
         gender: "female",
         images: ["https://i.pinimg.com/736x/4d/ca/53/4dca531cdc4dae6048a6684af7abd11b.jpg", "https://i.pinimg.com/1200x/19/d6/ce/19d6ce7b75ba26c7bb879b6985ff830a.jpg"], 
@@ -37,10 +72,10 @@ export default [
         points: 100 
     },
     {
-        name: "Natsuki",
+        name: "Teto Pear",
         gender: "female",
-        images: ["https://i.pinimg.com/736x/39/93/5a/39935aac7827e7c71665c1323de1fc82.jpg"], 
-        description: "Anã que lê mangás.",
+        images: ["https://i.pinimg.com/736x/a3/f6/f7/a3f6f76005b0758a4bdd256425a5c3f4.jpg"], 
+        description: "I'm a pear.",
         points: 50 
     },
     {
@@ -58,6 +93,20 @@ export default [
         images: ["https://i.pinimg.com/1200x/24/c4/3e/24c43e5449f58efa7eaa5f92874183e2.jpg", "https://i.pinimg.com/736x/66/fc/4b/66fc4b7ef2913ba2266d38d150bf0a1f.jpg", "https://bg-so-1.zippyimage.com/2025/08/03/1161ed48f8a8f6874980ad48d20d4e40.gif"], 
         description: "The alpha and the omega.",
         points: 1000 // Valor em pontos do personagem
+    },
+    {
+        name: "Roblox Man Face",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/b3/7d/f5/b37df5b078f99203459e47ee299d56c4.jpg", "https://i.pinimg.com/736x/b3/7d/f5/b37df5b078f99203459e47ee299d56c4.jpg", "https://i.pinimg.com/736x/b3/7d/f5/b37df5b078f99203459e47ee299d56c4.jpg"], 
+        description: "🙂",
+        points: 500 
+    },
+    {
+        name: "Peashooter",
+        gender: "male",
+        images: ["https://i.pinimg.com/1200x/c8/b2/8d/c8b28d999b30c2ea22324f9536e80d48.jpg", "https://i.pinimg.com/736x/ec/96/f6/ec96f622091f7b2b53064cb03b8ff904.jpg", "https://bg-so-1.zippyimage.com/2025/08/03/2643e7059ea03e5c4ea82ac0b5bd5aef.gif"], 
+        description: "Pee.",
+        points: 450 
     },
     {
         name: "Jevil",
@@ -83,7 +132,7 @@ export default [
     {
         name: "V1",
         gender: "male",
-        images: ["https://i.pinimg.com/736x/3e/b3/d2/3eb3d2edd67ff2bd5aee73dde925949c.jpg", "https://i.pinimg.com/736x/a4/46/b5/a446b514196b50e6ec95f09182790113.jpg", "https://i.pinimg.com/736x/5f/1f/fd/5f1ffd59154e4add79bc44cbc676a505.jpg"], 
+        images: ["https://i.pinimg.com/736x/3e/b3/d2/3eb3d2edd67ff2bd5aee73dde925949c.jpg", "https://i.pinimg.com/736x/a4/46/b5/a446b514196b50e6ec95f09182790113.jpg", "https://i.pinimg.com/736x/5f/1f/fd/5f1ffd59154e4add79bc44cbc676a505.jpg", "https://bg-so-1.zippyimage.com/2025/08/03/6d1c37695ce0b3cdf29754dff23338d0.gif"], 
         description: "A máquina suprema.",
         points: 250 
     },
@@ -118,7 +167,7 @@ export default [
     {
         name: "Sandroge Dremurr",
         gender: "male",
-        images: ["https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fajjy8ps8rvff1.png"], 
+        images: ["https://bg-so-1.zippyimage.com/2025/08/03/878f2a59ccae5c45bdc23a07d5e73fa0.webp"], 
         description: "guys this is the secret character, be carefull.",
         points: 1 
     },
