@@ -1,6 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 import fetch from 'node-fetch';
 import { convertUAHtoEUR } from '../utils/currencyUtils.js';
+import { getConsistentImageSize } from '../utils/embedUtils.js';
 
 
 
@@ -58,7 +59,7 @@ export default {
       .setTitle(`${details.name}`)
       .setURL(`https://store.steampowered.com/app/${appid}`)
       .setDescription(details.short_description || 'Sem descrição.')
-      .setImage(details.header_image)
+      .setImage(getConsistentImageSize(details.header_image, 460, 215))
       .setColor('#1b2836')
       .addFields(
         euroField,

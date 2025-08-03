@@ -1,6 +1,29 @@
 import { EmbedBuilder, AuditLogEvent } from 'discord.js';
 
 /**
+ * Converte uma URL de imagem para ter tamanho consistente (Discord proxy)
+ * @param {string} imageUrl - URL original da imagem
+ * @param {number} width - Largura desejada (padrão: 400)
+ * @param {number} height - Altura desejada (padrão: 400)
+ * @returns {string} - URL da imagem redimensionada
+ */
+export function getConsistentImageSize(imageUrl, width = 400, height = 400) {
+    if (!imageUrl || !imageUrl.startsWith('http')) {
+        return imageUrl;
+    }
+    
+    // Para URLs do Discord, usar parâmetros de redimensionamento
+    if (imageUrl.includes('cdn.discordapp.com') || imageUrl.includes('media.discordapp.net')) {
+        const separator = imageUrl.includes('?') ? '&' : '?';
+        return `${imageUrl}${separator}width=${width}&height=${height}`;
+    }
+    
+    // Para outras URLs, adicionar parâmetros de redimensionamento se suportado
+    const separator = imageUrl.includes('?') ? '&' : '?';
+    return `${imageUrl}${separator}width=${width}&height=${height}`;
+}
+
+/**
  * Cria um embed simples 
  * @param {string} title - Título do embed
  * @param {string} description - Descrição do evento

@@ -31,6 +31,16 @@ Bot all-in-one desenvolvido por Skalin151
 - Backup automático de canais, cargos e permissões (a fazer)
 
 
+### 🎭 Sistema de Personagens
+- `%w` ou `%waifu` — Roll de personagem feminino (consome 1 roll)
+- `%h` ou `%husbando` — Roll de personagem masculino (consome 1 roll)
+- `%m` ou `%mix` — Roll de personagem aleatório (ambos géneros)
+- `%charinfo <nome>` — Informações detalhadas de um personagem (navegação de múltiplas imagens)
+- `%charlist [nome]` — Lista todos os personagens ou busca por nome específico (paginado)
+- `%charstats` — Estatísticas completas do sistema de personagens
+- `%rolls` — Verifica quantos rolls tens disponíveis
+- `%myclaims` — Mostra a tua coleção de personagens claimed
+
 ### 💸 Pontos & Jogos
 - `%balance` — Mostra o saldo de pontos do utilizador
 - `%daily` — Recebe 500 pontos uma vez por dia
