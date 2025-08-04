@@ -18,6 +18,7 @@ import { loadSlashCommands, registerSlashCommands } from './src/handlers/slashCo
 import { connectDB } from './src/config/db.js';
 
 import { startAutoRaceScheduler } from './src/services/autoRaceService.js';
+import AutoClearService from './src/services/autoClearService.js';
 
 async function startBot() {
     // Ouvinte de eventos de voz do Discord deve ser adicionado após a criação do client
@@ -77,6 +78,18 @@ async function startBot() {
             console.log('🏇 Serviço de corridas automáticas iniciado com sucesso!');
         } catch (error) {
             console.error('❌ Erro ao iniciar serviço de corridas:', error);
+        }
+
+        // Iniciar o serviço de clear automático
+        console.log('🧹 Tentando iniciar o serviço de clear automático...');
+        try {
+            const autoClearService = new AutoClearService(client);
+            // Opcional: definir canal de logs para notificações
+            // autoClearService.setLogChannel('SEU_CANAL_ID_AQUI');
+            autoClearService.start();
+            console.log('🧹 Serviço de clear automático iniciado com sucesso!');
+        } catch (error) {
+            console.error('❌ Erro ao iniciar serviço de clear:', error);
         }
 
         // Registrar comandos slash após login (client.user.id disponível)

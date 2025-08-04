@@ -1,6 +1,6 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import charactersData from '../config/characters.js';
-import UserClaim from '../models/UserClaim.js';
+import charactersData from '../../config/characters.js';
+import UserClaim from '../../models/UserClaim.js';
 
 export default {
     name: 'charlist',
@@ -106,7 +106,7 @@ export default {
                     )
                     .setTimestamp()
                     .setFooter({ 
-                        text: 'Ordenado por pontos (maior → menor) • %charinfo <nome> para detalhes • 💍 = Claimed' 
+                        text: '• %charinfo <nome> para detalhes • 💍 = Claimed' 
                     });
 
                 return embed;

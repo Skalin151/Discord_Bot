@@ -69,13 +69,16 @@ export default {
           '`%h` — Roll de personagens masculinos\n' +
           '`%m` — Roll misto (todos os géneros)\n' +
           '`%rolls` — Quantos rolls te restam\n' +
-          '`%claim` — Se podes dar claim ou quanto tempo para o próximo\n' +
+          '`%claim` — Status de claim e bónus + cooldowns\n' +
           '`%myclaims` — Ver a tua coleção de personagens\n' +
           '`%charlist` — Lista todos os personagens\n' +
           '`%charinfo <nome>` — Ver detalhes de um personagem\n' +
           '`%charstats` — Ver estatísticas do sistema\n' +
           '`%divorce <nome>` — Fazer divorce e receber pontos\n' +
-          '💫 **Limite:** 5 rolls por hora | **Cooldown de claim:** 3 horas\n' +
+          '`%clearstatus` — Ver informações sobre o clear automático\n' +
+          '💫 **Limite:** 3 rolls por hora | **Cooldowns:** Claim e Bónus (3h cada)\n' +
+          '🎁 **Bónus:** Personagens owned têm botão de 100 pontos (1º a clicar)\n' +
+          '🗓️ **Clear automático:** Último dia de cada mês todos os claims são limpos e os pontos atribuídos\n' +
           '🎯 **Como jogar:** Faz roll → Reage para claim → Constrói tua coleção!'
         },
         { name: '💸 Pontos & Jogos', value:
@@ -102,6 +105,8 @@ export default {
         { name: '🧹 Moderação', value:
           '`%purge <número>` — Apaga mensagens em massa\n' +
           '`/purge` — Apaga mensagens via slash command\n' +
+          '`%clear` — Limpa todos os claims e atribui pontos (owner)\n' +
+          '`%setclearchannel` — Define canal para logs do clear (owner)\n' +
           '`%ban`, `%kick`, `%mute`, `%warn` — Moderação rápida (em breve)'
         },
         { name: '🛡️ Verificação', value: '`%verify` — Sistema de verificação de membros (a fazer)' },

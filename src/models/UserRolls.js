@@ -8,9 +8,9 @@ const userRollsSchema = new mongoose.Schema({
     },
     rollsRemaining: {
         type: Number,
-        default: 5,
+        default: 3,
         min: 0,
-        max: 5
+        max: 3
     },
     lastRollHour: {
         type: Number,
@@ -31,7 +31,7 @@ userRollsSchema.statics.getOrCreateUserRolls = async function(userId) {
     if (!userRolls) {
         userRolls = await this.create({
             userId,
-            rollsRemaining: 5,
+            rollsRemaining: 3,
             lastRollHour: null,
             lastRollDate: null
         });
@@ -49,12 +49,12 @@ userRollsSchema.statics.checkAndUpdateRolls = async function(userId) {
     
     // Se é uma nova hora ou novo dia, resetar rolls
     if (userRolls.lastRollHour !== currentHour || userRolls.lastRollDate !== currentDate) {
-        userRolls.rollsRemaining = 5;
+        userRolls.rollsRemaining = 3;
         userRolls.lastRollHour = currentHour;
         userRolls.lastRollDate = currentDate;
         await userRolls.save();
         
-        return { rollsRemaining: 5, isNewHour: true };
+        return { rollsRemaining: 3, isNewHour: true };
     }
     
     return { rollsRemaining: userRolls.rollsRemaining, isNewHour: false };

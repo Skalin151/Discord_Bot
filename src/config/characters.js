@@ -9,6 +9,69 @@ export default [
         points: 1000 // Valor em pontos do personagem
     },
     {
+        name: "Dragon",
+        gender: "female",
+        images: ["https://i.pinimg.com/1200x/11/8e/78/118e780c977b068bf29af2853bd8822b.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/c9646ef902ea2751afe1f7d69de49a48.gif"], 
+        description: "Would.",
+        points: 950 
+    },
+    {
+        name: "Galacta",
+        gender: "female",
+        images: ["https://i.pinimg.com/1200x/7b/df/d6/7bdfd6b485f658f2802e992b80bf5ead.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/798d9cb0d8edd75ce571dbb95e6e6929.gif"], 
+        description: "BBL.",
+        points: 900 
+    },
+    {
+        name: "Chain Chomp",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/d4/47/f4/d447f44f8b5787284a2b24af3d031c02.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/2ea21cd442c91c46c685c8846f0fd29f.md.gif"], 
+        description: "Freaky chains.",
+        points: 850 
+    },
+    {
+        name: "Weepinbell",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/ad/0b/6f/ad0b6f292414282f0631003d17f5bb23.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/7c00b137c4895f05c54f7ba409a7d7c5.gif"], 
+        description: "Planta Conspicuosa.",
+        points: 800 
+    },
+    {
+        name: "Luigi's Vacuum Cleaner",
+        gender: "female",
+        images: ["https://mario.wiki.gallery/images/thumb/3/33/Poltergust_5000_%28alt%29_-_Luigi%27s_Mansion_Dark_Moon.png/1200px-Poltergust_5000_%28alt%29_-_Luigi%27s_Mansion_Dark_Moon.png", "https://bg-so-1.zippyimage.com/2025/08/04/e0f12b8e9750a5ea32aaf51b92209a63.md.gif"], 
+        description: "♾️ suck.",
+        points: 750 
+    },
+    {
+        name: "Piranha Plant",
+        gender: "female",
+        images: ["https://i.pinimg.com/1200x/e8/96/0d/e8960d57e72be80facc4672a88f293f3.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/8ffb26c08587f292cfcee1abeba8e8c4.md.gif"], 
+        description: "It's piranha time.",
+        points: 700 
+    },
+    {
+        name: "Nezuko",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/95/bc/ea/95bcea5ca68633633fad62d03b49028c.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/91c82bdf8c9f00987843afb38b4f5724.gif"], 
+        description: "Bamboo box.",
+        points: 650 
+    },
+    {
+        name: "Flora",
+        gender: "female",
+        images: ["https://i.pinimg.com/736x/7b/d5/a8/7bd5a8702afadcda382c5ea0b8bfe629.jpg", "https://i.pinimg.com/736x/65/46/f8/6546f89e982db23eb1d25132d254550d.jpg"], 
+        description: "O melhor pólen que há.",
+        points: 600 
+    },
+    {
+        name: "Toy Chica",
+        gender: "female",
+        images: ["https://i.pinimg.com/1200x/e6/4a/07/e64a0776595d72e108c4a9cb7c40b3b0.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/1b2eb02d7041cb0fdfd50ca96186d6f3.gif"], 
+        description: "Chica but better.",
+        points: 550 
+    },
+    {
         name: "Fireball",
         gender: "female",
         images: ["https://i.pinimg.com/736x/e4/7f/33/e47f33eacf29aeab673478b4fa5287b5.jpg", "https://bg-so-1.zippyimage.com/2025/08/03/efd83a3b58bce848ed9603aa9440b643.gif"], 
@@ -95,6 +158,69 @@ export default [
         points: 1000 // Valor em pontos do personagem
     },
     {
+        name: "Gerson",
+        gender: "male",
+        images: ["https://bg-so-1.zippyimage.com/2025/08/04/8320dda77ec4873bc0660419ec826132.png", "https://bg-so-1.zippyimage.com/2025/08/04/5acad0742db1e12c4742562624e5a672.gif"], 
+        description: "I'm old.",
+        points: 950 
+    },
+    {
+        name: "Purple Guy",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/e7/e2/fa/e7e2fa68aad4dd707059e2178944f1ed.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/90d48bf2aae7b7000da559365848a792.gif"], 
+        description: "O homem que só volta às vezes.",
+        points: 900 
+    },
+    {
+        name: "Vasco Palmeirim",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/bb/21/71/bb217133ea9cf73eb517478a944e4b6c.jpg", "https://i.pinimg.com/736x/c3/98/53/c3985354bc85ef65336ece5330208aea.jpg"], 
+        description: "O jóquer.",
+        points: 850 
+    },
+    {
+        name: "Forever",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/e0/92/d8/e092d88db7f24ea4da8fb241cedae9fc.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/1db5e1bda3bdfdefaf15baaebec7bde1.gif"], 
+        description: "Ape together strong.",
+        points: 800 
+    },
+    {
+        name: "Joker",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/67/d5/69/67d569894fd3aaa804b73f595791c5ae.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/ab6af9a5d6bf6da9d6dab5400e77a671.gif"], 
+        description: "Why so serious?.",
+        points: 750 
+    },
+    {
+        name: "Shadow",
+        gender: "male",
+        images: ["https://i.pinimg.com/1200x/77/a7/07/77a707f2b63c4f17231e6d57bbacac1f.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/f36daddf5157c9acf88e492e393cea1e.gif"], 
+        description: "Eu sinto o shadow.",
+        points: 700 
+    },
+    {
+        name: "Jonesy",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/2d/58/93/2d589308b17dd197e70219dd12aa028c.jpg", "https://i.pinimg.com/736x/6d/41/8e/6d418e3166056e0edb1793abec78ba19.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/ef66cb494ed65b02f677fd7a321010c4.gif"], 
+        description: "Mr Fortnite Himself.",
+        points: 650 
+    },
+    {
+        name: "Tigershark",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/1f/10/2d/1f102dfe4f7a0ef3ddf43964d86c4e87.jpg", "https://i.pinimg.com/1200x/5b/e0/f9/5be0f9b9068d110aef8dbcf4162f7652.jpg"], 
+        description: "I'm shark, tigershark.",
+        points: 600 
+    },
+    {
+        name: "Spamton",
+        gender: "male",
+        images: ["https://i.pinimg.com/736x/df/34/a2/df34a2e8ed25682b6899b77960fdcfe1.jpg", "https://bg-so-1.zippyimage.com/2025/08/04/eddad8e164197445ee13c9e155e74200.gif"], 
+        description: "Big Shot Enthusiast.",
+        points: 550 
+    },
+    {
         name: "Roblox Man Face",
         gender: "male",
         images: ["https://i.pinimg.com/736x/b3/7d/f5/b37df5b078f99203459e47ee299d56c4.jpg", "https://i.pinimg.com/736x/b3/7d/f5/b37df5b078f99203459e47ee299d56c4.jpg", "https://i.pinimg.com/736x/b3/7d/f5/b37df5b078f99203459e47ee299d56c4.jpg"], 
@@ -154,7 +280,7 @@ export default [
         name: "Super Bullying",
         gender: "male",
         images: ["https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQOXMfvKPCAwu_0sqT_R645mr1V3YRYJEMsVIs5llzXQxPTtX2C29ex96SfYQehTvWF2bI", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkW7SErTCTWjC0IS2BkIAObYQGQ0Y_tgHsKVvj_KS1JJNqQy0eUuvc3UVJ4TA6l32TWng"], 
-        description: "Mc da hit series <Super Bullying>.",
+        description: "Sou eu.",
         points: 100 
     },
     {

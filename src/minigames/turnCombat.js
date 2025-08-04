@@ -455,8 +455,8 @@ async function monsterTurn(channelId) {
       clearTimeout(state.turnTimeout);
       state.turnTimeout = null;
     }
-    // Seta cooldown de 10 minutos (600_000 ms) para o canal
-    combatCooldown[channelId] = Date.now() + 600000;
+    // Seta cooldown de 30 minutos (180_000 ms) para o canal
+    combatCooldown[channelId] = Date.now() + 180000;
     // Limpa estado do canal
     delete combatState[channelId];
     return;

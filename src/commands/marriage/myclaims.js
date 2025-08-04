@@ -1,6 +1,6 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import UserClaim from '../models/UserClaim.js';
-import charactersData from '../config/characters.js';
+import UserClaim from '../../models/UserClaim.js';
+import charactersData from '../../config/characters.js';
 
 export default {
     name: 'myclaims',

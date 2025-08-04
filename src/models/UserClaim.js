@@ -1,5 +1,20 @@
 import mongoose from 'mongoose';
 
+// Schema para cooldown de bónus
+const userBonusSchema = new mongoose.Schema({
+    userId: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    lastBonusTime: {
+        type: Date,
+        default: null
+    }
+}, {
+    timestamps: true
+});
+
 const userClaimSchema = new mongoose.Schema({
     userId: {
         type: String,
@@ -30,6 +45,41 @@ userClaimSchema.index({ userId: 1 });
 userClaimSchema.statics.isCharacterClaimed = async function(characterName) {
     const claim = await this.findOne({ characterName });
     return claim ? { claimed: true, owner: claim.userId, claimedAt: claim.claimedAt } : { claimed: false };
+};
+
+// Função estática para verificar se o utilizador pode ganhar bónus (cooldown)
+userClaimSchema.statics.canUserGetBonus = async function(userId) {
+    const UserBonus = mongoose.model('UserBonus');
+    const now = new Date();
+    const threeHoursAgo = new Date(now.getTime() - (3 * 60 * 60 * 1000)); // 3 horas atrás
+    
+    const userBonus = await UserBonus.findOne({ userId });
+    
+    if (userBonus && userBonus.lastBonusTime && userBonus.lastBonusTime > threeHoursAgo) {
+        const timeLeft = new Date(userBonus.lastBonusTime.getTime() + (3 * 60 * 60 * 1000)) - now;
+        const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+        const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        
+        return { 
+            canGetBonus: false, 
+            timeLeft: { hours: hoursLeft, minutes: minutesLeft, totalMs: timeLeft }
+        };
+    }
+    
+    return { canGetBonus: true };
+};
+
+// Função estática para registrar que o utilizador ganhou bónus
+userClaimSchema.statics.setBonusTime = async function(userId) {
+    const UserBonus = mongoose.model('UserBonus');
+    
+    await UserBonus.findOneAndUpdate(
+        { userId },
+        { lastBonusTime: new Date() },
+        { upsert: true, new: true }
+    );
+    
+    return true;
 };
 
 // Função estática para verificar se o utilizador pode fazer claim (cooldown)
@@ -126,5 +176,7 @@ userClaimSchema.statics.divorceCharacter = async function(userId, characterName)
 };
 
 const UserClaim = mongoose.model('UserClaim', userClaimSchema);
+const UserBonus = mongoose.model('UserBonus', userBonusSchema);
 
 export default UserClaim;
+export { UserBonus };

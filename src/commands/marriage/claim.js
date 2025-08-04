@@ -1,5 +1,5 @@
 import { EmbedBuilder } from 'discord.js';
-import UserClaim from '../models/UserClaim.js';
+import UserClaim from '../../models/UserClaim.js';
 
 export default {
     name: 'claim',
@@ -9,6 +9,9 @@ export default {
         try {
             // Verificar se o utilizador pode fazer claim
             const claimCheck = await UserClaim.canUserClaim(message.author.id);
+            
+            // Verificar se o utilizador pode ganhar bónus
+            const bonusCheck = await UserClaim.canUserGetBonus(message.author.id);
             
             let statusEmoji = '🟢';
             let statusText = 'Disponível';
@@ -24,7 +27,7 @@ export default {
                 })
                 .setTimestamp()
                 .setFooter({ 
-                    text: 'Cooldown de claim: 3 horas entre claims' 
+                    text: 'Cooldowns: Claim e Bónus (3 horas cada)' 
                 });
             
             if (claimCheck.canClaim) {
@@ -36,16 +39,39 @@ export default {
                         inline: true
                     },
                     {
-                        name: '⏰ Cooldown',
+                        name: '⏰ Cooldown Claim',
                         value: '**Nenhum**',
                         inline: true
                     },
                     {
-                        name: '🎯 Próxima Ação',
-                        value: 'Faz roll e claim!',
+                        name: '🧰 Status de Bónus',
+                        value: bonusCheck.canGetBonus ? '**Disponível**' : '**Em Cooldown**',
                         inline: true
                     }
                 );
+                
+                // Se tem cooldown de bónus, mostrar tempo restante
+                if (!bonusCheck.canGetBonus) {
+                    const timeLeftMs = bonusCheck.timeLeft.totalMs;
+                    const hoursLeft = Math.floor(timeLeftMs / (1000 * 60 * 60));
+                    const minutesLeft = Math.floor((timeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const secondsLeft = Math.floor((timeLeftMs % (1000 * 60)) / 1000);
+                    
+                    let bonusTimeDisplay = '';
+                    if (hoursLeft > 0) {
+                        bonusTimeDisplay = `**${hoursLeft}h ${minutesLeft}m ${secondsLeft}s**`;
+                    } else if (minutesLeft > 0) {
+                        bonusTimeDisplay = `**${minutesLeft}m ${secondsLeft}s**`;
+                    } else {
+                        bonusTimeDisplay = `**${secondsLeft}s**`;
+                    }
+                    
+                    embed.addFields({
+                        name: '⏰ Próximo Bónus Em',
+                        value: bonusTimeDisplay,
+                        inline: false
+                    });
+                }
             } else {
                 // Utilizador em cooldown
                 statusEmoji = '🔴';
@@ -84,16 +110,39 @@ export default {
                             inline: true
                         },
                         {
-                            name: '⏰ Tempo Restante',
+                            name: '⏰ Tempo Restante Claim',
                             value: timeDisplay,
                             inline: true
                         },
                         {
-                            name: '🎯 Próxima Ação',
-                            value: 'Aguardar cooldown',
+                            name: '🧰 Status de Bónus',
+                            value: bonusCheck.canGetBonus ? '**Disponível**' : '**Em Cooldown**',
                             inline: true
                         }
                     );
+                    
+                // Se tem cooldown de bónus, mostrar tempo restante
+                if (!bonusCheck.canGetBonus) {
+                    const bonusTimeLeftMs = bonusCheck.timeLeft.totalMs;
+                    const bonusHoursLeft = Math.floor(bonusTimeLeftMs / (1000 * 60 * 60));
+                    const bonusMinutesLeft = Math.floor((bonusTimeLeftMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const bonusSecondsLeft = Math.floor((bonusTimeLeftMs % (1000 * 60)) / 1000);
+                    
+                    let bonusTimeDisplay = '';
+                    if (bonusHoursLeft > 0) {
+                        bonusTimeDisplay = `**${bonusHoursLeft}h ${bonusMinutesLeft}m ${bonusSecondsLeft}s**`;
+                    } else if (bonusMinutesLeft > 0) {
+                        bonusTimeDisplay = `**${bonusMinutesLeft}m ${bonusSecondsLeft}s**`;
+                    } else {
+                        bonusTimeDisplay = `**${bonusSecondsLeft}s**`;
+                    }
+                    
+                    embed.addFields({
+                        name: '⏰ Próximo Bónus Em',
+                        value: bonusTimeDisplay,
+                        inline: false
+                    });
+                }
             }
             
             embed.setDescription(description);

@@ -1,8 +1,9 @@
-import { EmbedBuilder } from 'discord.js';
-import charactersData, { getRandomCharacter } from '../config/characters.js';
-import { getConsistentImageSize } from '../utils/embedUtils.js';
-import UserRolls from '../models/UserRolls.js';
-import UserClaim from '../models/UserClaim.js';
+import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
+import charactersData, { getRandomCharacter } from '../../config/characters.js';
+import { getConsistentImageSize } from '../../utils/embedUtils.js';
+import UserRolls from '../../models/UserRolls.js';
+import UserClaim from '../../models/UserClaim.js';
+import User from '../../models/User.js';
 
 export default {
     name: 'waifu',
@@ -24,7 +25,7 @@ export default {
                         value: `**${timeUntilReset.minutes}m ${timeUntilReset.seconds}s**`,
                         inline: true
                     })
-                    .setFooter({ text: 'Receberás 5 rolls novos na próxima hora!' });
+                    .setFooter({ text: 'Receberás 3 rolls novos na próxima hora!' });
                 
                 return message.reply({ embeds: [embed] });
             }
@@ -98,7 +99,7 @@ export default {
                 )
                 .setTimestamp()
                 .setFooter({ 
-                    text: `Rolls restantes: ${rollResult.rollsRemaining}/5 | Género: ${character.gender === 'female' ? 'Feminino' : 'Masculino'} | Roll #${Math.floor(Math.random() * 10000)}` 
+                    text: `Rolls restantes: ${rollResult.rollsRemaining}/3 | Género: ${character.gender === 'female' ? 'Feminino' : 'Masculino'} | Roll #${Math.floor(Math.random() * 10000)}` 
                 });
 
             // Adicionar descrição se disponível
@@ -106,7 +107,7 @@ export default {
             
             // Adicionar mensagem de rolls renovados se for uma nova hora
             if (rollResult.isNewHour && rollResult.rollsRemaining === 4) {
-                description = `🎉 **Rolls renovados!** Recebeste 5 rolls novos!\n\n${description}`;
+                description = `🎉 **Rolls renovados!** Recebeste 3 rolls novos!\n\n${description}`;
             }
             
             // Adicionar informação sobre claim
@@ -193,6 +194,126 @@ export default {
                     if (reason !== 'claimed') {
                         // Remover reações após o tempo expirar
                         rollMessage.reactions.removeAll().catch(() => {});
+                    }
+                });
+            } else {
+                // Personagem já claimed - adicionar botão de bónus
+                const bonusButton = new ActionRowBuilder()
+                    .addComponents(
+                        new ButtonBuilder()
+                            .setCustomId('bonus_points')
+                            .setLabel('🎁')
+                            .setStyle(ButtonStyle.Primary)
+                    );
+
+                await rollMessage.edit({ embeds: [embed], components: [bonusButton] });
+
+                // Collector para o botão de bónus
+                const bonusCollector = rollMessage.createMessageComponentCollector({ 
+                    componentType: ComponentType.Button, 
+                    time: 60000 // 1 minuto para clicar
+                });
+
+                bonusCollector.on('collect', async interaction => {
+                    try {
+                        if (interaction.customId === 'bonus_points') {
+                            // Verificar cooldown de bónus
+                            const bonusCheck = await UserClaim.canUserGetBonus(interaction.user.id);
+                            
+                            if (!bonusCheck.canGetBonus) {
+                                // Utilizador em cooldown de bónus
+                                await interaction.reply({ 
+                                    content: `⏰ Ainda não podes ganhar bónus! Tempo restante: **${bonusCheck.timeLeft.hours}h ${bonusCheck.timeLeft.minutes}m**`, 
+                                    ephemeral: true 
+                                });
+                                return;
+                            }
+                            
+                            // Verificar se é o primeiro a clicar (sem cooldown)
+                            if (bonusCollector.total === 1) {
+                                // Obter ou criar utilizador
+                                let user = await User.findOne({ userId: interaction.user.id });
+                                if (!user) {
+                                    user = new User({ userId: interaction.user.id, points: 0 });
+                                }
+
+                                // Adicionar 100 pontos
+                                user.points += 100;
+                                await user.save();
+
+                                // Registrar tempo de bónus
+                                await UserClaim.setBonusTime(interaction.user.id);
+
+                                // Criar embed de sucesso
+                                const bonusEmbed = new EmbedBuilder()
+                                    .setTitle('🎉 Bónus Ganho!')
+                                    .setDescription(`**${interaction.user.displayName}** foi o primeiro a clicar e ganhou **100 pontos**!`)
+                                    .setColor('#FFD700')
+                                    .setThumbnail(interaction.user.displayAvatarURL())
+                                    .addFields(
+                                        {
+                                            name: '💰 Pontos Ganhos',
+                                            value: '+100 pts',
+                                            inline: true
+                                        },
+                                        {
+                                            name: '💰 Saldo Atual',
+                                            value: `${user.points} pts`,
+                                            inline: true
+                                        },
+                                        {
+                                            name: '⏰ Próximo Bónus',
+                                            value: 'Em 3 horas',
+                                            inline: true
+                                        }
+                                    )
+                                    .setTimestamp();
+
+                                await interaction.reply({ embeds: [bonusEmbed] });
+
+                                // Desativar o botão
+                                const disabledButton = new ActionRowBuilder()
+                                    .addComponents(
+                                        new ButtonBuilder()
+                                            .setCustomId('bonus_claimed')
+                                            .setLabel('✅')
+                                            .setStyle(ButtonStyle.Success)
+                                            .setDisabled(true)
+                                    );
+
+                                await rollMessage.edit({ embeds: [embed], components: [disabledButton] });
+                                bonusCollector.stop('claimed');
+
+                            } else {
+                                // Não foi o primeiro
+                                await interaction.reply({ 
+                                    content: '❌ Alguém já reclamou o bónus! Mais sorte na próxima.', 
+                                    ephemeral: true 
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error('❌ Erro ao processar bónus:', error);
+                        await interaction.reply({ 
+                            content: '❌ Ocorreu um erro ao processar o bónus!', 
+                            ephemeral: true 
+                        });
+                    }
+                });
+
+                bonusCollector.on('end', (collected) => {
+                    if (collected.size === 0) {
+                        // Ninguém clicou no botão - desativar
+                        const expiredButton = new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId('bonus_expired')
+                                    .setLabel('⏰')
+                                    .setStyle(ButtonStyle.Secondary)
+                                    .setDisabled(true)
+                            );
+
+                        rollMessage.edit({ embeds: [embed], components: [expiredButton] }).catch(() => {});
                     }
                 });
             }

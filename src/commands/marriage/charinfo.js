@@ -1,7 +1,7 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } from 'discord.js';
-import charactersData from '../config/characters.js';
-import { getConsistentImageSize } from '../utils/embedUtils.js';
-import UserClaim from '../models/UserClaim.js';
+import charactersData from '../../config/characters.js';
+import { getConsistentImageSize } from '../../utils/embedUtils.js';
+import UserClaim from '../../models/UserClaim.js';
 
 export default {
     name: 'charinfo',
