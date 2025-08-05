@@ -1,5 +1,6 @@
 // Inicia o servidor de ping HTTP para Render Free
 import './ping.js';
+import { setBotClient } from './ping.js';
 import * as youtubei from 'discord-player-youtubei';
 console.log('youtubei:', youtubei);
 const { YoutubeiExtractor } = youtubei;
@@ -19,6 +20,7 @@ import { connectDB } from './src/config/db.js';
 
 import { startAutoRaceScheduler } from './src/services/autoRaceService.js';
 import AutoClearService from './src/services/autoClearService.js';
+import HealthMonitor from './src/services/healthMonitor.js';
 
 async function startBot() {
     // Ouvinte de eventos de voz do Discord deve ser adicionado após a criação do client
@@ -70,6 +72,19 @@ async function startBot() {
         }
 
         await client.login(process.env.DISCORD_TOKEN);
+
+        // Registrar o cliente no servidor de ping para health checks
+        setBotClient(client);
+
+        // Iniciar o Health Monitor
+        console.log('🔍 Iniciando Health Monitor...');
+        try {
+            const healthMonitor = new HealthMonitor(client);
+            healthMonitor.start();
+            console.log('🔍 Health Monitor iniciado com sucesso!');
+        } catch (error) {
+            console.error('❌ Erro ao iniciar Health Monitor:', error);
+        }
 
         // Inicia o agendador de corridas públicas automáticas
         console.log('🏇 Tentando iniciar o serviço de corridas automáticas...');

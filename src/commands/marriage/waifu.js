@@ -4,6 +4,7 @@ import { getConsistentImageSize } from '../../utils/embedUtils.js';
 import UserRolls from '../../models/UserRolls.js';
 import UserClaim from '../../models/UserClaim.js';
 import User from '../../models/User.js';
+import { claimTimerService } from '../../services/claimTimerService.js';
 
 export default {
     name: 'waifu',
@@ -138,16 +139,106 @@ export default {
 
             // Se o personagem não está claimed, adicionar sistema de reação para claim
             if (!claimInfo.claimed) {
+                // Variável para controlar se o personagem ainda pode ser claimed
+                let claimExpired = false;
+                
+                // Iniciar timer visual de countdown
+                const timerId = claimTimerService.startClaimTimer(
+                    rollMessage, 
+                    embed, 
+                    character, 
+                    rollResult, 
+                    commandTitle, 
+                    300000 // 5 minutos
+                );
+                
                 // Collector para reações
                 const filter = (reaction, user) => !user.bot;
                 const collector = rollMessage.createReactionCollector({ filter, time: 300000 }); // 5 minutos
 
+                // Timer para marcar como expirado após 5 minutos
+                const expireTimer = setTimeout(() => {
+                    claimExpired = true;
+                    
+                    // Parar o timer visual
+                    claimTimerService.clearTimer(timerId);
+                    
+                    // Atualizar embed para mostrar que expirou
+                    const expiredEmbed = new EmbedBuilder()
+                        .setTitle(commandTitle)
+                        .setColor('#808080') // Cinza
+                        .setAuthor({ 
+                            name: message.author.displayName, 
+                            iconURL: message.author.displayAvatarURL() 
+                        })
+                        .addFields(
+                            { 
+                                name: '👤 Personagem', 
+                                value: `**${character.name}**`, 
+                                inline: true 
+                            },
+                            { 
+                                name: '💰 Pontos', 
+                                value: `**${character.points || 0}** pts`, 
+                                inline: true 
+                            }
+                        )
+                        .setTimestamp()
+                        .setFooter({ 
+                            text: `⏰ TEMPO EXPIRADO | Rolls restantes: ${rollResult.rollsRemaining}/3 | Género: ${character.gender === 'female' ? 'Feminino' : 'Masculino'}` 
+                        });
+
+                    // Atualizar descrição para mostrar que expirou
+                    let expiredDescription = character.description || '';
+                    expiredDescription += `\n\n⏰ **TEMPO EXPIRADO** - Este personagem não pode mais ser claimed nesta rodada.`;
+                    
+                    if (expiredDescription) {
+                        expiredEmbed.setDescription(expiredDescription);
+                    }
+
+                    // Manter a imagem
+                    if (character.images && Array.isArray(character.images) && character.images.length > 0) {
+                        const firstImage = character.images[0];
+                        if (firstImage && firstImage.startsWith('http')) {
+                            expiredEmbed.setImage(getConsistentImageSize(firstImage, 400, 400));
+                        }
+                    } else if (character.image && character.image.startsWith('http')) {
+                        expiredEmbed.setImage(getConsistentImageSize(character.image, 400, 400));
+                    }
+
+                    // Atualizar a mensagem
+                    rollMessage.edit({ embeds: [expiredEmbed] }).catch(() => {});
+                    
+                    // Remover todas as reações
+                    rollMessage.reactions.removeAll().catch(() => {});
+                }, 300000); // 5 minutos
+
                 collector.on('collect', async (reaction, user) => {
                     try {
+                        // Verificar se o tempo já expirou
+                        if (claimExpired) {
+                            // Enviar mensagem de tempo expirado
+                            const expiredMsg = await message.channel.send({
+                                content: `⏰ **${user.displayName}**, o tempo para fazer claim de **${character.name}** já expirou! (5 minutos)`,
+                            });
+                            
+                            // Apagar a mensagem após 8 segundos
+                            setTimeout(() => expiredMsg.delete().catch(() => {}), 8000);
+                            
+                            // Remover a reação do utilizador
+                            reaction.users.remove(user.id).catch(() => {});
+                            return;
+                        }
+
                         // Tentar fazer claim
                         const claimResult = await UserClaim.claimCharacter(user.id, character.name);
                         
                         if (claimResult.success) {
+                            // Limpar o timer já que foi claimed com sucesso
+                            clearTimeout(expireTimer);
+                            claimTimerService.clearTimer(timerId);
+                            claimExpired = true; // Marcar como expirado para não aceitar mais claims
+                            
                             // Claim bem sucedido
                             const claimEmbed = new EmbedBuilder()
                                 .setTitle('💍 Claim Bem Sucedido!')
@@ -170,6 +261,9 @@ export default {
                             const cooldownMsg = await message.channel.send({ embeds: [cooldownEmbed] });
                             setTimeout(() => cooldownMsg.delete().catch(() => {}), 10000); // Apagar após 10s
                             
+                            // Remover a reação do utilizador
+                            reaction.users.remove(user.id).catch(() => {});
+                            
                         } else if (claimResult.reason === 'already_claimed') {
                             // Personagem já foi claimed por outro utilizador
                             const owner = await client.users.fetch(claimResult.owner).catch(() => null);
@@ -183,16 +277,25 @@ export default {
                             
                             const claimedMsg = await message.channel.send({ embeds: [alreadyClaimedEmbed] });
                             setTimeout(() => claimedMsg.delete().catch(() => {}), 10000); // Apagar após 10s
+                            
+                            // Remover a reação do utilizador
+                            reaction.users.remove(user.id).catch(() => {});
                         }
                         
                     } catch (error) {
                         console.error('❌ Erro ao processar claim:', error);
+                        // Remover a reação em caso de erro
+                        reaction.users.remove(user.id).catch(() => {});
                     }
                 });
 
                 collector.on('end', (collected, reason) => {
-                    if (reason !== 'claimed') {
-                        // Remover reações após o tempo expirar
+                    // Limpar o timer se o collector acabar por outro motivo
+                    clearTimeout(expireTimer);
+                    claimTimerService.clearTimer(timerId);
+                    
+                    if (reason !== 'claimed' && !claimExpired) {
+                        // Se não foi claimed e não expirou ainda, remover reações
                         rollMessage.reactions.removeAll().catch(() => {});
                     }
                 });
