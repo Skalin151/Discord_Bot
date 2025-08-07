@@ -7,6 +7,28 @@ const combatState = {};
 // Cooldown de combate por canal (canalId: timestamp de fim do cooldown)
 const combatCooldown = {};
 
+/**
+ * Função utilitária para responder a interações de forma segura
+ * @param {Object} interaction - A interação do Discord
+ * @param {Object} options - Opções da resposta
+ */
+async function safeInteractionReply(interaction, options) {
+  try {
+    if (interaction.replied) {
+      // Se já foi respondida, não fazer nada
+      return;
+    } else if (interaction.deferred) {
+      // Se foi deferred, usar followUp
+      await interaction.followUp(options);
+    } else {
+      // Se não foi nem respondida nem deferred, usar reply normal
+      await interaction.reply(options);
+    }
+  } catch (error) {
+    console.error('Erro ao responder interação:', error);
+  }
+}
+
 export async function spawnMonster(channel, participants, monsterData, forceSpawn = false) {
   // Cooldown: impede novo combate se ainda não passou 10 minutos desde o último, exceto se for forçado
   const now = Date.now();
@@ -196,17 +218,22 @@ async function startTurn(channelId) {
 }
 
 export async function handleCombatButton(interaction) {
-  // Defer obrigatoriamente para evitar interaction failed
-  if (!interaction.deferred && !interaction.replied) {
-    await interaction.deferUpdate();
-  }
   const channelId = interaction.channel.id;
   const state = combatState[channelId];
   if (!state) return;
+  
   const userId = state.participants[state.turn % state.participants.length];
+  
+  // Verificar se é o turno do jogador ANTES de deferir a interação
   if (interaction.user.id !== userId) {
-    await interaction.reply({ content: 'Não é o teu turno!', flags: MessageFlags.Ephemeral });
+    // Se não é o turno do jogador, responder com mensagem efêmera
+    await safeInteractionReply(interaction, { content: 'Não é o teu turno!', flags: MessageFlags.Ephemeral });
     return;
+  }
+  
+  // Só agora defer a interação se for o jogador correto
+  if (!interaction.deferred && !interaction.replied) {
+    await interaction.deferUpdate();
   }
   // Limpa timer do turno se ação foi tomada
   if (state.turnTimeout) {
@@ -261,7 +288,8 @@ export async function handleCombatButton(interaction) {
     }
     const totalMpCost = mpCost * mpMultiplier;
     if (state.partyState[userId].mp < totalMpCost) {
-      await interaction.reply({ content: 'MP insuficiente para ataque mágico!', flags: MessageFlags.Ephemeral });
+      // Se não tem MP suficiente, usar função segura
+      await safeInteractionReply(interaction, { content: 'MP insuficiente para ataque mágico!', flags: MessageFlags.Ephemeral });
       return;
     }
     dmg = (6 + Math.floor(Math.random()*6)) * dmgMultiplier;

@@ -1,4 +1,5 @@
 import express from 'express';
+import os from 'os';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,102 +66,167 @@ app.use((req, res, next) => {
   next();
 });
 
-// Endpoint principal - health check básico
+// Endpoint principal - redirect para status
 app.get('/', (req, res) => {
-  res.json({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    uptime: formatUptime(Date.now() - startTime)
-  });
+  res.redirect('/status');
 });
 
-// Endpoint de health check detalhado
-app.get('/health', (req, res) => {
-  const uptimeMs = Date.now() - startTime;
-  const memoryUsage = process.memoryUsage();
-  
-  const healthStatus = {
-    status: 'healthy',
-    timestamp: new Date().toISOString(),
-    uptime: {
-      formatted: formatUptime(uptimeMs),
-      milliseconds: uptimeMs
-    },
-    memory: formatMemory(memoryUsage),
-    lastPing: {
-      formatted: formatLastPing(lastPingTime),
-      timestamp: new Date(lastPingTime).toISOString()
-    },
-    bot: {
-      connected: botClient?.isReady() || false,
-      guilds: botClient?.guilds?.cache?.size || 0,
-      ping: botClient?.ws?.ping ? `${botClient.ws.ping}ms` : 'N/A',
-      user: botClient?.user?.tag || 'Not connected'
-    }
-  };
-
-  // Verificar se o bot está com problemas
-  const isUnhealthy = !botClient?.isReady() || 
-                      (botClient?.ws?.ping > 500) ||
-                      (memoryUsage.heapUsed > 500 * 1024 * 1024); // 500MB
-
-  if (isUnhealthy) {
-    healthStatus.status = 'unhealthy';
-    res.status(503);
-  }
-
-  res.json(healthStatus);
-});
-
-// Endpoint para estatísticas do bot
-app.get('/stats', (req, res) => {
-  if (!botClient?.isReady()) {
-    return res.status(503).json({ error: 'Bot not connected' });
-  }
-
-  const uptimeMs = Date.now() - startTime;
-  const memoryUsage = process.memoryUsage();
-  const totalUsers = botClient.guilds.cache.reduce((acc, guild) => acc + guild.memberCount, 0);
-
-  res.json({
-    bot: {
-      name: botClient.user.tag,
-      id: botClient.user.id,
-      connected: true
-    },
-    servers: {
-      count: botClient.guilds.cache.size,
-      users: totalUsers.toLocaleString(),
-      channels: botClient.channels.cache.size.toLocaleString()
-    },
-    performance: {
-      ping: `${botClient.ws.ping}ms`,
-      uptime: {
-        formatted: formatUptime(uptimeMs),
-        since: new Date(startTime).toISOString()
+// Endpoint unificado de status com todas as informações
+app.get('/status', (req, res) => {
+  try {
+    const uptimeMs = Date.now() - startTime;
+    const systemUptime = os.uptime() * 1000;
+    const memoryUsage = process.memoryUsage();
+    const totalSystemMemory = os.totalmem();
+    const freeSystemMemory = os.freemem();
+    const usedSystemMemory = totalSystemMemory - freeSystemMemory;
+    
+    // Informações de CPU
+    const cpus = os.cpus();
+    const loadAverage = os.loadavg();
+    
+    // Detectar ambiente
+    const isRender = process.env.RENDER === 'true' || process.env.RENDER_SERVICE_ID;
+    const isLinuxContainer = os.platform() === 'linux' && process.env.container;
+    const platform = os.platform();
+    
+    // Determinar health status
+    const botConnected = botClient?.isReady() || false;
+    const botPing = botClient?.ws?.ping || 0;
+    const memoryThreshold = isLinuxContainer ? 512 * 1024 * 1024 : 500 * 1024 * 1024; // 512MB para containers
+    
+    const isUnhealthy = !botConnected || 
+                        (botPing > 500) ||
+                        (memoryUsage.heapUsed > memoryThreshold);
+    
+    const healthScore = () => {
+      let score = 100;
+      if (!botConnected) score -= 50;
+      if (botPing > 200) score -= 20;
+      if (botPing > 500) score -= 30;
+      if (memoryUsage.heapUsed > memoryThreshold) score -= 25;
+      if (usedSystemMemory / totalSystemMemory > 0.9) score -= 15;
+      return Math.max(score, 0);
+    };
+    
+    const health = healthScore();
+    const environmentInfo = isRender ? 'Render Cloud' : 
+                           isLinuxContainer ? 'Linux Container' :
+                           platform === 'win32' ? 'Windows' :
+                           platform === 'darwin' ? 'macOS' : 
+                           'Linux';
+    
+    // Bot statistics
+    const totalUsers = botClient?.guilds?.cache?.reduce((acc, guild) => acc + guild.memberCount, 0) || 0;
+    
+    const statusData = {
+      // Status geral
+      status: isUnhealthy ? 'unhealthy' : 'healthy',
+      health: {
+        score: health,
+        status: health >= 80 ? 'Excelente' : health >= 60 ? 'Bom' : health >= 40 ? 'Atenção' : 'Crítico'
       },
-      memory: formatMemory(memoryUsage)
-    },
-    system: {
-      nodeVersion: process.version,
-      platform: process.platform,
-      arch: process.arch
+      timestamp: new Date().toISOString(),
+      
+      // Informações do bot
+      bot: {
+        name: botClient?.user?.tag || 'Disconnected',
+        id: botClient?.user?.id || null,
+        connected: botConnected,
+        uptime: {
+          formatted: formatUptime(uptimeMs),
+          milliseconds: uptimeMs,
+          since: new Date(startTime).toISOString()
+        },
+        performance: {
+          ping: botPing > 0 ? `${botPing}ms` : 'N/A',
+          responseTime: `${Date.now() - lastPingTime}ms`
+        },
+        discord: {
+          guilds: botClient?.guilds?.cache?.size || 0,
+          users: totalUsers.toLocaleString(),
+          channels: botClient?.channels?.cache?.size || 0
+        }
+      },
+      
+      // Informações do sistema
+      system: {
+        environment: environmentInfo,
+        platform: platform,
+        architecture: os.arch(),
+        hostname: os.hostname(),
+        nodeVersion: process.version,
+        uptime: {
+          formatted: formatUptime(systemUptime),
+          milliseconds: systemUptime
+        },
+        cpu: {
+          model: cpus[0]?.model?.split(' ')[0] || 'Unknown',
+          cores: cpus.length || 1,
+          architecture: cpus[0]?.model || 'Unknown',
+          loadAverage: loadAverage.map(avg => parseFloat(avg.toFixed(2)))
+        }
+      },
+      
+      // Informações de memória
+      memory: {
+        bot: {
+          rss: formatBytes(memoryUsage.rss),
+          heapTotal: formatBytes(memoryUsage.heapTotal),
+          heapUsed: formatBytes(memoryUsage.heapUsed),
+          external: formatBytes(memoryUsage.external),
+          arrayBuffers: formatBytes(memoryUsage.arrayBuffers),
+          usage: `${formatBytes(memoryUsage.heapUsed)} / ${formatBytes(memoryUsage.heapTotal)}`
+        },
+        system: {
+          total: formatBytes(totalSystemMemory),
+          used: formatBytes(usedSystemMemory),
+          free: formatBytes(freeSystemMemory),
+          usage: `${formatBytes(usedSystemMemory)} / ${formatBytes(totalSystemMemory)}`,
+          percentage: Math.round((usedSystemMemory / totalSystemMemory) * 100)
+        }
+      },
+      
+      // Monitoring info
+      monitoring: {
+        lastPing: {
+          formatted: formatLastPing(lastPingTime),
+          timestamp: new Date(lastPingTime).toISOString(),
+          ago: Date.now() - lastPingTime
+        },
+        endpoints: {
+          status: '/status',
+          health: '/status (unified)',
+          stats: '/status (unified)'
+        }
+      }
+    };
+    
+    // Definir status HTTP baseado na saúde
+    if (isUnhealthy) {
+      res.status(503);
     }
-  });
+    
+    res.json(statusData);
+    
+  } catch (error) {
+    console.error('❌ Erro no endpoint status:', error);
+    res.status(500).json({
+      status: 'error',
+      error: 'Internal server error',
+      timestamp: new Date().toISOString(),
+      message: error.message
+    });
+  }
 });
 
-// Endpoint para forçar restart (apenas local/desenvolvimento)
-app.post('/restart', (req, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(403).json({ error: 'Restart not allowed in production' });
-  }
-  
-  console.log('🔄 Restart solicitado via API');
-  res.json({ message: 'Restarting...' });
-  
-  setTimeout(() => {
-    process.exit(0);
-  }, 1000);
+// Endpoints legados (redirecionam para /status)
+app.get('/health', (req, res) => {
+  res.redirect('/status');
+});
+
+app.get('/stats', (req, res) => {
+  res.redirect('/status');
 });
 
 // Função para registrar o cliente do bot
@@ -196,8 +262,9 @@ process.on('SIGINT', () => {
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Servidor de ping rodando na porta ${PORT}`);
-  console.log(`📊 Endpoints disponíveis:`);
-  console.log(`   GET /        - Health check básico`);
-  console.log(`   GET /health  - Health check detalhado`);
-  console.log(`   GET /stats   - Estatísticas do bot`);
+  console.log(`📊 Endpoint principal:`);
+  console.log(`   GET /status  - Status completo e unificado`);
+  console.log(`   GET /        - Redireciona para /status`);
+  console.log(`   GET /health  - Redireciona para /status (legacy)`);
+  console.log(`   GET /stats   - Redireciona para /status (legacy)`);
 });

@@ -53,8 +53,18 @@ export default {
                     await handleCombatButton(interaction, client);
                 } catch (err) {
                     console.error('Erro ao processar botão de combate:', err);
-                    if (!interaction.replied && !interaction.deferred) {
-                        await interaction.reply({ content: '❌ Erro ao processar ação do combate.', flags: MessageFlags.Ephemeral });
+                    // Usar função segura para responder erro
+                    try {
+                        if (interaction.replied) {
+                            // Se já foi respondida, não fazer nada
+                            return;
+                        } else if (interaction.deferred) {
+                            await interaction.followUp({ content: '❌ Erro ao processar ação do combate.', flags: MessageFlags.Ephemeral });
+                        } else {
+                            await interaction.reply({ content: '❌ Erro ao processar ação do combate.', flags: MessageFlags.Ephemeral });
+                        }
+                    } catch (replyError) {
+                        console.error('❌ Erro ao enviar mensagem de erro de combate:', replyError);
                     }
                 }
                 return;
