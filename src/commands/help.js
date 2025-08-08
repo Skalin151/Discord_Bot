@@ -100,6 +100,8 @@ export default {
           '`%queue` — Mostra a fila de músicas (com paginação)\n' +
           '`%skip`, `%previous`, `%stop`, `%shuffle`, `%pause`, `%resume` — Controlo total da reprodução\n' +
           '`%steam <jogo>` — Consulta preços e detalhes de jogos da Steam\n' +
+          '`%steamfamily` — Mostra jogos compartilhados da Steam Family\n' +
+          '`%steamfamily list [página] [filtro]` — Lista com filtros (alfabetical, copies, owner)\n' +
           '`/steam` — Slash command para Steam'
         },
         { name: '🧹 Moderação', value:

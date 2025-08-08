@@ -1,9 +1,9 @@
 import { EmbedBuilder } from 'discord.js';
-import User from '../models/User.js';
-import UserItem from '../models/UserItem.js';
-import UserCode from '../models/UserCode.js';
-import Horse from '../models/Horse.js';
-import Ticket from '../models/Ticket.js';
+import User from '../../models/User.js';
+import UserItem from '../../models/UserItem.js';
+import UserCode from '../../models/UserCode.js';
+import Horse from '../../models/Horse.js';
+import Ticket from '../../models/Ticket.js';
 import mongoose from 'mongoose';
 
 export default {

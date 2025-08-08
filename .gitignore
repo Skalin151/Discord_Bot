@@ -1,3 +1,6 @@
+# Steam Family data (descomente a linha abaixo se não quiser versionar os dados)
+# data/steam_games_aggregated.csv
+
 # Dependências
 node_modules/
 npm-debug.log*

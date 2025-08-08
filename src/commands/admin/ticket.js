@@ -1,5 +1,5 @@
 import { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, PermissionFlagsBits } from 'discord.js';
-import Ticket from '../models/Ticket.js';
+import Ticket from '../../models/Ticket.js';
 
 export default {
     name: 'ticket',
