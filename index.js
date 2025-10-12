@@ -25,7 +25,12 @@ import HealthMonitor from './src/services/healthMonitor.js';
 async function startBot() {
     // Ouvinte de eventos de voz do Discord deve ser adicionado após a criação do client
     try {
+        console.log('🚀 === INICIANDO BOT DISCORD ===');
+        console.log('📍 Ambiente:', process.env.NODE_ENV || 'development');
+        console.log('🔌 Porta:', process.env.PORT || 3000);
+        
         // Conectar ao MongoDB
+        console.log('📦 Conectando ao MongoDB...');
         await connectDB();
 
         const client = new Client({
@@ -68,7 +73,9 @@ async function startBot() {
             throw new Error('DISCORD_TOKEN não encontrado no arquivo .env');
         }
 
+        console.log('🔐 Fazendo login no Discord...');
         await client.login(process.env.DISCORD_TOKEN);
+        console.log('✅ Login realizado! Aguardando evento "ready"...');
 
         // Registrar o cliente no servidor de ping para health checks
         setBotClient(client);
@@ -107,8 +114,13 @@ async function startBot() {
         // Registrar comandos slash após login (client.user.id disponível)
         await registerSlashCommands(client);
     } catch (error) {
-        console.error('Erro ao iniciar o bot:', error);
-        process.exit(1);
+        console.error('❌ ERRO CRÍTICO ao iniciar o bot:', error);
+        console.error('Stack:', error.stack);
+        
+        // NÃO mata o processo - o servidor HTTP continua rodando
+        // Isso permite que o Render veja que o serviço está "vivo"
+        console.warn('⚠️ Bot falhou ao iniciar, mas o servidor HTTP continua ativo.');
+        console.warn('⚠️ Verifique: DISCORD_TOKEN, MONGODB_URI e permissões do bot.');
     }
 }
 
