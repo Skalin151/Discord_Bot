@@ -96,10 +96,7 @@ export default {
           '`%item <id>` — Detalhes de um item\n' +
           '`2: ----- .----` — ???\n'
         },
-        { name: '🎵 Música', value:
-          '`%play <url|termo>` — Toca músicas ou playlists\n' +
-          '`%queue` — Mostra a fila de músicas (com paginação)\n' +
-          '`%skip`, `%previous`, `%stop`, `%shuffle`, `%pause`, `%resume` — Controlo total da reprodução\n' +
+        { name: '🎮 Steam', value:
           '`%steam <jogo>` — Consulta preços e detalhes de jogos da Steam\n' +
           '`%steamfamily` — Mostra jogos compartilhados da Steam Family\n' +
           '`%steamfamily list [página] [filtro]` — Lista com filtros (alfabetical, copies, owner)\n' +

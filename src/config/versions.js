@@ -1,9 +1,23 @@
 // Sistema de Versões do Bot Discord THK
 // Formato: MAJOR.MINOR.PATCH (Semantic Versioning)
 
-export const CURRENT_VERSION = '2.3.0';
+export const CURRENT_VERSION = '2.3.1';
 
 export const VERSION_HISTORY = [
+  {
+    version: '2.3.1',
+    date: '2025-10-12',
+    title: '🔧 Otimizações Gerais',
+    type: 'patch',
+    changes: [
+      '🔧 Melhorias gerais de performance',
+      '📱 Logs Melhorados'
+    ],
+    fixes: [
+      '🐛 Corrigidos erros diversos',
+      '🔧 Comandos de música em quarentena'
+    ]
+  },
   {
     version: '2.3.0',
     date: '2025-09-19',
@@ -34,16 +48,15 @@ export const VERSION_HISTORY = [
   {
     version: '2.2.1',
     date: '2025-09-15',
-    title: '🎵 Melhorias na Música',
+    title: '🔧 Otimizações Gerais',
     type: 'patch',
     changes: [
-      '🎵 Melhorado sistema de música com discord-player',
-      '📱 Interface de controle mais responsiva',
-      '🔊 Qualidade de áudio otimizada'
+      '🔧 Melhorias gerais de performance',
+      '📱 Interface mais responsiva'
     ],
     fixes: [
-      '🐛 Corrigidos erros de conexão no voice channel',
-      '🔧 Resolvidos problemas de lag na reprodução'
+      '🐛 Corrigidos erros diversos',
+      '🔧 Resolvidos problemas de lag'
     ]
   },
   {

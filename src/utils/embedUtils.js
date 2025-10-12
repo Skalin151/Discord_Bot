@@ -1,4 +1,5 @@
 import { EmbedBuilder, AuditLogEvent } from 'discord.js';
+import { config } from '../config/config.js';
 
 /**
  * Converte uma URL de imagem para ter tamanho consistente (Discord proxy)
@@ -52,9 +53,10 @@ export function createSimpleLogEmbed(title, description, color = '#0099ff', user
  * @param {Guild} guild - Servidor Discord
  * @param {string} action - Tipo de acção do audit log
  * @param {string} targetId - ID do alvo da acção
+ * @param {number} timeWindow - Janela de tempo em ms para considerar a ação (padrão: 10000ms)
  * @returns {User|null} - Utilizador que executou a acção
  */
-export async function getActionExecutor(guild, action, targetId = null) {
+export async function getActionExecutor(guild, action, targetId = null, timeWindow = 10000) {
     try {
         const auditLogs = await guild.fetchAuditLogs({
             type: action,
@@ -64,7 +66,7 @@ export async function getActionExecutor(guild, action, targetId = null) {
         const auditEntry = auditLogs.entries.find(entry => {
             const timeDiff = Date.now() - entry.createdTimestamp;
             if (targetId) {
-                return entry.target?.id === targetId && timeDiff < 10000; // 10 segundos
+                return entry.target?.id === targetId && timeDiff < timeWindow;
             }
             return timeDiff < 3000; // 3 segundos para outros eventos
         });
@@ -82,15 +84,16 @@ export async function getActionExecutor(guild, action, targetId = null) {
  * @param {EmbedBuilder} embed - Embed a ser enviado
  */
 export async function sendLogEmbed(guild, embed) {
+    // Usar os nomes de canais da configuração
     const logChannel = guild.channels.cache.find(channel => 
-        channel.name === 'logs' || channel.name === 'audit-logs' || channel.name === 'eventos'
+        config.logChannelNames.some(name => channel.name.toLowerCase() === name.toLowerCase())
     );
 
     if (logChannel) {
         try {
             await logChannel.send({ embeds: [embed] });
         } catch (error) {
-            console.error('Erro ao enviar log:', error);
+            console.error('[LOG] ❌ Erro ao enviar log:', error);
         }
     }
 }
@@ -110,5 +113,9 @@ export const LOG_COLORS = {
     ROLE: '#9932cc',      // Roxo
     CHANNEL: '#5865f2',   // Azul Discord
     VOICE: '#ff69b4',     // Rosa
-    MESSAGE: '#36393f'    // Cinza Discord
+    MESSAGE: '#36393f',   // Cinza Discord
+    KICK: '#dc143c',      // Vermelho carmesim
+    MODERATE: '#ff8c00',  // Laranja escuro
+    SUCCESS: '#00ff7f',   // Verde primavera
+    INFO: '#87ceeb'       // Azul céu
 };

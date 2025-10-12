@@ -20,24 +20,12 @@
   "license": "ISC",
   "description": "THK",
   "dependencies": {
-    "@discord-player/extractor": "^7.1.0",
-    "@discord-player/utils": "^7.1.0",
-    "@discordjs/voice": "^0.14.0",
-    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "discord-arts": "^0.7.1",
-    "discord-player": "^7.1.0",
-    "discord-player-youtubei": "^1.5.0",
     "discord.js": "^14.21.0",
     "dotenv": "^17.2.0",
-    "erela.js": "^2.4.0",
     "express": "^5.1.0",
-    "ffmpeg": "^0.0.4",
-    "ffmpeg-static": "^5.2.0",
-    "lyrics-finder": "^21.7.0",
     "mongodb": "^6.18.0",
     "mongoose": "^8.16.5",
-    "play-dl": "^1.9.7",
-    "youtube-ext": "^1.1.25",
-    "ytdl-core": "^4.11.5"
+    "node-fetch": "^3.3.2"
   }
 }

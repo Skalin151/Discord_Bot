@@ -1,23 +1,17 @@
 // Configuração de memória para Render Free (512MB limit)
 // Limitar heap do Node.js para evitar crashes - REDUZIDO para 400MB
 if (process.env.NODE_ENV === 'production') {
-    process.env.NODE_OPTIONS = '--max-old-space-size=400'; // 400MB para deixar mais margem
+    process.env.NODE_OPTIONS = '--max-old-space-size=450'; // 450MB para deixar margem
 }
 
 // Inicia o servidor de ping HTTP para Render Free
 import './ping.js';
 import { setBotClient } from './ping.js';
-import * as youtubei from 'discord-player-youtubei';
-console.log('youtubei:', youtubei);
-const { YoutubeiExtractor } = youtubei;
 import dotenv from 'dotenv';
 dotenv.config();
 
 
 import { Client, GatewayIntentBits, Options } from 'discord.js';
-import { Player } from 'discord-player';
-import { useMainPlayer } from 'discord-player';
-import extractor from '@discord-player/extractor';
 import { loadEvents } from './src/handlers/eventHandler.js';
 import { loadCommands } from './src/handlers/commandHandler.js';
 import { loadSlashCommands, registerSlashCommands } from './src/handlers/slashCommandHandler.js';
@@ -37,64 +31,31 @@ async function startBot() {
         const client = new Client({
             intents: [
                 GatewayIntentBits.Guilds,
-                GatewayIntentBits.GuildVoiceStates,
                 GatewayIntentBits.GuildMessages,
                 GatewayIntentBits.GuildModeration,
                 GatewayIntentBits.MessageContent,
                 GatewayIntentBits.GuildMembers,
                 GatewayIntentBits.GuildMessageReactions,
+                GatewayIntentBits.GuildVoiceStates,
             ],
-            // CRITICAL: Configurações AGRESSIVAS para reduzir uso de memória no Render (512MB)
+            // CRITICAL: Configurações para reduzir uso de memória no Render
             makeCache: Options.cacheWithLimits({
-                MessageManager: 20, // REDUZIDO: 20 mensagens por canal
-                GuildMemberManager: 50, // REDUZIDO: 50 membros
-                UserManager: 50, // REDUZIDO: 50 usuários
-                PresenceManager: 0, // Desabilitar presences
-                ReactionManager: 0, // Desabilitar reactions cache
-                GuildBanManager: 0, // Desabilitar bans cache
-                GuildInviteManager: 0, // Desabilitar invites cache
-                VoiceStateManager: 50, // Apenas estados de voz necessários
+                MessageManager: 50, // Apenas 50 mensagens em cache por canal
+                GuildMemberManager: 100, // 100 membros
+                UserManager: 100, // 100 usuários
             }),
-            // Sweepers AGRESSIVOS para limpar caches frequentemente
+            // Reduzir sweepers para limpar caches regularmente
             sweepers: {
                 messages: {
-                    interval: 1800, // A cada 30 minutos
-                    lifetime: 900, // Mensagens com mais de 15 minutos
+                    interval: 3600, // A cada 1 hora
+                    lifetime: 1800, // Mensagens com mais de 30 minutos
                 },
                 users: {
-                    interval: 1800,
-                    filter: () => user => user.bot && user.id !== client.user.id,
-                },
-                guildMembers: {
-                    interval: 3600, // Limpar membros a cada 1 hora
-                    filter: () => member => member.id !== client.user.id,
-                },
-                threads: {
                     interval: 3600,
-                    lifetime: 14400, // Threads com mais de 4 horas
+                    filter: () => user => user.bot && user.id !== client.user.id, // Remover bots do cache
                 }
             }
         });
-
-        // Inicializar o player de música (discord-player)
-        client.player = new Player(client);
-        const mainPlayer = useMainPlayer();
-        if (typeof extractor.register === 'function') {
-            extractor.register(mainPlayer);
-        } else {
-            if (extractor.SpotifyExtractor) mainPlayer.extractors.register(extractor.SpotifyExtractor);
-            if (extractor.SoundCloudExtractor) mainPlayer.extractors.register(extractor.SoundCloudExtractor);
-        }
-        // Workaround: registrar o extractor do plugin youtubei
-        if (YoutubeiExtractor) {
-            client.player.extractors.register(YoutubeiExtractor, {});
-        } else {
-            console.error('YoutubeiExtractor não encontrado no plugin discord-player-youtubei');
-        }
-
-        // Silenciar logs detalhados de erro do discord-player
-        client.player.events.on('error', () => {});
-        client.player.events.on('playerError', () => {});
 
         // Carregar comandos
         client.commands = await loadCommands();
@@ -164,27 +125,21 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('❌ Promise rejeitada não tratada:', reason);
 });
 
-// Monitorar uso de memória periodicamente - AGRESSIVO para Render
+// Monitorar uso de memória periodicamente
 if (process.env.NODE_ENV === 'production') {
     setInterval(() => {
         const memUsage = process.memoryUsage();
         const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
         const heapTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
         
-        // Limites REDUZIDOS para Render Free (512MB total)
-        if (heapUsedMB > 350) {
+        if (heapUsedMB > 400) {
             console.warn(`⚠️ MEMÓRIA CRÍTICA: ${heapUsedMB}MB/${heapTotalMB}MB`);
             if (global.gc) {
                 console.log('🗑️ Forçando garbage collection...');
                 global.gc();
             }
-        } else if (heapUsedMB > 250) {
-            // Garbage collection preventivo
-            if (global.gc) {
-                global.gc();
-            }
         }
-    }, 30000); // A cada 30 segundos (mais frequente)
+    }, 60000); // A cada 1 minuto
 }
 
 startBot();

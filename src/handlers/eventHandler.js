@@ -22,12 +22,7 @@ export async function loadEvents(client) {
                 continue;
             }
 
-            // Eventos do discord-player
-            if (event.name.startsWith('player.')) {
-                const eventName = event.name.replace('player.', '');
-                client.player.events.on(eventName, (...args) => event.execute(...args, client));
-                console.log(`✅ Evento do player carregado: ${eventName}`);
-            } else if (event.once) {
+            if (event.once) {
                 client.once(event.name, (...args) => event.execute(...args, client));
             } else {
                 client.on(event.name, (...args) => event.execute(...args, client));
