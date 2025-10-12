@@ -1,3 +1,9 @@
+// Configuração de memória para Render Free (512MB limit)
+// Limitar heap do Node.js para evitar crashes
+if (process.env.NODE_ENV === 'production') {
+    process.env.NODE_OPTIONS = '--max-old-space-size=450'; // 450MB para deixar margem
+}
+
 // Inicia o servidor de ping HTTP para Render Free
 import './ping.js';
 import { setBotClient } from './ping.js';
@@ -8,7 +14,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Options } from 'discord.js';
 import { Player } from 'discord-player';
 import { useMainPlayer } from 'discord-player';
 import extractor from '@discord-player/extractor';
@@ -37,7 +43,24 @@ async function startBot() {
                 GatewayIntentBits.MessageContent,
                 GatewayIntentBits.GuildMembers,
                 GatewayIntentBits.GuildMessageReactions,
-            ]
+            ],
+            // CRITICAL: Configurações para reduzir uso de memória no Render
+            makeCache: Options.cacheWithLimits({
+                MessageManager: 50, // Apenas 50 mensagens em cache por canal
+                GuildMemberManager: 100, // 100 membros
+                UserManager: 100, // 100 usuários
+            }),
+            // Reduzir sweepers para limpar caches regularmente
+            sweepers: {
+                messages: {
+                    interval: 3600, // A cada 1 hora
+                    lifetime: 1800, // Mensagens com mais de 30 minutos
+                },
+                users: {
+                    interval: 3600,
+                    filter: () => user => user.bot && user.id !== client.user.id, // Remover bots do cache
+                }
+            }
         });
 
         // Inicializar o player de música (discord-player)
@@ -113,6 +136,36 @@ async function startBot() {
         console.error('Erro ao iniciar o bot:', error);
         process.exit(1);
     }
+}
+
+// CRITICAL: Tratamento de erros de memória
+process.on('uncaughtException', (error) => {
+    console.error('❌ Erro não tratado:', error);
+    if (error.message && error.message.includes('heap')) {
+        console.error('💥 ERRO DE MEMÓRIA DETECTADO! Reiniciando...');
+        process.exit(1); // Render vai reiniciar automaticamente
+    }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('❌ Promise rejeitada não tratada:', reason);
+});
+
+// Monitorar uso de memória periodicamente
+if (process.env.NODE_ENV === 'production') {
+    setInterval(() => {
+        const memUsage = process.memoryUsage();
+        const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+        const heapTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
+        
+        if (heapUsedMB > 400) {
+            console.warn(`⚠️ MEMÓRIA CRÍTICA: ${heapUsedMB}MB/${heapTotalMB}MB`);
+            if (global.gc) {
+                console.log('🗑️ Forçando garbage collection...');
+                global.gc();
+            }
+        }
+    }, 60000); // A cada 1 minuto
 }
 
 startBot();

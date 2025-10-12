@@ -14,8 +14,9 @@ import {
 
 // IDs dos canais onde as corridas públicas serão anunciadas (suporte a múltiplos servidores)
 const PUBLIC_RACE_CHANNEL_IDS = [
-    '1395894836309135390',//Debug Server
+    '1395894836309135390', //Debug Server
     '1302730634346631211', //Pengu's
+    '1075104771956035677', // THK
 ];
 
 class PublicHorseRace {

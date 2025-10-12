@@ -1,10 +1,11 @@
 {
   "name": "discord_bot",
-  "version": "1.0.0",
+  "version": "2.3.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --max-old-space-size=450 --expose-gc index.js",
+    "start:prod": "NODE_ENV=production node --max-old-space-size=450 --expose-gc index.js",
     "dev": "node --watch index.js",
     "register": "node register-commands.js",
     "test": "echo \"Error: no test specified\" && exit 1"

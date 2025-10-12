@@ -24,6 +24,7 @@ export default {
         { name: '🛠️ Utilidade (extra)', value:
           '`%server` — Mostra informações do servidor\n' +
           '`%owner` — Mostra informações sobre o desenvolvedor do bot\n' +
+          '`%version` — Mostra a versão atual do bot e changelog\n' +
           '`%ping` — Latência do Bot\n' +
           '`%uptime` — Tempo de atividade do bot\n'
         },

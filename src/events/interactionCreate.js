@@ -1,4 +1,4 @@
-import { Events, MessageFlags } from 'discord.js';
+import { Events, MessageFlags, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 
 export default {
     name: Events.InteractionCreate,
@@ -73,6 +73,76 @@ export default {
                 
             } catch (err) {
                 console.error('Erro ao processar botão do steamfamily:', err);
+                // Se já fizemos deferUpdate, não podemos fazer reply
+                try {
+                    await interaction.followUp({ content: '❌ Erro ao processar ação.', flags: MessageFlags.Ephemeral });
+                } catch (followUpError) {
+                    console.error('❌ Erro ao enviar follow-up de erro:', followUpError);
+                }
+            }
+            return;
+        }
+
+        // Handler para botões do comando version
+        if (interaction.isButton && interaction.isButton() && interaction.customId.startsWith('version_')) {
+            try {
+                // IMPORTANTE: Defer ANTES de qualquer operação
+                await interaction.deferUpdate();
+                
+                const { showCurrentVersion, showSpecificVersion, showVersionList } = await import('../commands/version.js');
+                
+                if (interaction.customId === 'version_current') {
+                    await showCurrentVersion(interaction.message, true); // true = editMode
+                } else if (interaction.customId === 'version_list') {
+                    await showVersionList(interaction.message, 1, true); // true = editMode
+                } else if (interaction.customId.startsWith('version_list_')) {
+                    // Formato: version_list_[page]
+                    const page = parseInt(interaction.customId.split('_')[2]) || 1;
+                    await showVersionList(interaction.message, page, true); // true = editMode
+                } else if (interaction.customId.startsWith('version_show_')) {
+                    // Formato: version_show_[version]
+                    const versionNumber = interaction.customId.split('_')[2];
+                    const { getVersionByNumber } = await import('../config/versions.js');
+                    const versionData = getVersionByNumber(versionNumber);
+                    
+                    if (versionData) {
+                        await showSpecificVersion(interaction.message, versionData, true); // true = editMode
+                    } else {
+                        await interaction.followUp({ content: '❌ Versão não encontrada.', flags: MessageFlags.Ephemeral });
+                    }
+                } else if (interaction.customId === 'version_previous') {
+                    const { CURRENT_VERSION, getAdjacentVersion, getVersionByNumber } = await import('../config/versions.js');
+                    const previousVersion = getAdjacentVersion(CURRENT_VERSION, 'previous');
+                    
+                    if (previousVersion) {
+                        await showSpecificVersion(interaction.message, previousVersion, true); // true = editMode
+                    }
+                } else if (interaction.customId === 'version_technical') {
+                    // Mostra detalhes técnicos da versão atual
+                    const { getCurrentVersion } = await import('../config/versions.js');
+                    const currentVersionData = getCurrentVersion();
+                    
+                    if (currentVersionData && currentVersionData.technical) {
+                        const technicalEmbed = new EmbedBuilder()
+                            .setTitle(`🔧 Detalhes Técnicos - v${currentVersionData.version}`)
+                            .setDescription(currentVersionData.technical.join('\n'))
+                            .setColor('#6C757D')
+                            .setTimestamp();
+                        
+                        const backButton = new ActionRowBuilder()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId('version_current')
+                                    .setLabel('⬅️ Voltar')
+                                    .setStyle(ButtonStyle.Secondary)
+                            );
+                        
+                        await interaction.message.edit({ content: '', embeds: [technicalEmbed], components: [backButton] });
+                    }
+                }
+                
+            } catch (err) {
+                console.error('Erro ao processar botão do version:', err);
                 // Se já fizemos deferUpdate, não podemos fazer reply
                 try {
                     await interaction.followUp({ content: '❌ Erro ao processar ação.', flags: MessageFlags.Ephemeral });

@@ -15,6 +15,7 @@ export class HealthMonitor {
             memoryWarnings: 0
         };
         this.isMonitoring = false;
+        this.listeners = {}; // Armazena referências aos listeners
     }
 
     start() {
@@ -23,10 +24,10 @@ export class HealthMonitor {
         this.isMonitoring = true;
         console.log('🔍 Health Monitor iniciado');
 
-        // Monitorar a cada 30 segundos
+        // Monitorar a cada 60 segundos 
         this.monitorInterval = setInterval(() => {
             this.checkHealth();
-        }, 30000);
+        }, 60000);
 
         // Monitorar eventos do bot
         this.setupEventListeners();
@@ -40,34 +41,65 @@ export class HealthMonitor {
         
         if (this.monitorInterval) {
             clearInterval(this.monitorInterval);
+            this.monitorInterval = null;
         }
+
+        // CRITICAL: Remover todos os event listeners
+        this.removeEventListeners();
     }
 
     setupEventListeners() {
+        // CRITICAL: Remover listeners antigos antes de adicionar novos
+        this.removeEventListeners();
+
         // Contar comandos executados
-        this.client.on('interactionCreate', () => {
+        this.listeners.interactionCreate = () => {
             this.metrics.commands++;
-        });
+        };
 
         // Monitorar erros
-        this.client.on('error', (error) => {
+        this.listeners.error = (error) => {
             this.metrics.errors++;
             this.metrics.lastError = {
                 message: error.message,
                 timestamp: Date.now()
             };
             console.error('❌ Erro capturado pelo Health Monitor:', error.message);
-        });
+        };
 
         // Monitorar desconexões
-        this.client.on('disconnect', () => {
+        this.listeners.disconnect = () => {
             console.warn('⚠️ Bot desconectado do Discord');
-        });
+        };
 
-        this.client.on('reconnecting', () => {
+        this.listeners.reconnecting = () => {
             console.log('🔄 Bot reconectando ao Discord...');
             this.metrics.restarts++;
-        });
+        };
+
+        // Adicionar listeners
+        this.client.on('interactionCreate', this.listeners.interactionCreate);
+        this.client.on('error', this.listeners.error);
+        this.client.on('disconnect', this.listeners.disconnect);
+        this.client.on('reconnecting', this.listeners.reconnecting);
+    }
+
+    removeEventListeners() {
+        // CRITICAL: Remover todos os listeners para evitar memory leaks
+        if (this.listeners.interactionCreate) {
+            this.client.removeListener('interactionCreate', this.listeners.interactionCreate);
+        }
+        if (this.listeners.error) {
+            this.client.removeListener('error', this.listeners.error);
+        }
+        if (this.listeners.disconnect) {
+            this.client.removeListener('disconnect', this.listeners.disconnect);
+        }
+        if (this.listeners.reconnecting) {
+            this.client.removeListener('reconnecting', this.listeners.reconnecting);
+        }
+        
+        this.listeners = {};
     }
 
     checkHealth() {
@@ -75,13 +107,18 @@ export class HealthMonitor {
         const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
         const heapTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
 
-        // Log de status básico
-        console.log(`🔍 Health Check - Heap: ${heapUsedMB}MB/${heapTotalMB}MB | Ping: ${this.client.ws.ping}ms | Guilds: ${this.client.guilds.cache.size}`);
+        // Log de status básico (apenas em ambiente de desenvolvimento)
+        if (process.env.NODE_ENV === 'development') {
+            console.log(`🔍 Health Check - Heap: ${heapUsedMB}MB/${heapTotalMB}MB | Ping: ${this.client.ws.ping}ms | Guilds: ${this.client.guilds.cache.size}`);
+        }
 
         // Avisar sobre uso alto de memória
-        if (heapUsedMB > 400) { // 400MB
+        if (heapUsedMB > 300) { // Reduzido de 400MB para 300MB no Render Free
             this.metrics.memoryWarnings++;
             console.warn(`⚠️ Uso alto de memória: ${heapUsedMB}MB`);
+            
+            // Limpar caches do Discord.js
+            this.cleanupCaches();
         }
 
         // Avisar sobre ping alto
@@ -90,9 +127,31 @@ export class HealthMonitor {
         }
 
         // Forçar garbage collection se memória muito alta
-        if (heapUsedMB > 500 && global.gc) {
+        if (heapUsedMB > 400 && global.gc) {
             console.log('🗑️ Executando garbage collection...');
             global.gc();
+        }
+    }
+
+    cleanupCaches() {
+        // Limpar caches desnecessários do Discord.js para liberar memória
+        try {
+            // Limitar tamanho de cache de mensagens
+            this.client.channels.cache.forEach(channel => {
+                if (channel.messages) {
+                    // Manter apenas as últimas 10 mensagens em cache
+                    if (channel.messages.cache.size > 10) {
+                        const messages = Array.from(channel.messages.cache.values());
+                        messages.slice(0, -10).forEach(msg => {
+                            channel.messages.cache.delete(msg.id);
+                        });
+                    }
+                }
+            });
+
+            console.log('🧹 Caches limpos para liberar memória');
+        } catch (error) {
+            console.error('Erro ao limpar caches:', error.message);
         }
     }
 
@@ -127,10 +186,11 @@ export class HealthMonitor {
             issues.push(`Ping alto: ${this.client.ws.ping}ms`);
         }
 
-        if (heapUsedMB > 500) {
+        // Limites ajustados para Render Free (512MB max)
+        if (heapUsedMB > 400) {
             status = 'critical';
             issues.push(`Memória crítica: ${heapUsedMB}MB`);
-        } else if (heapUsedMB > 400) {
+        } else if (heapUsedMB > 300) {
             status = status === 'healthy' ? 'warning' : status;
             issues.push(`Memória alta: ${heapUsedMB}MB`);
         }
