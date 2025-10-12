@@ -64,23 +64,25 @@ async function handleMainMenu(message, editMode = false) {
       }
     }
     
-    // Mostra os 15 jogos mais populares (com mais cópias)
+    // OTIMIZADO: Mostra os 10 jogos mais populares (REDUZIDO de 15)
     const topGames = data
       .sort((a, b) => b.copies - a.copies)
-      .slice(0, 15);
+      .slice(0, 10);
     
     const embed = new EmbedBuilder()
-      .setTitle('🎮 Steam Family - Jogos Mais Populares')
-      .setDescription('Top 15 jogos com mais cópias na família:')
+      .setTitle('🎮 Steam Family - Top 10 Jogos')
+      .setDescription('Jogos com mais cópias na família:')
       .setColor('#1b2836')
       .setTimestamp();
     
+    // REDUZIDO: Formato compacto para economizar memória
     topGames.forEach((game, index) => {
       const medal = index < 3 ? ['🥇', '🥈', '🥉'][index] : `${index + 1}.`;
+      const gameName = game.name.length > 40 ? game.name.substring(0, 37) + '...' : game.name;
       embed.addFields({
-        name: `${medal} ${game.name}`,
-        value: `**Cópias:** ${game.copies} | **AppID:** ${game.appid}\n**Proprietários:** ${game.owners}`,
-        inline: false
+        name: `${medal} ${gameName}`,
+        value: `**${game.copies}** cópias | ID: ${game.appid}`,
+        inline: true
       });
     });
     
@@ -584,15 +586,31 @@ async function readCSVData(csvPath) {
     // Remove header
     const dataLines = lines.slice(1);
     
-    return dataLines.map(line => {
-      const [appid, name, copies, owners] = parseCSVLine(line);
-      return {
-        appid: appid.trim(),
-        name: name.trim(),
-        copies: parseInt(copies.trim()),
-        owners: owners.trim()
-      };
-    }).filter(game => game.name && game.appid);
+    // CRITICAL: Processar em chunks para evitar usar muita memória de uma vez
+    const chunkSize = 100;
+    const games = [];
+    
+    for (let i = 0; i < dataLines.length; i += chunkSize) {
+      const chunk = dataLines.slice(i, i + chunkSize);
+      const processedChunk = chunk.map(line => {
+        const [appid, name, copies, owners] = parseCSVLine(line);
+        return {
+          appid: appid.trim(),
+          name: name.trim(),
+          copies: parseInt(copies.trim()),
+          owners: owners.trim()
+        };
+      }).filter(game => game.name && game.appid);
+      
+      games.push(...processedChunk);
+      
+      // Liberar memória entre chunks
+      if (global.gc && i % 500 === 0) {
+        global.gc();
+      }
+    }
+    
+    return games;
     
   } catch (error) {
     console.error('Erro ao ler CSV:', error);

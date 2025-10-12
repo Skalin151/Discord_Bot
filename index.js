@@ -1,7 +1,7 @@
 // Configuração de memória para Render Free (512MB limit)
-// Limitar heap do Node.js para evitar crashes
+// Limitar heap do Node.js para evitar crashes - REDUZIDO para 400MB
 if (process.env.NODE_ENV === 'production') {
-    process.env.NODE_OPTIONS = '--max-old-space-size=450'; // 450MB para deixar margem
+    process.env.NODE_OPTIONS = '--max-old-space-size=400'; // 400MB para deixar mais margem
 }
 
 // Inicia o servidor de ping HTTP para Render Free
@@ -44,21 +44,34 @@ async function startBot() {
                 GatewayIntentBits.GuildMembers,
                 GatewayIntentBits.GuildMessageReactions,
             ],
-            // CRITICAL: Configurações para reduzir uso de memória no Render
+            // CRITICAL: Configurações AGRESSIVAS para reduzir uso de memória no Render (512MB)
             makeCache: Options.cacheWithLimits({
-                MessageManager: 50, // Apenas 50 mensagens em cache por canal
-                GuildMemberManager: 100, // 100 membros
-                UserManager: 100, // 100 usuários
+                MessageManager: 20, // REDUZIDO: 20 mensagens por canal
+                GuildMemberManager: 50, // REDUZIDO: 50 membros
+                UserManager: 50, // REDUZIDO: 50 usuários
+                PresenceManager: 0, // Desabilitar presences
+                ReactionManager: 0, // Desabilitar reactions cache
+                GuildBanManager: 0, // Desabilitar bans cache
+                GuildInviteManager: 0, // Desabilitar invites cache
+                VoiceStateManager: 50, // Apenas estados de voz necessários
             }),
-            // Reduzir sweepers para limpar caches regularmente
+            // Sweepers AGRESSIVOS para limpar caches frequentemente
             sweepers: {
                 messages: {
-                    interval: 3600, // A cada 1 hora
-                    lifetime: 1800, // Mensagens com mais de 30 minutos
+                    interval: 1800, // A cada 30 minutos
+                    lifetime: 900, // Mensagens com mais de 15 minutos
                 },
                 users: {
+                    interval: 1800,
+                    filter: () => user => user.bot && user.id !== client.user.id,
+                },
+                guildMembers: {
+                    interval: 3600, // Limpar membros a cada 1 hora
+                    filter: () => member => member.id !== client.user.id,
+                },
+                threads: {
                     interval: 3600,
-                    filter: () => user => user.bot && user.id !== client.user.id, // Remover bots do cache
+                    lifetime: 14400, // Threads com mais de 4 horas
                 }
             }
         });
@@ -151,21 +164,27 @@ process.on('unhandledRejection', (reason, promise) => {
     console.error('❌ Promise rejeitada não tratada:', reason);
 });
 
-// Monitorar uso de memória periodicamente
+// Monitorar uso de memória periodicamente - AGRESSIVO para Render
 if (process.env.NODE_ENV === 'production') {
     setInterval(() => {
         const memUsage = process.memoryUsage();
         const heapUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
         const heapTotalMB = Math.round(memUsage.heapTotal / 1024 / 1024);
         
-        if (heapUsedMB > 400) {
+        // Limites REDUZIDOS para Render Free (512MB total)
+        if (heapUsedMB > 350) {
             console.warn(`⚠️ MEMÓRIA CRÍTICA: ${heapUsedMB}MB/${heapTotalMB}MB`);
             if (global.gc) {
                 console.log('🗑️ Forçando garbage collection...');
                 global.gc();
             }
+        } else if (heapUsedMB > 250) {
+            // Garbage collection preventivo
+            if (global.gc) {
+                global.gc();
+            }
         }
-    }, 60000); // A cada 1 minuto
+    }, 30000); // A cada 30 segundos (mais frequente)
 }
 
 startBot();

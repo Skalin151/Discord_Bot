@@ -112,10 +112,12 @@ export class HealthMonitor {
             console.log(`🔍 Health Check - Heap: ${heapUsedMB}MB/${heapTotalMB}MB | Ping: ${this.client.ws.ping}ms | Guilds: ${this.client.guilds.cache.size}`);
         }
 
-        // Avisar sobre uso alto de memória
-        if (heapUsedMB > 300) { // Reduzido de 400MB para 300MB no Render Free
+        // AGRESSIVO: Limpar caches mais cedo para Render Free
+        if (heapUsedMB > 200) {
             this.metrics.memoryWarnings++;
-            console.warn(`⚠️ Uso alto de memória: ${heapUsedMB}MB`);
+            if (heapUsedMB > 250) {
+                console.warn(`⚠️ Uso alto de memória: ${heapUsedMB}MB - LIMPANDO CACHES`);
+            }
             
             // Limpar caches do Discord.js
             this.cleanupCaches();
@@ -126,30 +128,59 @@ export class HealthMonitor {
             console.warn(`⚠️ Ping alto detectado: ${this.client.ws.ping}ms`);
         }
 
-        // Forçar garbage collection se memória muito alta
-        if (heapUsedMB > 400 && global.gc) {
+        // Forçar garbage collection mais agressivo
+        if (heapUsedMB > 300 && global.gc) {
             console.log('🗑️ Executando garbage collection...');
             global.gc();
         }
     }
 
     cleanupCaches() {
-        // Limpar caches desnecessários do Discord.js para liberar memória
+        // Limpar caches desnecessários do Discord.js para liberar memória - AGRESSIVO
         try {
-            // Limitar tamanho de cache de mensagens
+            let cleaned = 0;
+            
+            // Limitar tamanho de cache de mensagens - MAIS AGRESSIVO
             this.client.channels.cache.forEach(channel => {
                 if (channel.messages) {
-                    // Manter apenas as últimas 10 mensagens em cache
-                    if (channel.messages.cache.size > 10) {
+                    // Manter apenas as últimas 5 mensagens em cache (reduzido de 10)
+                    if (channel.messages.cache.size > 5) {
                         const messages = Array.from(channel.messages.cache.values());
-                        messages.slice(0, -10).forEach(msg => {
+                        messages.slice(0, -5).forEach(msg => {
                             channel.messages.cache.delete(msg.id);
+                            cleaned++;
                         });
                     }
                 }
             });
 
-            console.log('🧹 Caches limpos para liberar memória');
+            // Limpar membros desnecessários
+            this.client.guilds.cache.forEach(guild => {
+                if (guild.members.cache.size > 50) {
+                    const members = Array.from(guild.members.cache.values())
+                        .filter(m => m.id !== this.client.user.id); // Não remover o próprio bot
+                    
+                    members.slice(0, -50).forEach(member => {
+                        guild.members.cache.delete(member.id);
+                        cleaned++;
+                    });
+                }
+            });
+
+            // Limpar usuários desnecessários
+            if (this.client.users.cache.size > 50) {
+                const users = Array.from(this.client.users.cache.values())
+                    .filter(u => u.id !== this.client.user.id);
+                
+                users.slice(0, -50).forEach(user => {
+                    this.client.users.cache.delete(user.id);
+                    cleaned++;
+                });
+            }
+
+            if (cleaned > 0) {
+                console.log(`🧹 ${cleaned} itens removidos do cache para liberar memória`);
+            }
         } catch (error) {
             console.error('Erro ao limpar caches:', error.message);
         }
