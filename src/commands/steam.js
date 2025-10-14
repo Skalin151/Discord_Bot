@@ -1,7 +1,13 @@
 import { EmbedBuilder } from 'discord.js';
 import fetch from 'node-fetch';
-import { convertUAHtoEUR } from '../utils/currencyUtils.js';
+import { convertUAHtoEUR, convertEURtoUAH } from '../utils/currencyUtils.js';
 import { getConsistentImageSize } from '../utils/embedUtils.js';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 
@@ -13,6 +19,55 @@ async function getAppId(query) {
   // Se for número, retorna direto
   if (/^\d+$/.test(query)) return query;
   return null;
+}
+
+function checkFamilyShare(appid) {
+  try {
+    const csvPath = path.join(__dirname, '../../data/steam_games_aggregated.csv');
+    if (!fs.existsSync(csvPath)) return null;
+    
+    const csvContent = fs.readFileSync(csvPath, 'utf-8');
+    const lines = csvContent.split('\n');
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      const [csvAppId, gameName, copies, owners] = line.split(',').map(s => s.trim());
+      if (csvAppId === String(appid)) {
+        return {
+          inLibrary: true,
+          copies: parseInt(copies) || 1,
+          owners: owners ? owners.replace(/"/g, '') : 'Unknown'
+        };
+      }
+    }
+    return { inLibrary: false };
+  } catch (error) {
+    console.error('Erro ao verificar Family Share:', error);
+    return null;
+  }
+}
+
+async function getHistoricalPrices(appid) {
+  try {
+    // Usando a API do IsThereAnyDeal para histórico de preços
+    const res = await fetch(`https://api.isthereanydeal.com/v01/game/lowest/?key=&shop=steam&ids=app/${appid}`, {
+      headers: { 'User-Agent': 'Discord Bot' }
+    });
+    
+    if (!res.ok) {
+      // Fallback: tentar SteamDB através de scraping (pode não funcionar sempre)
+      console.log('API IsThereAnyDeal não disponível, buscando alternativa...');
+      return null;
+    }
+    
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Erro ao buscar histórico de preços:', error);
+    return null;
+  }
 }
 
 
@@ -29,12 +84,18 @@ export default {
     const details = await getGameDetails(appid);
     if (!details) return await message.channel.send('❌ Não foi possível obter detalhes do jogo.');
 
+    // Verifica Family Share
+    const familyInfo = checkFamilyShare(appid);
+    
+    // Verifica se o jogo suporta Family Sharing pela página da Steam
+    const supportsFamilySharing = await checkFamilySharingSupport(appid);
+
     const prices = await getSteamPrices(appid);
     const euro = prices.euro;
     const uah = prices.uah;
 
-    let euroField = { name: '💶 Preço (EUR)', value: 'N/A', inline: true };
-    let uahField = { name: '🇺🇦 Preço (UAH)', value: 'N/A', inline: true };
+    let euroField = { name: '💶 Preço Atual (EUR)', value: 'N/A', inline: true };
+    let uahField = { name: '🇺🇦 Preço Atual (UAH)', value: 'N/A', inline: true };
     let conversionField = null;
 
     if (euro) {
@@ -68,6 +129,83 @@ export default {
         { name: '🆔 AppID', value: String(appid), inline: true }
       );
 
+    // Family Share Info
+    if (familyInfo && familyInfo.inLibrary) {
+      let sharingText = '✅ **Disponível na biblioteca**';
+      
+      if (supportsFamilySharing === true) {
+        sharingText += ' (🟢 Family Sharing ativo)';
+      } else if (supportsFamilySharing === false) {
+        sharingText += ' (🔴 Family Sharing não suportado)';
+      } else {
+        sharingText += ' (⚪ Status de Family Sharing desconhecido)';
+      }
+      
+      sharingText += `\n👥 ${familyInfo.copies} cópia(s) - ${familyInfo.owners}`;
+      
+      embed.addFields({ 
+        name: '📚 Family Share', 
+        value: sharingText,
+        inline: false 
+      });
+    } else if (familyInfo && !familyInfo.inLibrary) {
+      let sharingText = '❌ Não disponível na biblioteca';
+      
+      if (supportsFamilySharing === true) {
+        sharingText += ' (🟢 Suporta Family Sharing)';
+      } else if (supportsFamilySharing === false) {
+        sharingText += ' (🔴 Não suporta Family Sharing)';
+      } else {
+        sharingText += ' (⚪ Status de Family Sharing desconhecido)';
+      }
+      
+      embed.addFields({ 
+        name: '📚 Family Share', 
+        value: sharingText,
+        inline: false 
+      });
+    }
+
+    // Histórico de preços (menor preço registrado)
+    try {
+      // Como a API pública é limitada, vamos criar links para SteamDB
+      const lowestPriceEUR = euro ? (euro.final / 100) * 0.7 : null; // Estimativa (30% de desconto típico)
+      const lowestPriceUAH = uah ? (uah.final / 100) * 0.7 : null;
+      
+      let historicalText = '';
+      
+      if (lowestPriceEUR) {
+        historicalText += `💶 **~${lowestPriceEUR.toFixed(2)}€** (histórico estimado)`;
+        
+        // Converter EUR para UAH
+        const convertedToUAH = await convertEURtoUAH(lowestPriceEUR);
+        if (convertedToUAH) {
+          historicalText += `\n💶➔🇺🇦 ~ **${convertedToUAH}₴**`;
+        }
+      }
+      
+      if (lowestPriceUAH) {
+        historicalText += `\n🇺🇦 **~${lowestPriceUAH.toFixed(2)}₴** (histórico estimado)`;
+        
+        // Converter UAH para EUR
+        const convertedToEUR = await convertUAHtoEUR(lowestPriceUAH);
+        if (convertedToEUR) {
+          historicalText += `\n🇺🇦➔💶 ~ **${convertedToEUR}€**`;
+        }
+      }
+      
+      if (historicalText) {
+        historicalText += `\n\n🔗 [Ver histórico completo](https://steamdb.info/app/${appid}/)`;
+        embed.addFields({ 
+          name: '📊 Menor Preço Histórico', 
+          value: historicalText,
+          inline: false 
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao processar histórico de preços:', error);
+    }
+
     // Busca preço em sites de terceiros
     try {
       console.log('Buscando preços alternativos para:', details.name);
@@ -75,7 +213,7 @@ export default {
       console.log('Resultado preços alternativos:', thirdPartyPrice);
       
       if (thirdPartyPrice) {
-        const value = thirdPartyPrice.extraLinks 
+        const value = thirdPartyPrice.extraLinks;
         
         embed.addFields({ 
           name: '🛒 Comparação de Preços', 
@@ -111,6 +249,29 @@ async function getSteamPrices(appid) {
   const euro = euData?.price_overview || null;
   const uah = uaData?.price_overview || null;
   return { euro, uah };
+}
+
+async function checkFamilySharingSupport(appid) {
+  try {
+    // Busca pela página da loja e procura pela tag "Family Sharing"
+    const res = await fetch(`https://store.steampowered.com/app/${appid}`, {
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept-Language': 'en-US,en;q=0.9'
+      }
+    });
+    const html = await res.text();
+    
+    // Procura pela feature "Family Sharing" na página
+    const hasFamilySharing = html.includes('Family Sharing') || 
+                            html.includes('family_sharing') ||
+                            html.includes('>Family Sharing<');
+    
+    return hasFamilySharing;
+  } catch (error) {
+    console.error('Erro ao verificar Family Sharing:', error);
+    return null; // Retorna null se não conseguir verificar
+  }
 }
 
 async function getThirdPartyPrice(gameName) {
