@@ -1,6 +1,9 @@
 # Use Node.js 20 LTS como base
 FROM node:20-alpine
 
+# Instalar dependências do sistema necessárias
+RUN apk add --no-cache python3 make g++
+
 # Definir diretório de trabalho
 WORKDIR /app
 
@@ -8,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalar dependências de produção
-RUN npm ci --only=production && \
+RUN npm install --production --no-optional && \
     npm cache clean --force
 
 # Copiar o código da aplicação
