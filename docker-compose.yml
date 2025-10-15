@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  discord-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discord-bot
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      # Adiciona as tuas variáveis de ambiente no Portainer ou cria um .env
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - MONGODB_URI=${MONGODB_URI}
+      - CLIENT_ID=${CLIENT_ID}
+      - GUILD_ID=${GUILD_ID}
+    ports:
+      - "3000:3000"
+    volumes:
+      # Apenas se precisares de persistência de dados locais
+      # - ./data:/app/data
+      - /app/node_modules
+    networks:
+      - bot-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  bot-network:
+    driver: bridge
