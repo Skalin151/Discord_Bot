@@ -9,8 +9,12 @@ Bot all-in-one desenvolvido por Skalin151
 - `%play <url|termo>` — Toca músicas ou playlists do YouTube/Spotify/SoundCloud
 - `%queue` — Mostra a fila de músicas (com paginação)
 - `%skip`, `%previous`, `%stop`, `%shuffle`, `%pause`, `%resume` — Controle total da reprodução
+
+### 🎮 Steam & Jogos
 - `%steam <jogo>` — Consulta preços e detalhes de jogos da Steam
 - `/steam` — Slash command para Steam
+- `%steamfamily [refresh|stats|list|search]` — Sistema completo de gestão Steam Family (🔒 Restrito)
+- `%steamgamebuy <jogo>` — Cria votação para dividir custo de jogos entre membros (🔒 Restrito)
 
 ### 🧹 Moderação
 - `%purge <número>` — Apaga mensagens em massa

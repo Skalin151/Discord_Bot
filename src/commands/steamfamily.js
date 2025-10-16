@@ -6,11 +6,33 @@ import path from 'path';
 
 const execAsync = promisify(exec);
 
+
+const AUTHORIZED_USERS = process.env.STEAM_FAMILY_AUTHORIZED_USERS 
+  ? process.env.STEAM_FAMILY_AUTHORIZED_USERS.split(',').map(id => id.trim())
+  : [];
+
+// Validação: avisa se a lista está vazia
+if (AUTHORIZED_USERS.length === 0) {
+  console.warn('⚠️ STEAM_FAMILY_AUTHORIZED_USERS não configurado no .env!');
+}
+// ========================================
+
 export default {
   name: 'steamfamily',
   description: 'Mostra os jogos compartilhados da Steam Family com estatísticas detalhadas',
   usage: '%steamfamily [refresh|stats|list [página] [filtro]|search <jogo>]',
   async execute(client, message, args) {
+    // Verifica se o usuário está autorizado
+    if (!AUTHORIZED_USERS.includes(message.author.id)) {
+      const embed = new EmbedBuilder()
+        .setTitle('🔒 Acesso Negado')
+        .setDescription('Você não tem permissão para usar este comando.')
+        .setColor('#F44336')
+        .setTimestamp();
+      
+      return await message.channel.send({ embeds: [embed] });
+    }
+    
     const subcommand = args[0]?.toLowerCase();
     
     switch (subcommand) {
@@ -39,10 +61,30 @@ export default {
 };
 
 // Exporta as funções para uso nos handlers de botões
-export { handleRefresh, handleStats, handleList, handleMainMenu };
+export { handleRefresh, handleStats, handleList, handleMainMenu, AUTHORIZED_USERS };
+
+// Função auxiliar para verificar autorização
+function checkAuthorization(userId) {
+  return AUTHORIZED_USERS.includes(userId);
+}
 
 // Função auxiliar para mostrar o menu principal (para botões)
-async function handleMainMenu(message, editMode = false) {
+async function handleMainMenu(message, editMode = false, userId = null) {
+  // Se userId for fornecido (chamada de botão), verifica autorização
+  if (userId && !checkAuthorization(userId)) {
+    const embed = new EmbedBuilder()
+      .setTitle('🔒 Acesso Negado')
+      .setDescription('Você não tem permissão para usar este comando.')
+      .setColor('#F44336')
+      .setTimestamp();
+    
+    if (editMode) {
+      return await message.edit({ content: '', embeds: [embed], components: [] });
+    } else {
+      return await message.channel.send({ embeds: [embed] });
+    }
+  }
+  
   try {
     const csvPath = await findCSVPath();
     const data = await readCSVData(csvPath);
@@ -129,7 +171,22 @@ async function handleMainMenu(message, editMode = false) {
   }
 }
 
-async function handleRefresh(message, editMode = false) {
+async function handleRefresh(message, editMode = false, userId = null) {
+  // Verifica autorização se userId for fornecido
+  if (userId && !checkAuthorization(userId)) {
+    const embed = new EmbedBuilder()
+      .setTitle('🔒 Acesso Negado')
+      .setDescription('Você não tem permissão para usar este comando.')
+      .setColor('#F44336')
+      .setTimestamp();
+    
+    if (editMode) {
+      return await message.edit({ content: '', embeds: [embed], components: [] });
+    } else {
+      return await message.channel.send({ embeds: [embed] });
+    }
+  }
+  
   let loadingMsg;
   
   if (editMode) {
@@ -262,7 +319,22 @@ async function findCSVPath() {
   throw new Error('Arquivo CSV não encontrado. Execute o comando refresh primeiro.');
 }
 
-async function handleList(message, page = 1, editMode = false, sortType = 'alphabetical') {
+async function handleList(message, page = 1, editMode = false, sortType = 'alphabetical', userId = null) {
+  // Verifica autorização se userId for fornecido
+  if (userId && !checkAuthorization(userId)) {
+    const embed = new EmbedBuilder()
+      .setTitle('🔒 Acesso Negado')
+      .setDescription('Você não tem permissão para usar este comando.')
+      .setColor('#F44336')
+      .setTimestamp();
+    
+    if (editMode) {
+      return await message.edit({ content: '', embeds: [embed], components: [] });
+    } else {
+      return await message.channel.send({ embeds: [embed] });
+    }
+  }
+  
   try {
     const csvPath = await findCSVPath();
     const data = await readCSVData(csvPath);
@@ -412,7 +484,22 @@ async function handleList(message, page = 1, editMode = false, sortType = 'alpha
   }
 }
 
-async function handleStats(message, editMode = false) {
+async function handleStats(message, editMode = false, userId = null) {
+  // Verifica autorização se userId for fornecido
+  if (userId && !checkAuthorization(userId)) {
+    const embed = new EmbedBuilder()
+      .setTitle('🔒 Acesso Negado')
+      .setDescription('Você não tem permissão para usar este comando.')
+      .setColor('#F44336')
+      .setTimestamp();
+    
+    if (editMode) {
+      return await message.edit({ content: '', embeds: [embed], components: [] });
+    } else {
+      return await message.channel.send({ embeds: [embed] });
+    }
+  }
+  
   try {
     const csvPath = await findCSVPath();
     const data = await readCSVData(csvPath);

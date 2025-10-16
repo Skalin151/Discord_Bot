@@ -66,22 +66,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Endpoint principal - redirect para status
+// Endpoint único com todas as informações
 app.get('/', (req, res) => {
-  res.redirect('/status');
-});
-
-// Endpoint simples de ping para keep-alive (sempre retorna 200)
-app.get('/ping', (req, res) => {
-  res.status(200).json({ 
-    status: 'alive',
-    timestamp: new Date().toISOString(),
-    uptime: formatUptime(Date.now() - startTime)
-  });
-});
-
-// Endpoint unificado de status com todas as informações
-app.get('/status', (req, res) => {
   try {
     const uptimeMs = Date.now() - startTime;
     const systemUptime = os.uptime() * 1000;
@@ -202,21 +188,15 @@ app.get('/status', (req, res) => {
           formatted: formatLastPing(lastPingTime),
           timestamp: new Date(lastPingTime).toISOString(),
           ago: Date.now() - lastPingTime
-        },
-        endpoints: {
-          status: '/status',
-          health: '/status (unified)',
-          stats: '/status (unified)'
         }
       }
     };
     
-    // Sempre retorna 200 OK, mas com status "unhealthy" no JSON
-    // Isso permite que monitoring services vejam o estado real sem erro HTTP
+    // Sempre retorna 200 OK com status completo
     res.status(200).json(statusData);
     
   } catch (error) {
-    console.error('❌ Erro no endpoint status:', error);
+    console.error('❌ Erro no endpoint:', error);
     res.status(500).json({
       status: 'error',
       error: 'Internal server error',
@@ -224,15 +204,6 @@ app.get('/status', (req, res) => {
       message: error.message
     });
   }
-});
-
-// Endpoints legados (redirecionam para /status)
-app.get('/health', (req, res) => {
-  res.redirect('/status');
-});
-
-app.get('/stats', (req, res) => {
-  res.redirect('/status');
 });
 
 // Função para registrar o cliente do bot
@@ -268,9 +239,6 @@ process.on('SIGINT', () => {
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Servidor de ping rodando na porta ${PORT}`);
-  console.log(`📊 Endpoint principal:`);
-  console.log(`   GET /status  - Status completo e unificado`);
-  console.log(`   GET /        - Redireciona para /status`);
-  console.log(`   GET /health  - Redireciona para /status (legacy)`);
-  console.log(`   GET /stats   - Redireciona para /status (legacy)`);
+  console.log(`📊 Endpoint disponível:`);
+  console.log(`   GET /  - Status completo (health, bot, system, memory)`);
 });

@@ -49,26 +49,29 @@ export default {
                 
                 const { handleStats, handleRefresh, handleList, handleMainMenu } = await import('../commands/steamfamily.js');
                 
+                // Passa o userId para verificação de autorização
+                const userId = interaction.user.id;
+                
                 if (interaction.customId === 'steamfamily_stats') {
-                    await handleStats(interaction.message, true); // true = editMode
+                    await handleStats(interaction.message, true, userId); // true = editMode
                 } else if (interaction.customId === 'steamfamily_refresh') {
-                    await handleRefresh(interaction.message, true); // true = editMode
+                    await handleRefresh(interaction.message, true, userId); // true = editMode
                 } else if (interaction.customId === 'steamfamily_list') {
-                    await handleList(interaction.message, 1, true, 'alphabetical'); // true = editMode
+                    await handleList(interaction.message, 1, true, 'alphabetical', userId); // true = editMode
                 } else if (interaction.customId.startsWith('steamfamily_list_')) {
                     // Formato: steamfamily_list_[page]_[sortType] ou steamfamily_list_[page]
                     const parts = interaction.customId.split('_');
                     const page = parseInt(parts[2]);
                     const sortType = parts[3] || 'alphabetical';
-                    await handleList(interaction.message, page, true, sortType); // true = editMode
+                    await handleList(interaction.message, page, true, sortType, userId); // true = editMode
                 } else if (interaction.customId.startsWith('steamfamily_sort_')) {
                     // Formato: steamfamily_sort_[sortType]_[page]
                     const parts = interaction.customId.split('_');
                     const sortType = parts[2];
                     const page = parseInt(parts[3]) || 1;
-                    await handleList(interaction.message, page, true, sortType); // true = editMode
+                    await handleList(interaction.message, page, true, sortType, userId); // true = editMode
                 } else if (interaction.customId === 'steamfamily_main') {
-                    await handleMainMenu(interaction.message, true); // true = editMode
+                    await handleMainMenu(interaction.message, true, userId); // true = editMode
                 }
                 
             } catch (err) {
@@ -148,6 +151,26 @@ export default {
                     await interaction.followUp({ content: '❌ Erro ao processar ação.', flags: MessageFlags.Ephemeral });
                 } catch (followUpError) {
                     console.error('❌ Erro ao enviar follow-up de erro:', followUpError);
+                }
+            }
+            return;
+        }
+
+        // Handler para botões do steamgamebuy
+        if (interaction.isButton && interaction.isButton() && interaction.customId.startsWith('steamgamebuy_')) {
+            try {
+                const { handleVote } = await import('../commands/steamgamebuy.js');
+                await handleVote(interaction);
+            } catch (err) {
+                console.error('Erro ao processar botão do steamgamebuy:', err);
+                try {
+                    if (!interaction.replied && !interaction.deferred) {
+                        await interaction.reply({ content: '❌ Erro ao processar voto.', flags: MessageFlags.Ephemeral });
+                    } else if (interaction.deferred) {
+                        await interaction.followUp({ content: '❌ Erro ao processar voto.', flags: MessageFlags.Ephemeral });
+                    }
+                } catch (replyError) {
+                    console.error('❌ Erro ao enviar mensagem de erro:', replyError);
                 }
             }
             return;
