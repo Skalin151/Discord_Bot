@@ -1,9 +1,21 @@
 // Sistema de Versões do Bot Discord THK
 // Formato: MAJOR.MINOR.PATCH (Semantic Versioning)
 
-export const CURRENT_VERSION = '2.3.1';
+export const CURRENT_VERSION = '2.3.2';
 
 export const VERSION_HISTORY = [
+  {
+    version: '2.3.2',
+    date: '2025-10-16',
+    title: '🔧 Self Host',
+    type: 'minor',
+    changes: [
+      '🔧 Render deixou de ser usado, agora o bot é hosted num conteiner de docker num server de minha posse',
+    ],
+    fixes: [
+      '🔧 Comand de música removidos indefenidamente'
+    ]
+  },
   {
     version: '2.3.1',
     date: '2025-10-12',

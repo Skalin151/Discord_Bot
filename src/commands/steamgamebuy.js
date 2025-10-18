@@ -51,6 +51,8 @@ export default {
         return await message.channel.send('❌ Jogo não encontrado!');
       }
 
+      console.log(`📝 AppID obtido: ${appid} (type: ${typeof appid})`);
+
       // Verifica se já existe votação ativa para este jogo
       if (activeVotes.has(appid)) {
         return await message.channel.send('⚠️ Já existe uma votação ativa para este jogo!');
@@ -64,10 +66,14 @@ export default {
       const prices = await getSteamPrices(appid);
       const historicalPrice = await getHistoricalLowPrice(appid, prices);
       const familyInfo = checkFamilyShare(appid);
+      const supportsFamilySharing = await checkFamilySharingSupport(appid);
+
+      // Converte appid para string para consistência
+      const appidString = String(appid);
 
       // Cria a votação
       const voteData = {
-        appid,
+        appid: appidString,
         gameName: details.name,
         headerImage: details.header_image,
         priceEUR: prices.euro,
@@ -75,13 +81,16 @@ export default {
         lowestEUR: historicalPrice.lowestEUR,
         lowestUAH: historicalPrice.lowestUAH,
         familyInfo: familyInfo,
+        supportsFamilySharing: supportsFamilySharing,
         voters: new Set([message.author.id]), // Adiciona o criador automaticamente
         initiator: message.author.id,
         messageId: null,
         channelId: message.channel.id
       };
 
-      activeVotes.set(appid, voteData);
+      activeVotes.set(appidString, voteData);
+
+      console.log(`✅ Votação criada - AppID: ${appidString} (type: ${typeof appidString})`);
 
       // Envia a mensagem de votação
       const voteMessage = await sendVoteMessage(message.channel, voteData);
@@ -105,7 +114,7 @@ async function sendVoteMessage(channel, voteData) {
 }
 
 function createVoteEmbed(voteData) {
-  const { gameName, headerImage, priceEUR, priceUAH, lowestEUR, lowestUAH, voters, familyInfo } = voteData;
+  const { gameName, headerImage, priceEUR, priceUAH, lowestEUR, lowestUAH, voters, familyInfo, supportsFamilySharing } = voteData;
   
   const voterCount = voters.size;
   const totalMembers = AUTHORIZED_USERS.length;
@@ -156,15 +165,37 @@ function createVoteEmbed(voteData) {
 
   // Family Share Info
   if (familyInfo && familyInfo.inLibrary) {
+    let sharingText = '✅ **Disponível na biblioteca**';
+    
+    if (supportsFamilySharing === true) {
+      sharingText += ' (🟢 Family Sharing ativo)';
+    } else if (supportsFamilySharing === false) {
+      sharingText += ' (🔴 Family Sharing não suportado)';
+    } else {
+      sharingText += ' (⚪ Status de Family Sharing desconhecido)';
+    }
+    
+    sharingText += `\n👥 ${familyInfo.copies} cópia(s) - ${familyInfo.owners}`;
+    
     embed.addFields({ 
       name: '📚 Family Share', 
-      value: `✅ **Disponível na biblioteca**\n👥 ${familyInfo.copies} cópia(s) - ${familyInfo.owners}`,
+      value: sharingText,
       inline: false 
     });
   } else if (familyInfo && !familyInfo.inLibrary) {
+    let sharingText = '❌ Não disponível na biblioteca';
+    
+    if (supportsFamilySharing === true) {
+      sharingText += ' (🟢 Suporta Family Sharing)';
+    } else if (supportsFamilySharing === false) {
+      sharingText += ' (🔴 Não suporta Family Sharing)';
+    } else {
+      sharingText += ' (⚪ Status de Family Sharing desconhecido)';
+    }
+    
     embed.addFields({ 
       name: '📚 Family Share', 
-      value: '❌ Não disponível na biblioteca',
+      value: sharingText,
       inline: false 
     });
   }
@@ -249,33 +280,77 @@ function createVoteButtons(appid) {
 
 async function handleVote(interaction) {
   const userId = interaction.user.id;
-
-  // Verifica autorização
-  if (!AUTHORIZED_USERS.includes(userId)) {
-    return await interaction.reply({ 
-      content: '🔒 Você não tem permissão para votar nesta compra.', 
-      flags: MessageFlags.Ephemeral
-    });
-  }
-
-  const [, action, appid] = interaction.customId.split('_');
+  const parts = interaction.customId.split('_');
+  const action = parts[1];
+  const appid = parts[2]; // Mantém como string
+  
+  console.log(`🔍 HandleVote - User: ${userId}, Action: ${action}, AppID: ${appid} (type: ${typeof appid})`);
+  console.log(`📋 Votações ativas:`, Array.from(activeVotes.keys()).map(k => `${k} (${typeof k})`));
+  
   const voteData = activeVotes.get(appid);
 
+  // Verifica se a votação existe PRIMEIRO
   if (!voteData) {
+    console.log(`❌ Votação não encontrada para AppID: ${appid}`);
     return await interaction.reply({ 
       content: '❌ Esta votação não está mais ativa.', 
       flags: MessageFlags.Ephemeral
     });
   }
 
+  // Verifica autorização
+  if (!AUTHORIZED_USERS.includes(userId)) {
+    console.log(`🔒 Usuário ${userId} não autorizado`);
+    return await interaction.reply({ 
+      content: '🔒 Você não tem permissão para votar nesta compra.', 
+      flags: MessageFlags.Ephemeral
+    });
+  }
+
+  // Para cancelamento, processar de forma especial
+  if (action === 'cancel') {
+    console.log(`🗑️ Tentativa de cancelamento - Iniciador: ${voteData.initiator}, User: ${userId}`);
+    
+    // Defer update SEMPRE primeiro
+    await interaction.deferUpdate();
+    
+    // Apenas o iniciador pode cancelar
+    if (userId !== voteData.initiator) {
+      console.log(`❌ Usuário não é o iniciador`);
+      return await interaction.followUp({ 
+        content: '❌ Apenas quem iniciou a votação pode cancelá-la.', 
+        flags: MessageFlags.Ephemeral
+      });
+    }
+
+    console.log(`✅ Cancelando votação ${appid}`);
+    
+    // Remove a votação do map
+    activeVotes.delete(appid);
+    
+    const cancelEmbed = new EmbedBuilder()
+      .setTitle(`❌ Compra Cancelada: ${voteData.gameName}`)
+      .setDescription('A votação foi cancelada pelo organizador.')
+      .setColor('#F44336')
+      .setTimestamp();
+
+    // Edita a mensagem removendo os botões
+    await interaction.message.edit({ embeds: [cancelEmbed], components: [] });
+    console.log(`✅ Votação cancelada com sucesso`);
+    return;
+  }
+
+  // Para outras ações (yes/no), defer primeiro
   await interaction.deferUpdate();
 
   if (action === 'yes') {
+    console.log(`✅ Voto SIM de ${userId}`);
     // Adiciona voto
     voteData.voters.add(userId);
     await updateVoteMessage(interaction, voteData);
     
   } else if (action === 'no') {
+    console.log(`❌ Voto NÃO de ${userId}`);
     // Remove voto
     if (voteData.voters.has(userId)) {
       voteData.voters.delete(userId);
@@ -286,26 +361,6 @@ async function handleVote(interaction) {
         flags: MessageFlags.Ephemeral
       });
     }
-    
-  } else if (action === 'cancel') {
-    // Apenas o iniciador ou admin pode cancelar
-    if (userId !== voteData.initiator) {
-      return await interaction.followUp({ 
-        content: '❌ Apenas quem iniciou a votação pode cancelá-la.', 
-        flags: MessageFlags.Ephemeral
-      });
-    }
-
-    // Cancela a votação
-    activeVotes.delete(appid);
-    
-    const cancelEmbed = new EmbedBuilder()
-      .setTitle(`❌ Compra Cancelada: ${voteData.gameName}`)
-      .setDescription('A votação foi cancelada pelo organizador.')
-      .setColor('#F44336')
-      .setTimestamp();
-
-    await interaction.message.edit({ embeds: [cancelEmbed], components: [] });
   }
 }
 
@@ -396,4 +451,27 @@ async function getHistoricalLowPrice(appid, currentPrices) {
   const lowestUAH = currentPrices.uah ? (currentPrices.uah.final / 100) * 0.7 : null;
 
   return { lowestEUR, lowestUAH };
+}
+
+async function checkFamilySharingSupport(appid) {
+  try {
+    // Busca pela página da loja e procura pela tag "Family Sharing"
+    const res = await fetch(`https://store.steampowered.com/app/${appid}`, {
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept-Language': 'en-US,en;q=0.9'
+      }
+    });
+    const html = await res.text();
+    
+    // Procura pela feature "Family Sharing" na página
+    const hasFamilySharing = html.includes('Family Sharing') || 
+                            html.includes('family_sharing') ||
+                            html.includes('>Family Sharing<');
+    
+    return hasFamilySharing;
+  } catch (error) {
+    console.error('Erro ao verificar Family Sharing:', error);
+    return null; // Retorna null se não conseguir verificar
+  }
 }

@@ -163,15 +163,7 @@ export default {
                 await handleVote(interaction);
             } catch (err) {
                 console.error('Erro ao processar botão do steamgamebuy:', err);
-                try {
-                    if (!interaction.replied && !interaction.deferred) {
-                        await interaction.reply({ content: '❌ Erro ao processar voto.', flags: MessageFlags.Ephemeral });
-                    } else if (interaction.deferred) {
-                        await interaction.followUp({ content: '❌ Erro ao processar voto.', flags: MessageFlags.Ephemeral });
-                    }
-                } catch (replyError) {
-                    console.error('❌ Erro ao enviar mensagem de erro:', replyError);
-                }
+                // handleVote já responde à interação, então só logamos o erro
             }
             return;
         }

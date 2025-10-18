@@ -38,7 +38,7 @@ const shopItems = [
     {
         id: 4,
         equipavel: true,
-        nome: 'Golden Horseshow',
+        nome: 'Golden Horseshoe',
         preco: 10000,
         descricao: 'Podes iniciar corridas de cavalos quando quiseres.',
         icon: '🪙',
