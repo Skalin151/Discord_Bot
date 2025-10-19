@@ -17,9 +17,9 @@ AppID,Game Name,Copies,Owners
 360,Half-Life Deathmatch: Source,3,"SkalinARG, Skalin, P3ngu0"
 400,Portal,3,"SkalinARG, Skalin, V2B"
 500,Left 4 Dead,1,SkalinARG
-550,Left 4 Dead 2,4,"SkalinARG, Skalin, Ogidor, V2B"
+550,Left 4 Dead 2,5,"SkalinARG, Skalin, Ogidor, V2B, Santos"
 620,Portal 2,4,"SkalinARG, Skalin, P3ngu0, V2B"
-730,Counter-Strike 2,5,"SkalinARG, Skalin, P3ngu0, Ogidor, V2B"
+730,Counter-Strike 2,6,"SkalinARG, Skalin, P3ngu0, Ogidor, V2B, Santos"
 1250,Killing Floor,1,SkalinARG
 2280,DOOM + DOOM II,1,SkalinARG
 2300,DOOM II,1,SkalinARG
@@ -32,7 +32,7 @@ AppID,Game Name,Copies,Owners
 9070,DOOM 3: Resurrection of Evil,1,SkalinARG
 17390,Spore,1,SkalinARG
 17410,Mirror's Edge,1,SkalinARG
-49520,Borderlands 2,5,"SkalinARG, Skalin, P3ngu0, Ogidor, V2B"
+49520,Borderlands 2,6,"SkalinARG, Skalin, P3ngu0, Ogidor, V2B, Santos"
 113200,The Binding of Isaac,1,SkalinARG
 205230,Hell Yeah!,1,SkalinARG
 206370,Tales from Space: Mutant Blobs Attack,1,SkalinARG
@@ -63,6 +63,7 @@ AppID,Game Name,Copies,Owners
 323850,Move or Die,1,SkalinARG
 330830,Tales from the Borderlands,1,SkalinARG
 354240,"Please, Don’t Touch Anything",1,SkalinARG
+357070,UBERMOSH,1,SkalinARG
 359060,Switch Galaxy Ultra,1,SkalinARG
 359840,Shift Happens,1,SkalinARG
 362930,Garfield Kart,1,SkalinARG
@@ -89,7 +90,7 @@ AppID,Game Name,Copies,Owners
 527230,For The King,1,SkalinARG
 531510,Just Shapes & Beats,1,SkalinARG
 541200,Get To The Orange Door,1,SkalinARG
-548430,Deep Rock Galactic,1,SkalinARG
+548430,Deep Rock Galactic,2,"SkalinARG, Santos"
 549260,Alwa's Awakening,1,SkalinARG
 571740,Golf It!,1,SkalinARG
 572220,MageQuit,1,SkalinARG
@@ -248,7 +249,7 @@ AppID,Game Name,Copies,Owners
 212050,Resonance,1,Skalin
 214340,Deponia,1,Skalin
 218090,Unity of Command,1,Skalin
-218620,PAYDAY 2,3,"Skalin, P3ngu0, Ogidor"
+218620,PAYDAY 2,4,"Skalin, P3ngu0, Ogidor, Santos"
 220440,DmC Devil May Cry,1,Skalin
 220700,RPG Maker VX Ace,1,Skalin
 226620,Desktop Dungeons,1,Skalin
@@ -263,7 +264,7 @@ AppID,Game Name,Copies,Owners
 252370,The Shivah,1,Skalin
 252410,SteamWorld Dig,1,Skalin
 252670,Nihilumbra,1,Skalin
-252950,Rocket League,1,Skalin
+252950,Rocket League,2,"Skalin, Santos"
 253900,Knights and Merchants,1,Skalin
 254040,Pirates of Black Cove Gold,1,Skalin
 259550,Hero of the Kingdom,1,Skalin
@@ -273,7 +274,7 @@ AppID,Game Name,Copies,Owners
 265330,Gomo,1,Skalin
 265930,Goat Simulator,1,Skalin
 268910,Cuphead,1,Skalin
-271590,Grand Theft Auto V Legacy,3,"Skalin, P3ngu0, Ogidor"
+271590,Grand Theft Auto V Legacy,4,"Skalin, P3ngu0, Ogidor, Santos"
 278360,A Story About My Uncle,1,Skalin
 278890,Angvik,1,Skalin
 280160,Aragami,1,Skalin
@@ -310,9 +311,9 @@ AppID,Game Name,Copies,Owners
 343860,Tacoma,1,Skalin
 344740,CRYPTARK,1,Skalin
 346010,Besiege,1,Skalin
-346110,ARK: Survival Evolved,1,Skalin
+346110,ARK: Survival Evolved,2,"Skalin, Santos"
 346560,Hero of the Kingdom II,1,Skalin
-359550,Tom Clancy's Rainbow Six® Siege X,1,Skalin
+359550,Tom Clancy's Rainbow Six® Siege X,2,"Skalin, Santos"
 360030,XLarn,1,Skalin
 361360,Goosebumps,1,Skalin
 367520,Hollow Knight,1,Skalin
@@ -323,7 +324,7 @@ AppID,Game Name,Copies,Owners
 369290,Airport Madness: World Edition,1,Skalin
 371140,Aegis Defenders,1,Skalin
 373600,Weapon of Choice,1,Skalin
-381210,Dead by Daylight,3,"Skalin, P3ngu0, V2B"
+381210,Dead by Daylight,4,"Skalin, P3ngu0, V2B, Santos"
 383180,Dead Island Riptide Definitive Edition,1,Skalin
 383270,Hue,1,Skalin
 383870,Firewatch,1,Skalin
@@ -342,9 +343,9 @@ AppID,Game Name,Copies,Owners
 400170,The Incredible Adventures of Van Helsing: Final Cut,1,Skalin
 405310,LEGO® MARVEL's Avengers,1,Skalin
 406970,The Uncertain: Last Quiet Day,1,Skalin
-407530,ARK: Survival Of The Fittest,2,"Skalin, Ogidor"
+407530,ARK: Survival Of The Fittest,3,"Skalin, Ogidor, Santos"
 410110,12 is Better Than 6,1,Skalin
-413150,Stardew Valley,3,"Skalin, Ogidor, V2B"
+413150,Stardew Valley,4,"Skalin, Ogidor, V2B, Santos"
 418670,Pankapu,2,"Skalin, P3ngu0"
 423230,Furi,1,Skalin
 424840,Little Nightmares,2,"Skalin, P3ngu0"
@@ -354,7 +355,7 @@ AppID,Game Name,Copies,Owners
 428690,Youtubers Life,1,Skalin
 431450,Alchemist's Awakening,1,Skalin
 431710,Space Pilgrim Episode II: Epsilon Indi,1,Skalin
-431960,Wallpaper Engine,2,"Skalin, Ogidor"
+431960,Wallpaper Engine,3,"Skalin, Ogidor, Santos"
 433100,The Town of Light,1,Skalin
 433340,Slime Rancher,1,Skalin
 435790,10 Second Ninja X,1,Skalin
@@ -376,11 +377,11 @@ AppID,Game Name,Copies,Owners
 499440,klocki,1,Skalin
 519860,DUSK,1,Skalin
 544330,Snake Pass,1,Skalin
-544610,Battlestar Galactica Deadlock,2,"Skalin, V2B"
+544610,Battlestar Galactica Deadlock,3,"Skalin, V2B, Santos"
 553850,HELLDIVERS™ 2,1,Skalin
 563190,de Blob 2,1,Skalin
 569610,Distant Space,1,Skalin
-582010,Monster Hunter: World,3,"Skalin, Ogidor, V2B"
+582010,Monster Hunter: World,4,"Skalin, Ogidor, V2B, Santos"
 582660,Black Desert,1,Skalin
 585690,Minimalism,1,Skalin
 600130,Valfaris,1,Skalin
@@ -391,7 +392,7 @@ AppID,Game Name,Copies,Owners
 617670,Zup! S,1,Skalin
 619700,Steel Rats,1,Skalin
 622650,Bendy and the Ink Machine,1,Skalin
-623990,Tom Clancy's Rainbow Six Siege - Test Server,1,Skalin
+623990,Tom Clancy's Rainbow Six Siege - Test Server,2,"Skalin, Santos"
 624690,NEXT JUMP: Shmup Tactics,1,Skalin
 639790,DEEP SPACE WAIFU,1,Skalin
 640590,The LEGO® NINJAGO® Movie Video Game,2,"Skalin, Ogidor"
@@ -467,7 +468,7 @@ AppID,Game Name,Copies,Owners
 994560,Metal Revolution,1,Skalin
 1022310,Warhammer Underworlds - Shadespire Edition,1,Skalin
 1022710,Conglomerate 451,1,Skalin
-1025440,Fantasy General II,2,"Skalin, V2B"
+1025440,Fantasy General II,3,"Skalin, V2B, Santos"
 1030300,Hollow Knight: Silksong,1,Skalin
 1035510,Ultimate Zombie Defense,2,"Skalin, V2B"
 1037020,ScourgeBringer,1,Skalin
@@ -513,7 +514,7 @@ AppID,Game Name,Copies,Owners
 1353230,Bomb Rush Cyberfunk,1,Skalin
 1356040,Ampersat,1,Skalin
 1356280,Kitaria Fables,1,Skalin
-1368870,Field of Glory II: Medieval,2,"Skalin, V2B"
+1368870,Field of Glory II: Medieval,3,"Skalin, V2B, Santos"
 1369520,Strangeland,1,Skalin
 1382330,Persona 5 Strikers,1,Skalin
 1388880,Doki Doki Literature Club Plus!,1,Skalin
@@ -581,9 +582,9 @@ AppID,Game Name,Copies,Owners
 3016800,Mecha BREAK Playtest,1,Skalin
 3028500,Cakey's Twisted Bakery,1,Skalin
 3062930,Unplagued,1,Skalin
-3065170,Monster Hunter Wilds Beta test,3,"Skalin, Ogidor, V2B"
+3065170,Monster Hunter Wilds Beta test,4,"Skalin, Ogidor, V2B, Santos"
 3213920,13Z Playtest,1,Skalin
-3240220,Grand Theft Auto V Enhanced,3,"Skalin, P3ngu0, Ogidor"
+3240220,Grand Theft Auto V Enhanced,4,"Skalin, P3ngu0, Ogidor, Santos"
 3241660,R.E.P.O.,1,Skalin
 3405340,Megabonk,1,Skalin
 3463050,Dreams of Aether,1,Skalin
@@ -593,16 +594,17 @@ AppID,Game Name,Copies,Owners
 351510,Quiplash,1,P3ngu0
 729720,Zomborg,2,"P3ngu0, V2B"
 739630,Phasmophobia,1,P3ngu0
-945360,Among Us,1,P3ngu0
+945360,Among Us,2,"P3ngu0, Santos"
 1515950,Capcom Arcade Stadium,1,P3ngu0
 1599600,PlateUp!,1,P3ngu0
 1671210,DELTARUNE,1,P3ngu0
 2076040,THE FINALS PLAYTEST,1,P3ngu0
+2149010,Little Nightmares Enhanced Edition,1,P3ngu0
 2638370,Five Nights at Freddy's: Into the Pit,1,P3ngu0
 12200,Bully: Scholarship Edition,1,Ogidor
 48190,Assassin's Creed Brotherhood,1,Ogidor
 201870,Assassin's Creed Revelations,1,Ogidor
-203160,Tomb Raider,1,Ogidor
+203160,Tomb Raider,2,"Ogidor, Santos"
 209080,Guns of Icarus Online,1,Ogidor
 234140,Mad Max,1,Ogidor
 262060,Darkest Dungeon®,1,Ogidor
@@ -612,7 +614,7 @@ AppID,Game Name,Copies,Owners
 1030840,Mafia: Definitive Edition,1,Ogidor
 1151640,Horizon Zero Dawn™ Complete Edition,1,Ogidor
 1198730,Hentai Police,1,Ogidor
-1222680,Need for Speed™ Heat ,2,"Ogidor, V2B"
+1222680,Need for Speed™ Heat ,3,"Ogidor, V2B, Santos"
 2161700,Persona 3 Reload,1,Ogidor
 2272250,Forgive Me Father 2,1,Ogidor
 7670,BioShock,1,V2B
@@ -628,4 +630,16 @@ AppID,Game Name,Copies,Owners
 1262580,Need for Speed™ Payback,1,V2B
 2138710,Sifu,1,V2B
 2679460,Metaphor: ReFantazio,1,V2B
+2680010,The First Berserker: Khazan,1,V2B
 3081410,Battlefield™ 6 Open Beta,1,V2B
+217490,Borderlands 2 RU,1,Santos
+220240,Far Cry® 3,1,Santos
+349040,NARUTO SHIPPUDEN: Ultimate Ninja STORM 4,1,Santos
+361420,ASTRONEER,1,Santos
+377160,Fallout 4,1,Santos
+845070,The Awesome Adventures of Captain Spirit,1,Santos
+1172620,Sea of Thieves,1,Santos
+1174180,Red Dead Redemption 2,1,Santos
+1551360,Forza Horizon 5,1,Santos
+2215430,Ghost of Tsushima DIRECTOR'S CUT,1,Santos
+3504830,Wildgate Community Preview,1,Santos
