@@ -83,6 +83,7 @@ export default {
         familyInfo: familyInfo,
         supportsFamilySharing: supportsFamilySharing,
         voters: new Set([message.author.id]), // Adiciona o criador automaticamente
+        noVoters: new Set(), // Rastreia votos "NÃO"
         initiator: message.author.id,
         messageId: null,
         channelId: message.channel.id
@@ -114,9 +115,10 @@ async function sendVoteMessage(channel, voteData) {
 }
 
 function createVoteEmbed(voteData) {
-  const { gameName, headerImage, priceEUR, priceUAH, lowestEUR, lowestUAH, voters, familyInfo, supportsFamilySharing } = voteData;
+  const { gameName, headerImage, priceEUR, priceUAH, lowestEUR, lowestUAH, voters, noVoters, familyInfo, supportsFamilySharing } = voteData;
   
   const voterCount = voters.size;
+  const noVoterCount = noVoters.size;
   const totalMembers = AUTHORIZED_USERS.length;
 
   const embed = new EmbedBuilder()
@@ -237,24 +239,40 @@ function createVoteEmbed(voteData) {
     } // Spacer
   );
 
-  // Lista de votantes
+  // Lista de votantes SIM
   if (voterCount > 0) {
     const votersList = Array.from(voters).map(id => `<@${id}>`).join(', ');
     embed.addFields({ 
       name: '✅ Votaram SIM', 
       value: votersList, 
-      inline: false 
+      inline: true 
     });
   } else {
     embed.addFields({ 
       name: '✅ Votaram SIM', 
-      value: '*Ninguém votou ainda...*', 
-      inline: false 
+      value: '*Ninguém votou SIM...*', 
+      inline: true 
+    });
+  }
+
+  // Lista de votantes NÃO
+  if (noVoterCount > 0) {
+    const noVotersList = Array.from(noVoters).map(id => `<@${id}>`).join(', ');
+    embed.addFields({ 
+      name: '❌ Votaram NÃO', 
+      value: noVotersList, 
+      inline: true 
+    });
+  } else {
+    embed.addFields({ 
+      name: '❌ Votaram NÃO', 
+      value: '*Ninguém votou NÃO...*', 
+      inline: true 
     });
   }
 
   embed.setFooter({ 
-    text: '💡 Clique em "SIM" para participar da compra ou "NÃO" para sair da votação' 
+    text: '💡 Clique em "SIM" para participar da compra ou "NÃO" para recusar' 
   });
 
   return embed;
@@ -345,22 +363,17 @@ async function handleVote(interaction) {
 
   if (action === 'yes') {
     console.log(`✅ Voto SIM de ${userId}`);
-    // Adiciona voto
+    // Adiciona voto SIM e remove de NÃO se estiver lá
     voteData.voters.add(userId);
+    voteData.noVoters.delete(userId);
     await updateVoteMessage(interaction, voteData);
     
   } else if (action === 'no') {
     console.log(`❌ Voto NÃO de ${userId}`);
-    // Remove voto
-    if (voteData.voters.has(userId)) {
-      voteData.voters.delete(userId);
-      await updateVoteMessage(interaction, voteData);
-    } else {
-      return await interaction.followUp({ 
-        content: 'ℹ️ Você não estava participando desta compra.', 
-        flags: MessageFlags.Ephemeral
-      });
-    }
+    // Adiciona voto NÃO e remove de SIM se estiver lá
+    voteData.noVoters.add(userId);
+    voteData.voters.delete(userId);
+    await updateVoteMessage(interaction, voteData);
   }
 }
 
