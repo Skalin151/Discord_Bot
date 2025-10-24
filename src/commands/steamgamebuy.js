@@ -5,6 +5,7 @@ import { getConsistentImageSize } from '../utils/embedUtils.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import SteamVote from '../models/SteamVote.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,8 +20,40 @@ if (AUTHORIZED_USERS.length === 0) {
 }
 // ========================================
 
-// Map para armazenar votações ativas (gameId -> votação)
+// Map para armazenar votações ativas em cache (performance)
 const activeVotes = new Map();
+
+// Carrega votações do DB ao iniciar
+async function loadActiveVotes() {
+  try {
+    const votes = await SteamVote.find({});
+    votes.forEach(vote => {
+      activeVotes.set(vote.appid, {
+        appid: vote.appid,
+        gameName: vote.gameName,
+        headerImage: vote.headerImage,
+        priceEUR: vote.priceEUR,
+        priceUAH: vote.priceUAH,
+        priceUAHinEUR: vote.priceUAHinEUR,
+        lowestEUR: vote.lowestEUR,
+        lowestUAH: vote.lowestUAH,
+        familyInfo: vote.familyInfo,
+        supportsFamilySharing: vote.supportsFamilySharing,
+        voters: new Set(vote.voters),
+        noVoters: new Set(vote.noVoters),
+        initiator: vote.initiator,
+        messageId: vote.messageId,
+        channelId: vote.channelId
+      });
+    });
+    console.log(`✅ ${votes.length} votações carregadas do banco de dados`);
+  } catch (error) {
+    console.error('❌ Erro ao carregar votações:', error);
+  }
+}
+
+// Carrega votações ao importar o módulo
+loadActiveVotes();
 
 export default {
   name: 'steamgamebuy',
@@ -53,8 +86,11 @@ export default {
 
       console.log(`📝 AppID obtido: ${appid} (type: ${typeof appid})`);
 
+      // Converte appid para string para consistência
+      const appidString = String(appid);
+
       // Verifica se já existe votação ativa para este jogo
-      if (activeVotes.has(appid)) {
+      if (activeVotes.has(appidString)) {
         return await message.channel.send('⚠️ Já existe uma votação ativa para este jogo!');
       }
 
@@ -68,8 +104,15 @@ export default {
       const familyInfo = checkFamilyShare(appid);
       const supportsFamilySharing = await checkFamilySharingSupport(appid);
 
-      // Converte appid para string para consistência
-      const appidString = String(appid);
+      // Converte preço UAH para EUR para cálculos
+      let priceUAHinEUR = null;
+      if (prices.uah) {
+        const finalUAH = prices.uah.final / 100;
+        priceUAHinEUR = await convertUAHtoEUR(finalUAH);
+      }
+
+      // Converte appid para string para consistência (já feito acima)
+      // const appidString = String(appid);
 
       // Cria a votação
       const voteData = {
@@ -78,6 +121,7 @@ export default {
         headerImage: details.header_image,
         priceEUR: prices.euro,
         priceUAH: prices.uah,
+        priceUAHinEUR: priceUAHinEUR, // Preço UAH convertido para EUR
         lowestEUR: historicalPrice.lowestEUR,
         lowestUAH: historicalPrice.lowestUAH,
         familyInfo: familyInfo,
@@ -91,11 +135,45 @@ export default {
 
       activeVotes.set(appidString, voteData);
 
+      // Salva no banco de dados
+      try {
+        await SteamVote.create({
+          appid: appidString,
+          gameName: details.name,
+          headerImage: details.header_image,
+          priceEUR: prices.euro,
+          priceUAH: prices.uah,
+          priceUAHinEUR: priceUAHinEUR,
+          lowestEUR: historicalPrice.lowestEUR,
+          lowestUAH: historicalPrice.lowestUAH,
+          familyInfo: familyInfo,
+          supportsFamilySharing: supportsFamilySharing,
+          voters: [message.author.id],
+          noVoters: [],
+          initiator: message.author.id,
+          channelId: message.channel.id
+        });
+        console.log(`💾 Votação salva no banco de dados`);
+      } catch (dbError) {
+        console.error('❌ Erro ao salvar votação no DB:', dbError);
+        // Continua mesmo se o DB falhar
+      }
+
       console.log(`✅ Votação criada - AppID: ${appidString} (type: ${typeof appidString})`);
 
       // Envia a mensagem de votação
       const voteMessage = await sendVoteMessage(message.channel, voteData);
       voteData.messageId = voteMessage.id;
+
+      // Atualiza messageId no banco de dados
+      try {
+        await SteamVote.updateOne(
+          { appid: appidString },
+          { messageId: voteMessage.id }
+        );
+      } catch (dbError) {
+        console.error('❌ Erro ao atualizar messageId no DB:', dbError);
+      }
 
     } catch (error) {
       console.error('Erro no comando steamgamebuy:', error);
@@ -105,7 +183,7 @@ export default {
 };
 
 // Exporta funções para o handler de botões
-export { handleVote, AUTHORIZED_USERS };
+export { handleVote, AUTHORIZED_USERS, loadActiveVotes };
 
 async function sendVoteMessage(channel, voteData) {
   const embed = createVoteEmbed(voteData);
@@ -115,7 +193,7 @@ async function sendVoteMessage(channel, voteData) {
 }
 
 function createVoteEmbed(voteData) {
-  const { gameName, headerImage, priceEUR, priceUAH, lowestEUR, lowestUAH, voters, noVoters, familyInfo, supportsFamilySharing } = voteData;
+  const { gameName, headerImage, priceEUR, priceUAH, priceUAHinEUR, lowestEUR, lowestUAH, voters, noVoters, familyInfo, supportsFamilySharing } = voteData;
   
   const voterCount = voters.size;
   const noVoterCount = noVoters.size;
@@ -142,10 +220,6 @@ function createVoteEmbed(voteData) {
     currentPriceEUR = priceEUR.discount_percent > 0
       ? `~~${(priceEUR.initial / 100).toFixed(2)}€~~ **${finalEUR.toFixed(2)}€** (-${priceEUR.discount_percent}%)`
       : `**${finalEUR.toFixed(2)}€**`;
-    
-    if (voterCount > 0) {
-      splitPriceEUR = `**${(finalEUR / voterCount).toFixed(2)}€** por pessoa`;
-    }
   }
 
   if (priceUAH) {
@@ -154,7 +228,10 @@ function createVoteEmbed(voteData) {
       ? `~~${(priceUAH.initial / 100).toFixed(2)}₴~~ **${finalUAH.toFixed(2)}₴** (-${priceUAH.discount_percent}%)`
       : `**${finalUAH.toFixed(2)}₴**`;
     
-    if (voterCount > 0) {
+    // Calcula divisão usando preço UAH convertido para EUR (já pré-calculado)
+    if (voterCount > 0 && priceUAHinEUR) {
+      const priceInEUR = parseFloat(priceUAHinEUR);
+      splitPriceEUR = `**${(priceInEUR / voterCount).toFixed(2)}€** por pessoa`;
       splitPriceUAH = `**${(finalUAH / voterCount).toFixed(2)}₴** por pessoa`;
     }
   }
@@ -343,8 +420,15 @@ async function handleVote(interaction) {
 
     console.log(`✅ Cancelando votação ${appid}`);
     
-    // Remove a votação do map
+    // Remove a votação do map e do banco de dados
     activeVotes.delete(appid);
+    
+    try {
+      await SteamVote.deleteOne({ appid: appid });
+      console.log(`💾 Votação removida do banco de dados`);
+    } catch (dbError) {
+      console.error('❌ Erro ao remover votação do DB:', dbError);
+    }
     
     const cancelEmbed = new EmbedBuilder()
       .setTitle(`❌ Compra Cancelada: ${voteData.gameName}`)
@@ -366,6 +450,20 @@ async function handleVote(interaction) {
     // Adiciona voto SIM e remove de NÃO se estiver lá
     voteData.voters.add(userId);
     voteData.noVoters.delete(userId);
+    
+    // Atualiza no banco de dados
+    try {
+      await SteamVote.updateOne(
+        { appid: appid },
+        { 
+          voters: Array.from(voteData.voters),
+          noVoters: Array.from(voteData.noVoters)
+        }
+      );
+    } catch (dbError) {
+      console.error('❌ Erro ao atualizar voto no DB:', dbError);
+    }
+    
     await updateVoteMessage(interaction, voteData);
     
   } else if (action === 'no') {
@@ -373,6 +471,20 @@ async function handleVote(interaction) {
     // Adiciona voto NÃO e remove de SIM se estiver lá
     voteData.noVoters.add(userId);
     voteData.voters.delete(userId);
+    
+    // Atualiza no banco de dados
+    try {
+      await SteamVote.updateOne(
+        { appid: appid },
+        { 
+          voters: Array.from(voteData.voters),
+          noVoters: Array.from(voteData.noVoters)
+        }
+      );
+    } catch (dbError) {
+      console.error('❌ Erro ao atualizar voto no DB:', dbError);
+    }
+    
     await updateVoteMessage(interaction, voteData);
   }
 }
